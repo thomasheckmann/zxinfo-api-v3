@@ -14,5 +14,13 @@ console.log("#");
 console.log("# CONFIG DUMP #################################################");
 console.log(JSON.stringify(appConfig[process.env.NODE_ENV], null, 2));
 console.log("###############################################################");
+console.log("#");
+
+
+app.get('/', (req, res) => {
+	console.log(req.path);
+  res.send('Hello World!');
+});
+
 
 module.exports = app;
