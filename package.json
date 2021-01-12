@@ -2,8 +2,9 @@
   "name": "zxinfo-api-v3",
   "version": "1.0.0",
   "description": "ZXDB API v3",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+      "start": "node ./bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/thomasheckmann/zxinfo-api-v3/issues"
   },
-  "homepage": "https://github.com/thomasheckmann/zxinfo-api-v3#readme"
+  "homepage": "https://github.com/thomasheckmann/zxinfo-api-v3#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

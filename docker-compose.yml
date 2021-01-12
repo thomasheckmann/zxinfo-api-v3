@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  zxinfo-es:
+    image: "blacktop/elasticsearch:7.9"
+    ports:
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
+    expose:
+      - "9200"
+      - "9300"
+    networks:
+      - zxinfo_net
+      
+  zxinfo-api-v3:
+    depends_on:
+      - zxinfo-es
+    build:
+      context: ../zxinfo-api-v3
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:8300:3000"
+    expose:
+      - "8300"
+    links:
+      - "zxinfo-es"
+    environment:
+      NODE_ENV: container
+    networks:
+      - zxinfo_net
+      
+networks:
+  zxinfo_net:
+    driver: bridge
+
