@@ -1,5 +1,8 @@
 var express = require("express");
 var app = express();
+
+var path = require("path");
+
 var appConfig = require("./config.json");
 
 /* ROUTES */
@@ -19,6 +22,9 @@ console.log(JSON.stringify(appConfig[process.env.NODE_ENV], null, 2));
 console.log("###############################################################");
 console.log("#");
 
+app.use(express.static(path.join(__dirname, "public")));
+
+// ROUTES
 app.use("/v3/games/", games);
 
 app.get("/", (req, res) => {
