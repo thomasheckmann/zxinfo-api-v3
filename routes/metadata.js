@@ -132,6 +132,8 @@ router.use(function (req, res, next) {
 
 router.get("/", function (req, res, next) {
   debug("==> /metadata");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   getMetaData(null).then(function (result) {
     res.send(processMetaData(result));
     //res.send(result);
