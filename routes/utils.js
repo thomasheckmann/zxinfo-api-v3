@@ -15,7 +15,7 @@ var getSortObject = function (sort_mode) {
   if (sort_mode === "title_asc") {
     sort_object = [
       {
-        "fulltitle.raw": {
+        "title.keyword": {
           order: "asc",
         },
       },
@@ -23,7 +23,7 @@ var getSortObject = function (sort_mode) {
   } else if (sort_mode === "title_desc") {
     sort_object = [
       {
-        "fulltitle.raw": {
+        "title.keyword": {
           order: "desc",
         },
       },
@@ -72,7 +72,7 @@ var getSortObject = function (sort_mode) {
         },
       },
       {
-        "fulltitle.raw": {
+        "title.keyword": {
           order: "asc",
         },
       },
@@ -85,7 +85,7 @@ var getSortObject = function (sort_mode) {
         },
       },
       {
-        "fulltitle.raw": {
+        "title.keyword": {
           order: "asc",
         },
       },
@@ -161,17 +161,20 @@ var es_source_list = function (outputmode) {
   }
 
   var source_includes = [
-    "fulltitle",
-    "yearofrelease",
-    "monthofrelease",
-    "dayofrelease",
-    "type",
-    "subtype",
+    "title",
+    "originalYearOfRelease",
+    "originalMonthOfRelease",
+    "originalDayOfRelease",
+    "score",
+    "genre",
+    "genreType",
+    "genreSubType",
     "authors",
-    "publisher",
-    "releases.publisher",
-    "machinetype",
+    "publishers",
+    "releases.publishers",
+    "machineType",
     "availability",
+    "additionalDownloads",
     "screens",
   ];
 

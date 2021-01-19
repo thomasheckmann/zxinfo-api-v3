@@ -87,3 +87,123 @@ paths:
         500:
           description: Something went wrong.
 
+  /search:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "General search for entries"
+      description: |
+        Returns a List of entries matching input filters.
+
+        The search will match given input in the following document properties:
+          * title
+          * publishers
+          * authors
+          * author groups
+          * re-release title
+          * re-release publisher
+
+        Original entries are prioritized over modified versions.
+        Additional options can be specified to futher narrow down search.
+
+      operationId: "search"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "query"
+          in: query
+          description: "something to query for"
+          type: string
+          required: false
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
+          required: false
+          default: "compact"
+          type: string
+        - name: sort
+          in: query
+          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc, rel_asc or rel_desc. rel_asc/desc sorts on relevance scoring from Elasticsearch
+          required: false
+          default: "rel_desc"
+          type: string
+        - name: "contenttype"
+          in: query
+          description: "Filter by contenttype: SOFTWARE, HARDWARE, BOOK"
+          type: string
+          required: false
+        - name: "language"
+          in: query
+          description: "Filter by language: English, Spanish, ..."
+          type: string
+          required: false
+        - name: "year"
+          in: query
+          description: "Filter by year of release"
+          type: string
+          required: false
+        - name: "genretype"
+          in: query
+          description: "Filter by genretype, e.g. 'Arcade Game'"
+          type: string
+          required: false
+        - name: "genresubtype"
+          in: query
+          description: "Filter by genresubtype, e.g. 'Action'"
+          type: string
+          required: false
+        - name: "machinetype"
+          in: query
+          description: "Filter by machinetype, e.g. 'ZX-Spectrum 48K'"
+          type: string
+          required: false
+        - name: "controls"
+          in: query
+          description: "Filter by controls, e.g. 'Kempston'"
+          type: string
+          required: false
+        - name: "multiplayermode"
+          in: query
+          description: "Filter by multiplayermode, e.g. 'Turn based'"
+          type: string
+          required: false
+        - name: "multiplayertype"
+          in: query
+          description: "Filter by multiplayertype, e.g. 'Versus'"
+          type: string
+          required: false
+        - name: "originalpublication"
+          in: query
+          description: "Filter by originalpublication, e.g. 'Type-in'"
+          type: string
+          required: false
+        - name: "availability"
+          in: query
+          description: "Filter by availability, e.g. 'Never released'"
+          type: string
+          required: false
+        - name: "group"
+          in: query
+          description: "Filter by group. See ZXDB documentation"
+          type: string
+          required: false
+        - name: "groupname"
+          in: query
+          description: "Filter by groupname. See ZXDB documentation"
+          type: string
+          required: false
+        - name: size
+          in: query
+          description: Specifies the page size for pagination. If used in combination with offset=random, max value allowed is 10.
+          required: true
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination. If 'random' used in combination with size to fetct random documents.
+          required: true
+          type: integer
+      responses:
+        # Response code
+        200:
+          description: "successful operation, JSON document with details"
+

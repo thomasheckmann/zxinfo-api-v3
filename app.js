@@ -7,6 +7,8 @@ var appConfig = require("./config.json");
 
 /* ROUTES */
 var games = require("./routes/games");
+var suggest = require("./routes/suggest");
+var search = require("./routes/search");
 
 if (process.env.NODE_ENV === undefined) {
   console.log("NODE_ENV not defined, must be 'development' or 'production'");
@@ -26,6 +28,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // ROUTES
 app.use("/v3/games/", games);
+app.use("/v3/suggest/", suggest);
+app.use("/v3/search/", search);
 
 app.get("/", (req, res) => {
   console.log("[CATCH ALL]");
