@@ -132,18 +132,10 @@ router.use(function (req, res, next) {
 
 router.get("/", function (req, res, next) {
   debug("==> /metadata");
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   getMetaData(null).then(function (result) {
     res.send(processMetaData(result));
     //res.send(result);
   });
-});
-
-router.get("/", (req, res) => {
-  console.log(`[CATCH ALL - ${moduleId}]`);
-  console.log(req.path);
-  res.send(`Hello World from /${moduleId}`);
 });
 
 module.exports = router;
