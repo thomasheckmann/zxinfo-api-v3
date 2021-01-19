@@ -295,10 +295,13 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
   var contenttype_should = createFilterItem("contentType", searchObject.contenttype);
   filterObjects["contenttype"] = contenttype_should;
 
+  //  var type_should = createFilterItem("type", searchObject.type);
+  //  filterObjects["type"] = type_should;
+
   var genretype_should = createFilterItem("genreType", searchObject.genretype);
   filterObjects["genretype"] = genretype_should;
 
-  var genresubtype_should = createFilterItem("subtype", searchObject.genresubtype);
+  var genresubtype_should = createFilterItem("genreSubType", searchObject.genresubtype);
   filterObjects["genresubtype"] = genresubtype_should;
 
   var machinetype_should = createFilterItem("machineType", searchObject.machinetype);
@@ -319,9 +322,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
   var availability_should = createFilterItem("availability", searchObject.availability);
   filterObjects["availability"] = availability_should;
 
-  var type_should = createFilterItem("type", searchObject.type);
-  filterObjects["type"] = type_should;
-
   var language_should = createFilterItem("language", searchObject.language);
   filterObjects["language"] = language_should;
 
@@ -332,7 +332,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
 
     -- (C)ompetition - Tron256(17819) - competition
     -- (F)eature - Lunar Jetman(9372) - features
-    -- (M)ajor Clone - Gulpman(2175) - majorclone
     -- (N)amed - LED Storm(9369) - series
     -- (T)hemed - Valhalla(7152) - themedgroup
     -- (U)Unnamed - Alpha-Beth(10966) - unsortedgroup
@@ -345,14 +344,12 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     grouptype_id = "competition";
   } else if (searchObject.group === "F") {
     grouptype_id = "features";
-  } else if (searchObject.group === "M") {
-    grouptype_id = "majorclone";
   } else if (searchObject.group === "N") {
     grouptype_id = "series";
   } else if (searchObject.group === "T") {
-    grouptype_id = "themedgroup";
+    grouptype_id = "themedGroup";
   } else if (searchObject.group === "U") {
-    grouptype_id = "unsortedgroup";
+    grouptype_id = "unsortedGroup";
   }
 
   var groupandname_must = {};
@@ -392,6 +389,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
   var aggfilter = [
     query,
     contenttype_should,
+    genretype_should,
     genresubtype_should,
     machinetype_should,
     controls_should,
@@ -399,7 +397,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     multiplayertype_should,
     originalpublication_should,
     availability_should,
-    type_should,
     language_should,
     year_should,
   ];
@@ -602,7 +599,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
             type: {
               filter: {
                 bool: {
-                  must: removeFilter(aggfilter, type_should),
+                  must: removeFilter(aggfilter, genretype_should),
                 },
               },
               aggregations: {
@@ -610,6 +607,24 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                   terms: {
                     size: 100,
                     field: "genreType",
+                    order: {
+                      _key: "asc",
+                    },
+                  },
+                },
+              },
+            },
+            subtype: {
+              filter: {
+                bool: {
+                  must: removeFilter(aggfilter, genresubtype_should),
+                },
+              },
+              aggregations: {
+                filtered_type: {
+                  terms: {
+                    size: 100,
+                    field: "genreSubType",
                     order: {
                       _key: "asc",
                     },
