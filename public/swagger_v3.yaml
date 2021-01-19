@@ -213,8 +213,7 @@ paths:
         - "zxinfo"
       summary: "Returns list of suggestions"
       description: |
-        Fetches a list of suggestions for input term:
-        Generates suggestions for titles, publishers and authors.
+        Fetches a list of suggestions for input term. Returns suggestions for titles, publishers and authors to be used in type-as-you-go search fields.
 
       operationId: "getSuggestions"
       produces:
