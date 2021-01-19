@@ -207,3 +207,25 @@ paths:
         200:
           description: "successful operation, JSON document with details"
 
+  /suggest/{term}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Returns list of suggestions"
+      description: |
+        Fetches a list of suggestions for input term:
+        Generates suggestions for titles, publishers and authors.
+
+      operationId: "getSuggestions"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "term"
+          in: path
+          description: input for suggestions
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: OK
