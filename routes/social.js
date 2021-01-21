@@ -26,7 +26,7 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-const media_url = "https://zxinfo.dk/media";
+const media_url = "http://zxinfo.dk/media";
 const books_url = "https://archive.zx-spectrum.org.uk/WoS";
 const hw_url = "https://archive.zx-spectrum.org.uk";
 
