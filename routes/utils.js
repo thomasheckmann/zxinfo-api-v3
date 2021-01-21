@@ -31,17 +31,17 @@ var getSortObject = function (sort_mode) {
   } else if (sort_mode === "date_asc") {
     sort_object = [
       {
-        yearofrelease: {
+        originalYearOfRelease: {
           order: "asc",
         },
       },
       {
-        monthofrelease: {
+        originalMonthOfRelease: {
           order: "asc",
         },
       },
       {
-        dayofrelease: {
+        originalDayOfRelease: {
           order: "asc",
         },
       },
@@ -49,17 +49,17 @@ var getSortObject = function (sort_mode) {
   } else if (sort_mode === "date_desc") {
     sort_object = [
       {
-        yearofrelease: {
+        originalYearOfRelease: {
           order: "desc",
         },
       },
       {
-        monthofrelease: {
+        originalMonthOfRelease: {
           order: "desc",
         },
       },
       {
-        dayofrelease: {
+        originalDayOfRelease: {
           order: "desc",
         },
       },
