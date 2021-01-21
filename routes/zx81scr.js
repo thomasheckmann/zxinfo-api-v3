@@ -16,7 +16,7 @@ var router = express.Router();
 var debug = require("debug")("zxinfo-services:scr");
 
 const Jimp = require("jimp");
-const zx81 = require("./zx81scr");
+const zx81 = require("./zx81scr_utils");
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["bmp", "png", "s81", "scr"];
