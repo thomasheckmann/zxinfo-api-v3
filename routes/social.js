@@ -1,5 +1,8 @@
 /**
  * NODE_ENV=development PORT=8300 DEBUG=zxinfo-api-v3:moduleId* nodemon --ignorpublic/javascripts/config.js --exec npm start
+ *
+ *
+ * https://developers.facebook.com/docs/sharing/webmasters/
  */
 
 "use strict";
@@ -23,6 +26,46 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
+const media_url = "https://zxinfo.dk/media";
+const books_url = "https://archive.zx-spectrum.org.uk/WoS";
+const hw_url = "https://archive.zx-spectrum.org.uk";
+
+var getGameById = function (gameid) {
+  debug(`social.js - getGameById(${gameid})`);
+  return elasticClient.get({
+    index: es_index,
+    id: gameid,
+  });
+};
+
+function loadscreen(source) {
+  // iterate all additionals to find loading screen, if any
+  var loadscreen = null;
+  if (source.type == "Compilation") {
+    loadscreen = "/images/compilation.png";
+  } else if (typeof source.screens != "undefined") {
+    var idx = 0;
+    var screen = null;
+    for (; loadscreen == null && idx < source.screens.length; idx++) {
+      if ("Loading screen" == source.screens[idx].type && "Picture" == source.screens[idx].format) {
+        loadscreen = source.screens[idx].url;
+      }
+    }
+  }
+
+  if (loadscreen == null) {
+    loadscreen = media_url + "/images/empty.png";
+  } else if (source.contenttype == "BOOK") {
+    loadscreen = books_url + loadscreen;
+  } else if (source.contenttype == "HARDWARE") {
+    loadscreen = hw_url + loadscreen;
+  } else {
+    loadscreen = media_url + loadscreen;
+  }
+
+  return loadscreen;
+}
+
 /************************************************
  *
  * common to use for all requests
@@ -45,7 +88,56 @@ router.use(function (req, res, next) {
 
 router.get("/details/:gameid", (req, res) => {
   console.log(`social.js /details:gameid - ${req.params.gameid}]`);
-  console.log(req.path);
+  getGameById(req.params.gameid).then(function (result) {
+    var og_url = "https://zxinfo.dk/details/" + req.params.gameid;
+    var og_title = result._source.title;
+    var og_image = loadscreen(result._source);
+    og_image = `${og_image}`;
+    //og_image = `https://zxinfo.dk/social/m?url=${og_image}`;
+    var og_image_type = "image/jpeg";
+    if (og_image.endsWith("png")) {
+      og_image_type = "image/png";
+    } else if (og_image.endsWith("gif")) {
+      og_image_type = "image/gif";
+    }
+
+    var og_description;
+    if (result._source.machinetype === null) {
+      og_description =
+        result._source.type + " - " + result._source.releases[0].publisher + "(" + result._source.yearofrelease + ")";
+    } else {
+      og_description =
+        result._source.machinetype +
+        ", " +
+        result._source.type +
+        " - " +
+        result._source.releases[0].publisher +
+        "(" +
+        result._source.yearofrelease +
+        ")";
+    }
+
+    var html = `<html><head><title>ZXInfo - The open source ZXDB frontend</title>`;
+    html += `<meta property="og:url" content="https://zxinfo.dk/details/0002259" />`;
+    html += `<meta property="og:type" content="article" />`;
+    html += `<meta property="og:title" content="${og_title}" />`;
+    html += `<meta property="og:description" content="${og_description}" />`;
+    html += `<meta property="og:image" content="${og_image}" />`;
+    html += `<meta property="og:image:type" content="${og_image_type}" />`;
+    html += `</head></html >`;
+
+    res.send(html);
+    /*
+    res.render("social", {
+      title: "ZXInfo - The open source ZXDB frontend",
+      og_url: og_url,
+      og_title: og_title,
+      og_image: og_image,
+      og_image_type: og_image_type,
+      og_description: og_description,
+	});
+	  */
+  });
 });
 
 module.exports = router;
