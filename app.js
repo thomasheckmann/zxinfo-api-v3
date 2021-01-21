@@ -15,6 +15,7 @@ var search = require("./routes/search");
 var metadata = require("./routes/metadata");
 var authors = require("./routes/authors");
 var publishers = require("./routes/publishers");
+var social = require("./routes/social");
 
 if (process.env.NODE_ENV === undefined) {
   console.log("NODE_ENV not defined, must be 'development' or 'production'");
@@ -39,6 +40,7 @@ app.use("/v3/search/", search);
 app.use("/v3/metadata/", metadata);
 app.use("/v3/authors/", authors);
 app.use("/v3/publishers/", publishers);
+app.use("/social/", social);
 
 app.get("/", (req, res) => {
   console.log("[CATCH ALL]");
