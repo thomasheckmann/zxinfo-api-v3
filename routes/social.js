@@ -107,13 +107,13 @@ router.get("/details/:gameid", (req, res) => {
         result._source.type + " - " + result._source.releases[0].publisher + "(" + result._source.yearofrelease + ")";
     } else {
       og_description =
-        result._source.machinetype +
+        result._source.machineType +
         ", " +
-        result._source.type +
+        result._source.genre +
         " - " +
-        result._source.releases[0].publisher +
+        result._source.publishers[0].name +
         "(" +
-        result._source.yearofrelease +
+        result._source.originalYearOfRelease +
         ")";
     }
 
