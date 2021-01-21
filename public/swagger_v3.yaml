@@ -207,6 +207,116 @@ paths:
         200:
           description: "successful operation, JSON document with details"
 
+  /authors/{author-name}/games:
+    get:
+      summary: "Fetches list of entries filtered by author"
+      description: |
+        Fetches list of entries from a specific author, including:
+        * author.name
+        * authors.group
+
+      tags:
+        - "zxinfo"
+      parameters:
+        - name: author-name
+          in: path
+          description: Specifies name of author to lookup
+          required: true
+          type: string
+        - name: size
+          in: query
+          description: Specifies the page size for pagination
+          required: true
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination
+          required: true
+          type: integer
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
+          required: false
+          default: "compact"
+          type: string
+        - name: sort
+          in: query
+          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc.
+          required: false
+          default: "date_desc"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: |
+            An array of games. Adds *X-Total-Count* to reponse header.
+
+  /publishers/{publisher-name}/games:
+    get:
+      summary: "Fetches list of entries filtered by publisher"
+      description: |
+        Fetches list of entries from a specific publisher, including:
+        * publisher.name
+        * releases.publisher.name
+
+      tags:
+        - "zxinfo"
+      parameters:
+        - name: publisher-name
+          in: path
+          description: Specifies name of publisher to lookup
+          required: true
+          type: string
+        - name: size
+          in: query
+          description: Specifies the page size for pagination
+          required: true
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination
+          required: true
+          type: integer
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
+          required: false
+          default: "compact"
+          type: string
+        - name: sort
+          in: query
+          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc.
+          required: false
+          default: "date_desc"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: |
+            An array of games. Adds *X-Total-Count* to reponse header.
+
+  /metadata/:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Returns list of metadata available"
+      description: |
+        Fetches a list of metadata:
+        Return list of possible values for the following:
+        * machinetype
+        * genretypes
+        * features
+
+        Intended to be used as input to /search
+
+      operationId: "getMetaData"
+      produces:
+        - "application/json"
+      responses:
+        # Response code
+        200:
+          description: OK
+
   /suggest/{term}:
     get:
       tags:
@@ -216,6 +326,52 @@ paths:
         Fetches a list of suggestions for input term. Returns suggestions for titles, publishers and authors to be used in type-as-you-go search fields.
 
       operationId: "getSuggestions"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "term"
+          in: path
+          description: input for suggestions
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: OK
+
+  /suggest/author/{term}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Returns list of suggestions"
+      description: |
+        Fetches a list of suggestions for input term:
+        Generates suggestions for authors.
+
+      operationId: "getSuggestionsAuthor"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "term"
+          in: path
+          description: input for suggestions
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: OK
+
+  /suggest/publisher/{term}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Returns list of suggestions"
+      description: |
+        Fetches a list of suggestions for input term:
+        Generates suggestions for publishers.
+
+      operationId: "getSuggestionsPublisher"
       produces:
         - "application/json"
       parameters:
