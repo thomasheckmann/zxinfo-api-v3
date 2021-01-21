@@ -13,6 +13,8 @@ var games = require("./routes/games");
 var suggest = require("./routes/suggest");
 var search = require("./routes/search");
 var metadata = require("./routes/metadata");
+var authors = require("./routes/authors");
+var publishers = require("./routes/publishers");
 
 if (process.env.NODE_ENV === undefined) {
   console.log("NODE_ENV not defined, must be 'development' or 'production'");
@@ -35,6 +37,8 @@ app.use("/v3/games/", games);
 app.use("/v3/suggest/", suggest);
 app.use("/v3/search/", search);
 app.use("/v3/metadata/", metadata);
+app.use("/v3/authors/", authors);
+app.use("/v3/publishers/", publishers);
 
 app.get("/", (req, res) => {
   console.log("[CATCH ALL]");
