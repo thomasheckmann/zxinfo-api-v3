@@ -44,8 +44,8 @@ tags:
   - name: "zxinfo"
     description: "(Almost) Everything about Sinclair-related material including software, hardware, books, magazines, etc."
     externalDocs:
-      description: "Find out more"
-      url: "https://zxinfo.dk/v3/"
+      description: "See it in action"
+      url: "http://dev.zxinfo.dk/"
 schemes:
   - https
 consumes:
