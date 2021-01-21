@@ -43,10 +43,9 @@ router.use(function (req, res, next) {
  *
  ************************************************/
 
-router.get("/", (req, res) => {
-  console.log(`[CATCH ALL - ${moduleId}]`);
+router.get("/details/:gameid", (req, res) => {
+  console.log(`social.js /details:gameid - ${req.params.gameid}]`);
   console.log(req.path);
-  res.send(`Hello World from /${moduleId}`);
 });
 
 module.exports = router;
