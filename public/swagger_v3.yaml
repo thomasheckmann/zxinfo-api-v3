@@ -31,7 +31,7 @@ info:
     * Emulator [ZEsarUX](https://github.com/chernandezba/zesarux) - ZX Second-Emulator And Released for UniX.
     * ZXInfoTV [AppleTV](https://github.com/thomasheckmann/zxinfo-tv) - a video focused experiece for your AppleTV
 
-    **ZXDB update 15.10.2020**
+    **ZXDB update 15.01.2021**
 
     changelog:
 
@@ -103,7 +103,7 @@ paths:
           * re-release title
           * re-release publisher
 
-        Original entries are prioritized over modified versions.
+        Original entries are prioritized over modified versions. This is to ensure e.g. 'Manic Miner' shows up at the top :-)
         Additional options can be specified to futher narrow down search.
 
       operationId: "search"
