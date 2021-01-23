@@ -481,7 +481,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
         all_entries: {
           global: {},
           aggregations: {
-            machinetypes: {
+            aggMachineTypes: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, machinetype_should),
@@ -499,14 +499,14 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            controls: {
+            aggControls: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, controls_should),
                 },
               },
               aggregations: {
-                controls: {
+                nestedControls: {
                   nested: {
                     path: "controls",
                   },
@@ -524,7 +524,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            multiplayermode: {
+            aggMultiplayerMode: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, multiplayermode_should),
@@ -542,7 +542,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            multiplayertype: {
+            aggMultiplayerType: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, multiplayertype_should),
@@ -560,7 +560,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            originalpublication: {
+            aggOriginalPublication: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, originalpublication_should),
@@ -578,7 +578,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            availability: {
+            aggAvailability: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, availability_should),
@@ -596,7 +596,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            type: {
+            aggType: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, genretype_should),
@@ -614,7 +614,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            subtype: {
+            aggSubType: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, genresubtype_should),
@@ -632,7 +632,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            language: {
+            aggLanguage: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, language_should),
@@ -650,7 +650,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
             },
-            year: {
+            aggOriginalYearOfRelease: {
               filter: {
                 bool: {
                   must: removeFilter(aggfilter, year_should),
@@ -703,7 +703,7 @@ router.get("/", function (req, res, next) {
     debug(result);
     debug(`#############################################################`);
 
-    // debug(result.aggregations.all_entries.multiplayertype);
+    debug(result.aggregations.all_entries.aggMachine);
     res.header("X-Total-Count", result.hits.total);
     res.send(result);
   });
