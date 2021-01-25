@@ -455,8 +455,8 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
             nested: {
               path: "modificationOf",
               query: {
-                match: {
-                  "modificationOf.isMod": "1",
+                exists: {
+                  field: "modificationOf.title",
                 },
               },
             },

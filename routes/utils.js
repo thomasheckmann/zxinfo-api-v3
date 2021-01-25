@@ -94,10 +94,55 @@ var getSortObject = function (sort_mode) {
   return sort_object;
 };
 
+/**
+ * returns fields according to output mode for single item
+ * @param {*} outputmode
+ */
 var es_source_item = function (outputmode) {
   debug(`es_source_item() : outputmode: ${outputmode}`);
   if (outputmode == "full") {
+    /* full output */
     return ["*"];
+  } else if (outputmode == "compact") {
+    /* compact output */
+    var source_includes = [
+      "title",
+      "originalYearOfRelease",
+      "originalMonthOfRelease",
+      "originalDayOfRelease",
+      "machineType",
+      "numberOfPlayers",
+      "multiplayerMode",
+      "multiplayerType",
+      "genre",
+      "genreType",
+      "genreSubType",
+      "isbn",
+      "language",
+      "originalPrice",
+      "availability",
+      "remarks",
+      "knownErrors",
+      "hardwareBlurb",
+      "score",
+      "publishers",
+      "releases",
+      "authors",
+      "authoredWith",
+      "authoring",
+      "controls",
+      "series",
+      "otherSystems",
+      "inCompilations",
+      "compilationContents",
+      "inBook",
+      "bookContents",
+      "modificationOf",
+      "modifiedBy",
+      "additionalDownloads",
+      "screens",
+    ];
+    return source_includes;
   } else if (outputmode == "tiny") {
     return [
       "title",
@@ -109,76 +154,57 @@ var es_source_item = function (outputmode) {
       "publishers.publisherSeq",
       "publishers.name",
       "publishers.country",
+      "additionalDownloads",
       "screens",
-      "additionals",
     ];
   }
-
-  var source_includes = [
-    "title",
-    "originalYearOfRelease",
-    "originalMonthOfRelease",
-    "originalDayOfRelease",
-    "machineType",
-    "numberOfPlayers",
-    "multiplayerMode",
-    "multiplayerType",
-    "genre",
-    "genreType",
-    "genreSubType",
-    "isbn",
-    "language",
-    "originalPrice",
-    "availability",
-    "remarks",
-    "knownErrors",
-    "hardwareBlurb",
-    "score",
-    "publishers",
-    "releases",
-    "authors",
-    "authoredWith",
-    "authoring",
-    "controls",
-    "series",
-    "otherSystems",
-    "inCompilations",
-    "compilationContents",
-    "inBook",
-    "bookContents",
-    "modificationOf",
-    "modifiedBy",
-    "additionals",
-    "screens",
-  ];
-  return source_includes;
 };
 
+/**
+ * returns fields according to output mode for search results
+ * @param {
+ * } outputmode
+ */
 var es_source_list = function (outputmode) {
   debug(`es_source_list() : outputmode: ${outputmode}`);
   if (outputmode == "full") {
+    /* full output */
     return ["*"];
+  } else if (outputmode == "compact") {
+    /* compact output */
+    var source_includes = [
+      "title",
+      "originalYearOfRelease",
+      "originalMonthOfRelease",
+      "originalDayOfRelease",
+      "machineType",
+      "score",
+      "genre",
+      "genreType",
+      "genreSubType",
+      "authors",
+      "publishers",
+      "releases.publishers",
+      "availability",
+      "additionalDownloads",
+      "screens",
+    ];
+    return source_includes;
+  } else if (outputmode == "tiny") {
+    return [
+      "title",
+      "originalYearOfRelease",
+      "machineType",
+      "genre",
+      "genreType",
+      "genreSubType",
+      "publishers.publisherSeq",
+      "publishers.name",
+      "publishers.country",
+      "additionalDownloads",
+      "screens",
+    ];
   }
-
-  var source_includes = [
-    "title",
-    "originalYearOfRelease",
-    "originalMonthOfRelease",
-    "originalDayOfRelease",
-    "score",
-    "genre",
-    "genreType",
-    "genreSubType",
-    "authors",
-    "publishers",
-    "releases.publishers",
-    "machineType",
-    "availability",
-    "additionalDownloads",
-    "screens",
-  ];
-
-  return source_includes;
 };
 
 var renderMagazineLinks = function (r) {
