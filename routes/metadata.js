@@ -32,18 +32,11 @@ var getMetaData = function (name) {
       size: 0,
       aggs: {
         featuretypes: {
-          nested: {
-            path: "features",
-          },
-          aggregations: {
-            filtered: {
-              terms: {
-                field: "features.name",
-                size: 100,
-                order: {
-                  _key: "asc",
-                },
-              },
+          terms: {
+            field: "features.name",
+            size: 100,
+            order: {
+              _key: "asc",
             },
           },
         },
@@ -100,9 +93,9 @@ var processMetaData = function (result) {
 
   // iterate features
   var features = { group: "F", type: "G", values: [] };
-  for (const feature in result.aggregations.featuretypes.filtered.buckets) {
-    var groupname = result.aggregations.featuretypes.filtered.buckets[feature].key;
-    var doc_count = result.aggregations.featuretypes.filtered.buckets[feature].doc_count;
+  for (const feature in result.aggregations.featuretypes.buckets) {
+    var groupname = result.aggregations.featuretypes.buckets[feature].key;
+    var doc_count = result.aggregations.featuretypes.buckets[feature].doc_count;
 
     features.values.push({ groupname: groupname, doc_count: doc_count });
   }

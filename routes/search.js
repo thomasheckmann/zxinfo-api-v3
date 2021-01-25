@@ -170,19 +170,14 @@ function queryTerm2(query) {
         /* */
         /* publishers note */
         {
-          nested: {
-            path: "publishers.notes",
-            query: {
-              bool: {
-                must: [
-                  {
-                    match: {
-                      "publishers.notes.text": query,
-                    },
-                  },
-                ],
+          bool: {
+            must: [
+              {
+                match: {
+                  "publishers.notes.text": query,
+                },
               },
-            },
+            ],
             boost: 1.2,
           },
         },
@@ -251,29 +246,6 @@ var createFilterItem = function (filterName, filterValues) {
   return item_should;
 };
 
-var createFilterNestedItem = function (filterName, path, filterValues) {
-  var item_should = {};
-
-  if (filterValues !== undefined && filterValues.length > 0) {
-    if (!Array.isArray(filterValues)) {
-      filterValues = [filterValues];
-    }
-    var i = 0;
-    var should = [];
-    for (; i < filterValues.length; i++) {
-      var item = {
-        match: {
-          [filterName + "." + path]: filterValues[i],
-        },
-      };
-      should.push(item);
-    }
-
-    item_should = { bool: { should: [{ nested: { path: filterName, query: { bool: { should: should } } } }] } };
-  }
-  return item_should;
-};
-
 /**
  * Helper for aggregation - each aggregation should include all filters, except its own
  */
@@ -307,7 +279,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
   var machinetype_should = createFilterItem("machineType", searchObject.machinetype);
   filterObjects["machinetype"] = machinetype_should;
 
-  var controls_should = createFilterNestedItem("controls", "control", searchObject.control);
+  var controls_should = createFilterItem("controls.control", searchObject.control);
   filterObjects["controls"] = controls_should;
 
   var multiplayermode_should = createFilterItem("multiplayerMode", searchObject.multiplayermode);
@@ -356,15 +328,10 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
   if (searchObject.group !== undefined && searchObject.groupname !== undefined) {
     var groupBools = [];
     groupBools.push({
-      nested: {
-        path: grouptype_id,
-        query: {
-          bool: {
-            must: {
-              match: {
-                [grouptype_id + ".name"]: searchObject.groupname,
-              },
-            },
+      bool: {
+        must: {
+          match: {
+            [grouptype_id + ".name"]: searchObject.groupname,
           },
         },
       },
@@ -372,7 +339,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     groupandname_must = { bool: { must: groupBools } };
     filterObjects["groupandname"] = groupandname_must;
   }
-
   // generate array with filter objects
   var filters = [];
   var filterNames = Object.keys(filterObjects);
@@ -380,6 +346,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     var item = filterObjects[filterNames[i]];
     var itemsize = Object.keys(item).length;
     if (itemsize > 0) {
+      console.log("X: " + JSON.stringify(item));
       filters.push(item);
     }
   }
@@ -444,7 +411,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     filter_path: "-hits.hits.sort,-hits.hits.highlight,-hits.hits._explanation",
     index: es_index,
     body: {
-      explain: true,
       track_scores: true,
       size: page_size,
       from: fromOffset,
@@ -452,13 +418,8 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
         boosting: {
           positive: queryObject,
           negative: {
-            nested: {
-              path: "modificationOf",
-              query: {
-                exists: {
-                  field: "modificationOf.title",
-                },
-              },
+            exists: {
+              field: "modificationOf.title",
             },
           },
           negative_boost: 0.5,
@@ -467,7 +428,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
       sort: sort_object,
       highlight: {
         fields: {
-          fulltitle: {},
+          title: {},
           alsoknownas: {},
           /*"releases.as_title": {},*/
           "publishers.name": {},
@@ -506,19 +467,12 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
                 },
               },
               aggregations: {
-                nestedControls: {
-                  nested: {
-                    path: "controls",
-                  },
-                  aggregations: {
-                    filtered_controls: {
-                      terms: {
-                        size: 100,
-                        field: "controls.control",
-                        order: {
-                          _key: "asc",
-                        },
-                      },
+                filtered_controls: {
+                  terms: {
+                    size: 100,
+                    field: "controls.control",
+                    order: {
+                      _key: "asc",
                     },
                   },
                 },
