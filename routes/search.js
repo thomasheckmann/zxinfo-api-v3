@@ -346,7 +346,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     var item = filterObjects[filterNames[i]];
     var itemsize = Object.keys(item).length;
     if (itemsize > 0) {
-      console.log("X: " + JSON.stringify(item));
       filters.push(item);
     }
   }

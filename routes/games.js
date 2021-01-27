@@ -70,7 +70,11 @@ router.get("/:gameid", function (req, res, next) {
     getGameById(id, req.query.mode).then(
       function (result) {
         //res.send(tools.renderMagazineLinks(result));
-        res.send(result);
+        if (req.query.mode === "titleonly") {
+          res.send(result._source.title);
+        } else {
+          res.send(result);
+        }
       },
       function (reason) {
         debug(`[FAILED] reason: ${reason.message}`);
