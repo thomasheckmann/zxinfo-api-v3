@@ -87,6 +87,78 @@ paths:
         500:
           description: Something went wrong.
 
+  /games/byletter/{letter}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches list of entries starting with a specific letter"
+      description: |
+        Fetches a list of entries starting with a specific letter: a-Z or # for numbers
+
+      operationId: "getGamesByLetter"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "letter"
+          in: path
+          description: a-z - or # for numbers (case insensitive)
+          type: string
+          required: true
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'tiny', 'compact' or 'full'. Defaults to 'tiny'.
+          required: false
+          default: "tiny"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: OK
+        400:
+          description: Bad request. Entry id must be an integer. larger than 0 and max 7 digits.
+        404:
+          description: An entry with the specified ID was not found.
+
+  /games/random/{total}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches list of random entries"
+      description: |
+        Fetches a list of random SOFTWARE entries from the categories:
+        * Adventure Game
+        * Arcade Game
+        * Casual Game
+        * Game
+        * Sport Game
+        * Strategy Game
+
+        All returned items has loading screen.
+
+      operationId: "getRandomGames"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "total"
+          in: path
+          description: total number of entries to return
+          type: string
+          required: true
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'tiny', 'compact' or 'full'. Defaults to 'tiny'.
+          required: false
+          default: "tiny"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: OK
+        400:
+          description: Bad request. Entry id must be an integer. larger than 0 and max 7 digits.
+        404:
+          description: An entry with the specified ID was not found.
+
   /search:
     get:
       tags:
