@@ -106,7 +106,7 @@ paths:
           required: true
         - name: mode
           in: query
-          description: Specifies if returned JSON should be 'tiny', 'tiny', 'compact' or 'full'. Defaults to 'tiny'.
+          description: Specifies if returned JSON should be 'simple', 'tiny' or 'compact'. 'simple' only returns title and entry_id.
           required: false
           default: "tiny"
           type: string
@@ -195,7 +195,7 @@ paths:
           type: string
         - name: sort
           in: query
-          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc, rel_asc or rel_desc. rel_asc/desc sorts on relevance scoring from Elasticsearch
+          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc, rel_asc or rel_desc. rel_asc/desc sorts on release date.
           required: false
           default: "rel_desc"
           type: string

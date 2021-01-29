@@ -137,8 +137,15 @@ router.get("/:total", function (req, res, next) {
   debug(`total: ${req.params.total}, mode: ${req.query.mode}`);
 
   getRandomX(req.params.total, req.query.mode).then(function (result) {
-    res.header("X-Total-Count", result.hits.total);
-    res.send(result);
+    debug(`########### RESPONSE from getRandomX(${req.params.total}, mode: ${req.query.mode})`);
+    debug(result);
+    debug(`#############################################################`);
+    res.header("X-Total-Count", result.hits.total.value);
+    if (req.query.mode === "simple") {
+      res.send(tools.renderSimpleOutput(result));
+    } else {
+      res.send(result);
+    }
   });
 });
 

@@ -204,7 +204,21 @@ var es_source_list = function (outputmode) {
       "additionalDownloads",
       "screens",
     ];
+  } else if (outputmode == "simple") {
+    return ["title"];
   }
+};
+
+var renderSimpleOutput = function (r) {
+  debug(`renderSimpleOutput() :`);
+  debug(r);
+
+  var result = [];
+  for (var i = 0; r.hits.hits && i < r.hits.hits.length; i++) {
+    const item = r.hits.hits[i];
+    result.push({ id: item._id, title: item._source.title });
+  }
+  return result;
 };
 
 var renderMagazineLinks = function (r) {
@@ -291,6 +305,7 @@ var renderMagazineLinks = function (r) {
 module.exports = {
   es_source_item: es_source_item,
   es_source_list: es_source_list,
+  renderSimpleOutput: renderSimpleOutput,
   getSortObject: getSortObject,
   renderMagazineLinks: renderMagazineLinks,
 };

@@ -46,7 +46,7 @@ var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
                 {
                   multi_match: {
                     query: name,
-                    fields: ["authors.name.keyword", "authors.groupName.keyword"],
+                    fields: ["authors.name", "authors.groupName"],
                   },
                 },
               ],
@@ -87,8 +87,12 @@ router.get("/:name/games", function (req, res, next) {
     );
     debug(result);
     debug(`#############################################################`);
-    res.header("X-Total-Count", result.hits.total);
-    res.send(result);
+    res.header("X-Total-Count", result.hits.total.value);
+    if (req.query.mode === "simple") {
+      res.send(tools.renderSimpleOutput(result));
+    } else {
+      res.send(result);
+    }
   });
 });
 

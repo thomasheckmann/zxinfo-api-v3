@@ -23,7 +23,7 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-var getGamesByLetter = function (letter) {
+var getGamesByLetter = function (letter, outputmode) {
   debug(`getGamesByLetter() : ${letter}`);
 
   var expr;
@@ -34,7 +34,7 @@ var getGamesByLetter = function (letter) {
   }
 
   return elasticClient.search({
-    _source: [tools.es_source_item("tiny")],
+    _source: tools.es_source_list(outputmode),
     _sourceExcludes: ["titlesuggest", "publishersuggest", "authorsuggest", "metadata_author", "metadata_publisher"],
     index: es_index,
     body: {
@@ -77,19 +77,30 @@ router.use(function (req, res, next) {
 */
 router.get("/:letter", function (req, res, next) {
   debug("==> /games/byletter/:letter");
-  debug(`letter: ${req.params.letter}`);
+  debug(`letter: ${req.params.letter}, mode: ${req.query.mode}`);
 
+  if (!req.query.mode || req.query.mode === "full") {
+    req.query.mode = "tiny";
+  }
   var letter = req.params.letter.toLowerCase();
   if (letter.length !== 1) {
     res.status(400).end();
   } else {
-    getGamesByLetter(req.params.letter).then(function (result) {
-      res.header("X-Total-Count", result.hits.total);
-      var r = [];
+    getGamesByLetter(req.params.letter, req.query.mode).then(function (result) {
+      debug(`########### RESPONSE from getGamesByLetter(${req.params.letter}, mode: ${req.query.mode})`);
+      debug(result);
+      debug(`#############################################################`);
+      res.header("X-Total-Count", result.hits.total.value);
+      if (req.query.mode === "simple") {
+        res.send(tools.renderSimpleOutput(result));
+      } else {
+        res.send(result);
+      }
+      /** 
+		var r = [];
       for (var i = 0; i < result.hits.hits.length; i++) {
         r.push({ id: result.hits.hits[i]._id, title: result.hits.hits[i]._source.title });
-      }
-      res.send(r);
+      }*/
     });
   }
 });

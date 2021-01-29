@@ -121,8 +121,12 @@ router.get("/:name/games", function (req, res, next) {
     );
     debug(result);
     debug(`#############################################################`);
-    res.header("X-Total-Count", result.hits.total);
-    res.send(result);
+    res.header("X-Total-Count", result.hits.total.value);
+    if (req.query.mode === "simple") {
+      res.send(tools.renderSimpleOutput(result));
+    } else {
+      res.send(result);
+    }
   });
 });
 

@@ -656,9 +656,12 @@ router.get("/", function (req, res, next) {
     debug(result);
     debug(`#############################################################`);
 
-    debug(result.aggregations.all_entries.aggMachine);
-    res.header("X-Total-Count", result.hits.total);
-    res.send(result);
+    res.header("X-Total-Count", result.hits.total.value);
+    if (req.query.mode === "simple") {
+      res.send(tools.renderSimpleOutput(result));
+    } else {
+      res.send(result);
+    }
   });
 });
 
