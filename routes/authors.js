@@ -27,8 +27,8 @@ var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
   debug(`getGamesByAuthor(name: ${name}), sort: ${sort}, mode: ${outputmode}, size: ${page_size}, offset=${offset}`);
 
   var sort_object = {};
-  if (sort !== undefined) {
-    sort_object = tools.getSortObject(sort);
+  if (sort === undefined) {
+    sort_object = tools.getSortObject("date_asc");
   }
 
   return elasticClient.search({
