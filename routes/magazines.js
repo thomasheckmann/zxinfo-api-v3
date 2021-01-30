@@ -60,7 +60,7 @@ var getAllMagazines = function (page_size, offset, sort) {
     body: {
       size: page_size,
       from: offset * page_size,
-      _source: ["name", "publisher", "language", "country"],
+      _source: ["name", "publisher", "language", "country", "type"],
       query: {
         bool: {
           must: [
@@ -71,6 +71,53 @@ var getAllMagazines = function (page_size, offset, sort) {
         },
       },
       sort: sort_object,
+    },
+  });
+};
+
+var getMagazineByName = function (name) {
+  debug("getMagazineByName(" + name + ")");
+  return elasticClient.search({
+    index: es_index,
+    body: {
+      query: {
+        bool: {
+          must: [
+            {
+              match: {
+                name: name,
+              },
+            },
+          ],
+        },
+      },
+    },
+  });
+};
+
+var getIssuesByMagazineName = function (name) {
+  debug("getIssuesByMagazineName()");
+
+  return elasticClient.search({
+    index: es_index,
+    body: {
+      _source: {
+        includes: ["*"],
+        excludes: ["issues.files.*", "issues.references.*"],
+      },
+      size: 1,
+      from: 0,
+      query: {
+        bool: {
+          must: [
+            {
+              match: {
+                name: name,
+              },
+            },
+          ],
+        },
+      },
     },
   });
 };
@@ -111,6 +158,51 @@ router.get("/", function (req, res, next) {
     debug(`#############################################################`);
     res.header("X-Total-Count", result.hits.total.value);
     res.send(result);
+  });
+});
+
+/**
+    Return magazine with :name
+*/
+router.get("/:name", function (req, res, next) {
+  debug("==> /magazines/:name");
+
+  getMagazineByName(req.params.name).then(function (result) {
+    debug(`########### RESPONSE from getMagazineByName(name: ${req.params.name})`);
+    debug(result);
+    debug(`#############################################################`);
+    if (result.hits.hits.length == 0) {
+      debug("NOT FOUND: ", req.params.name);
+      res.status(404).end();
+    } else {
+      var _source = result.hits.hits[0];
+      res.send(_source);
+    }
+  });
+});
+
+/**
+    Return issues for magazine with :name
+*/
+router.get("/:name/issues", function (req, res, next) {
+  debug("==> /magazines/:name/issues");
+
+  getIssuesByMagazineName(req.params.name).then(function (result) {
+    debug(`########### RESPONSE from getIssuesByMagazineName(name: ${req.params.name})`);
+    debug(result);
+    debug(`#############################################################`);
+    if (result.hits.hits.length == 0) {
+      debug("NOT FOUND: ", req.params.name);
+      res.status(404).end();
+    } else {
+      var _source = result.hits.hits[0]._source;
+      if (_source.issues === undefined) {
+        _source.issues = [];
+      }
+      debug("X-Total-Count", _source.issues.length);
+      res.header("X-Total-Count", _source.issues.length);
+      res.send(_source);
+    }
   });
 });
 
