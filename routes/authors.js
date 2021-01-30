@@ -45,7 +45,7 @@ var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
           query: {
             multi_match: {
               query: name,
-              fields: ["authors.name^2", "authors.groupName"],
+              fields: ["authors.name.keyword^2", "authors.groupName"],
             },
           },
         },
