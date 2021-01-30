@@ -24,10 +24,12 @@ var elasticClient = new elasticsearch.Client({
 var es_index = config.zxinfo_index;
 
 var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
-  debug(`getGamesByAuthor(${name})`);
+  debug(`getGamesByAuthor(name: ${name}), sort: ${sort}, mode: ${outputmode}, size: ${page_size}, offset=${offset}`);
 
-  var sort_mode = sort == undefined ? "date_desc" : sort;
-  var sort_object = tools.getSortObject(sort_mode);
+  var sort_object = {};
+  if (sort !== undefined) {
+    sort_object = tools.getSortObject(sort);
+  }
 
   return elasticClient.search({
     _source: tools.es_source_list(outputmode),
@@ -41,15 +43,9 @@ var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
         nested: {
           path: "authors",
           query: {
-            bool: {
-              must: [
-                {
-                  multi_match: {
-                    query: name,
-                    fields: ["authors.name", "authors.groupName"],
-                  },
-                },
-              ],
+            multi_match: {
+              query: name,
+              fields: ["authors.name^2", "authors.groupName"],
             },
           },
         },
