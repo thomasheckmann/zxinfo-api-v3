@@ -19,6 +19,7 @@ var authors = require("./routes/authors");
 var publishers = require("./routes/publishers");
 var social = require("./routes/social");
 var zx81scr = require("./routes/zx81scr");
+var magazines = require("./routes/magazines");
 
 if (process.env.NODE_ENV === undefined) {
   console.log("NODE_ENV not defined, must be 'development' or 'production'");
@@ -40,6 +41,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/v3/games/byletter", byletter);
 app.use("/v3/games/random", random);
 app.use("/v3/games/", games);
+
+app.use("/v3/magazines/", magazines);
+
 app.use("/v3/suggest/", suggest);
 app.use("/v3/search/", search);
 app.use("/v3/metadata/", metadata);
