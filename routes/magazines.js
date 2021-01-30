@@ -70,7 +70,7 @@ var getAllMagazines = function (page_size, offset, sort) {
           ],
         },
       },
-      sort: sort_object,
+      sort: { "name.keyword": { order: "asc" } },
     },
   });
 };
@@ -148,7 +148,7 @@ router.use(function (req, res, next) {
 router.get("/", function (req, res, next) {
   debug("==> /magazines/");
 
-  if (!req.query.size) req.query.size = 10;
+  if (!req.query.size) req.query.size = 500;
   if (!req.query.offset) req.query.offset = 0;
   getAllMagazines(req.query.size, req.query.offset, req.query.sort).then(function (result) {
     debug(
