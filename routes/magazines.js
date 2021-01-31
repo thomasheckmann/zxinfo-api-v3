@@ -122,6 +122,37 @@ var getIssuesByMagazineName = function (name) {
   });
 };
 
+var getIssue = function (name, issueid) {
+  debug(`getIssue(${name}, ${issueid})`);
+
+  return elasticClient.search({
+    index: es_index,
+    body: {
+      _source: {
+        includes: ["*"],
+      },
+      size: 1,
+      from: 0,
+      query: {
+        bool: {
+          must: [
+            {
+              match: {
+                name: name,
+              },
+            },
+            {
+              match: {
+                "issues.id": issueid,
+              },
+            },
+          ],
+        },
+      },
+    },
+  });
+};
+
 /************************************************
  *
  * common to use for all requests
@@ -165,7 +196,7 @@ router.get("/", function (req, res, next) {
     Return magazine with :name
 */
 router.get("/:name", function (req, res, next) {
-  debug("==> /magazines/:name");
+  debug(`==> /magazines/:name`);
 
   getMagazineByName(req.params.name).then(function (result) {
     debug(`########### RESPONSE from getMagazineByName(name: ${req.params.name})`);
@@ -202,6 +233,44 @@ router.get("/:name/issues", function (req, res, next) {
       debug("X-Total-Count", _source.issues.length);
       res.header("X-Total-Count", _source.issues.length);
       res.send(_source);
+    }
+  });
+});
+
+/**
+    Return issue for magazine with :name and issueid
+*/
+router.get("/:name/issues/:issueid", function (req, res, next) {
+  debug("==> /magazines/:name/issues/:issueid");
+
+  getIssue(req.params.name, req.params.issueid).then(function (result) {
+    debug(`########### RESPONSE from getIssue(name: ${req.params.name}, issue: ${req.params.issueid})`);
+    debug(result);
+    debug(`#############################################################`);
+    if (result.hits.hits.length == 0) {
+      debug("NOT FOUND: ", req.params.name, req.params.issueid);
+      res.status(404).end();
+    } else {
+      var _source = result.hits.hits[0]._source;
+
+      function getIssueById(id) {
+        return _source.issues.filter(function (data) {
+          return data.id == id;
+        });
+      }
+
+      var found = getIssueById(req.params.issueid)[0];
+      res.send({
+        magazine_id: result.hits.hits[0]._id,
+        issue_id: req.params.issueid,
+        name: _source.name,
+        publisher: _source.publisher,
+        type: _source.type,
+        country: _source.country,
+        link_mask: _source.link_mask,
+        archive_mask: _source.archive_mask,
+        issue: found,
+      });
     }
   });
 });
