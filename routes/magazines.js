@@ -112,7 +112,7 @@ var getIssuesByMagazineName = function (name) {
           must: [
             {
               match: {
-                name: name,
+                "name.keyword": name,
               },
             },
           ],
@@ -258,7 +258,7 @@ router.get("/:name/issues/:issueid", function (req, res, next) {
           return data.id == id;
         });
       }
-
+      console.log(_source);
       var found = getIssueById(req.params.issueid)[0];
       res.send({
         magazine_id: result.hits.hits[0]._id,
@@ -267,6 +267,7 @@ router.get("/:name/issues/:issueid", function (req, res, next) {
         publisher: _source.publisher,
         type: _source.type,
         country: _source.country,
+        language: _source.language,
         link_mask: _source.link_mask,
         archive_mask: _source.archive_mask,
         issue: found,

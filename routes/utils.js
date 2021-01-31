@@ -2,7 +2,7 @@
 
 var debug = require("debug")("zxinfo-api-v3:utils");
 
-/*
+/*	
 	Builds ES object for sorting, based on sort_mode.
 	sort_mode:
 		* title_asc or title_desc (sort by title)
