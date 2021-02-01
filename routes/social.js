@@ -120,10 +120,12 @@ router.get("/details/:gameid", (req, res) => {
 
     var html = `<html><head><title>${og_title} | ZXInfo</title>`;
     html += `<meta property="og:url" content="https://zxinfo.dk/details/0002259" />`;
-    html += `<meta property="og:type" content="article" />`;
+    // html += `<meta property="og:type" content="article" />`;
     html += `<meta property="og:title" content="${og_title}" />`;
     html += `<meta property="og:description" content="${og_description}" />`;
-    // html += `<meta property="og:image" content="${og_image}" />`;
+    html += `<meta property="og:image" content="${og_image}" />`;
+    html += `<meta property="og:image:width" content="250">`;
+    html += `<meta property="og:image:height" content="221">`;
     // html += `<meta property="og:image:type" content="${og_image_type}" />`;
     html += `</head><body>`;
     html += `<h1>${og_title}</h1>`;
