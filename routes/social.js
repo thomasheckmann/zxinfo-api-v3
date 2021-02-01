@@ -1,7 +1,8 @@
 /**
  * NODE_ENV=development PORT=8300 DEBUG=zxinfo-api-v3:moduleId* nodemon --ignorpublic/javascripts/config.js --exec npm start
  *
- *
+ * https://developers.facebook.com/tools/debug/
+ * https://developers.facebook.com/tools/debug/echo/?q=http%3A%2F%2Fdev.zxinfo.dk%2Fdetails%2F0002259
  * https://developers.facebook.com/docs/sharing/webmasters/
  */
 
@@ -122,8 +123,8 @@ router.get("/details/:gameid", (req, res) => {
     html += `<meta property="og:type" content="article" />`;
     html += `<meta property="og:title" content="${og_title}" />`;
     html += `<meta property="og:description" content="${og_description}" />`;
-    html += `<meta property="og:image" content="${og_image}" />`;
-    html += `<meta property="og:image:type" content="${og_image_type}" />`;
+    // html += `<meta property="og:image" content="${og_image}" />`;
+    // html += `<meta property="og:image:type" content="${og_image_type}" />`;
     html += `</head><body>`;
     html += `<h1>${og_title}</h1>`;
     html += `<h2>${og_description}</h2>`;
