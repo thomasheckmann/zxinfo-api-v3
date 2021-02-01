@@ -26,7 +26,7 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-const media_url = "http://zxinfo.dk/media";
+const media_url = "https://zxinfo.dk/media";
 const books_url = "https://archive.zx-spectrum.org.uk/WoS";
 const hw_url = "https://archive.zx-spectrum.org.uk";
 
@@ -40,10 +40,11 @@ var getGameById = function (gameid) {
 
 function loadscreen(source) {
   // iterate all additionals to find loading screen, if any
+
   var loadscreen = null;
-  if (source.type == "Compilation") {
+  if (source.genreType == "Compilation") {
     loadscreen = "/images/compilation.png";
-  } else if (typeof source.screens != "undefined") {
+  } else if (source.screens.length) {
     var idx = 0;
     var screen = null;
     for (; loadscreen == null && idx < source.screens.length; idx++) {
@@ -86,14 +87,13 @@ router.use(function (req, res, next) {
  *
  ************************************************/
 
+//TODO: handle id without trailing 0s
 router.get("/details/:gameid", (req, res) => {
   console.log(`social.js /details:gameid - ${req.params.gameid}]`);
   getGameById(req.params.gameid).then(function (result) {
     var og_url = "https://zxinfo.dk/details/" + req.params.gameid;
     var og_title = result._source.title;
     var og_image = loadscreen(result._source);
-    og_image = `${og_image}`;
-    //og_image = `https://zxinfo.dk/social/m?url=${og_image}`;
     var og_image_type = "image/jpeg";
     if (og_image.endsWith("png")) {
       og_image_type = "image/png";
@@ -117,14 +117,22 @@ router.get("/details/:gameid", (req, res) => {
         ")";
     }
 
-    var html = `<html><head><title>ZXInfo - The open source ZXDB frontend</title>`;
+    var html = `<html><head><title>${og_title} | ZXInfo</title>`;
     html += `<meta property="og:url" content="https://zxinfo.dk/details/0002259" />`;
     html += `<meta property="og:type" content="article" />`;
     html += `<meta property="og:title" content="${og_title}" />`;
     html += `<meta property="og:description" content="${og_description}" />`;
     html += `<meta property="og:image" content="${og_image}" />`;
     html += `<meta property="og:image:type" content="${og_image_type}" />`;
-    html += `</head></html >`;
+    html += `</head><body>`;
+    html += `<h1>${og_title}</h1>`;
+    html += `<h2>${og_description}</h2>`;
+    html += `${og_image_type}<br/><img src="${og_image}"></img><br/>${og_image}<br/>`;
+    html += `<div>`;
+    // html += JSON.stringify(result._source, null, 4);
+    html += `</div>`;
+    html += `</body ></html >`;
+    html += ``;
 
     res.send(html);
     /*
@@ -138,6 +146,11 @@ router.get("/details/:gameid", (req, res) => {
 	});
 	  */
   });
+});
+
+router.get("/*", (req, res) => {
+  console.log(req);
+  res.send(`Hello, World! ${req.path}`);
 });
 
 module.exports = router;
