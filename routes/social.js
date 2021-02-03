@@ -117,10 +117,10 @@ router.get("/details/:gameid", (req, res) => {
         result._source.originalYearOfRelease +
         ")";
     }
-
+    og_image = "https://ebimg.dk/ux/data/social/eblogo_1024.png";
     var html = `<html><head><title>${og_title} | ZXInfo</title>`;
     html += `<meta property="og:url" content="https://zxinfo.dk/details/0002259" />`;
-    // html += `<meta property="og:type" content="article" />`;
+    html += `<meta property="og:type" content="article" />`;
     html += `<meta property="og:title" content="${og_title}" />`;
     html += `<meta property="og:description" content="${og_description}" />`;
     html += `<meta property="og:image" content="${og_image}" />`;
