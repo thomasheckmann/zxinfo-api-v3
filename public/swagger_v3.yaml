@@ -11,6 +11,7 @@ info:
 
     This is the short version of what you need to do:
     * Be a good API citizen, read and understand how to use the API
+    * **Identify yourself** using your own **User-Agent** string (and don't forget to tell us about it). Otherwise there is a risk that access will be treated as a crawler!
     * Keep in touch: tell us about what you're building and talk to other developers
     * Build cool stuff
 
