@@ -23,7 +23,7 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-var getGamesByLetter = function (letter, outputmode) {
+var getGamesByLetter = function (letter, page_size, offset, outputmode) {
   debug(`getGamesByLetter() : ${letter}`);
 
   var expr;
@@ -38,7 +38,8 @@ var getGamesByLetter = function (letter, outputmode) {
     _sourceExcludes: ["titlesuggest", "publishersuggest", "authorsuggest", "metadata_author", "metadata_publisher"],
     index: es_index,
     body: {
-      size: 10000,
+      size: page_size,
+      from: offset * page_size,
       query: {
         regexp: {
           "title.keyword": {
@@ -86,7 +87,7 @@ router.get("/:letter", function (req, res, next) {
   if (letter.length !== 1) {
     res.status(400).end();
   } else {
-    getGamesByLetter(req.params.letter, req.query.mode).then(function (result) {
+    getGamesByLetter(req.params.letter, req.query.size, req.query.offset, req.query.mode).then(function (result) {
       debug(`########### RESPONSE from getGamesByLetter(${req.params.letter}, mode: ${req.query.mode})`);
       debug(result);
       debug(`#############################################################`);
