@@ -258,7 +258,6 @@ router.get("/:name/issues/:issueid", function (req, res, next) {
           return data.id == id;
         });
       }
-      console.log(_source);
       var found = getIssueById(req.params.issueid)[0];
       res.send({
         magazine_id: result.hits.hits[0]._id,

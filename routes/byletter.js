@@ -96,11 +96,6 @@ router.get("/:letter", function (req, res, next) {
       } else {
         res.send(result);
       }
-      /** 
-		var r = [];
-      for (var i = 0; i < result.hits.hits.length; i++) {
-        r.push({ id: result.hits.hits[i]._id, title: result.hits.hits[i]._source.title });
-      }*/
     });
   }
 });

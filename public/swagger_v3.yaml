@@ -54,117 +54,11 @@ consumes:
 produces:
   - application/json
 paths:
-  /games/{game-id}:
-    get:
-      tags:
-        - "zxinfo"
-      summary: "Fetches a single entry by id"
-      description: |
-        This method fetches a single entry resource. It is the canonical URI for any entry resource provided by the API. Can be shared on e.g. facebook for a direct link to an entry
-
-      operationId: "getGameById"
-      produces:
-        - "application/json"
-      parameters:
-        - name: "game-id"
-          in: path
-          description: ZXDB entry id. For WoS compatibility, e.g. 0002259, left padded with 0's if less than 7 digits.
-          type: string
-          required: true
-        - name: mode
-          in: query
-          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
-          required: false
-          default: "compact"
-          type: string
-      responses:
-        # Response code
-        200:
-          description: OK
-        400:
-          description: Bad request. Entry id must be an integer. Number of digits between 1 and 7.
-        404:
-          description: An entry with the specified ID was not found.
-        500:
-          description: Something went wrong.
-
-  /games/byletter/{letter}:
-    get:
-      tags:
-        - "zxinfo"
-      summary: "Fetches list of entries starting with a specific letter"
-      description: |
-        Fetches a list of entries starting with a specific letter: a-Z or  \# for numbers
-
-      operationId: "getGamesByLetter"
-      produces:
-        - "application/json"
-      parameters:
-        - name: "letter"
-          in: path
-          description: a-z - or # for numbers (case insensitive)
-          type: string
-          required: true
-        - name: mode
-          in: query
-          description: Specifies if returned JSON should be 'simple', 'tiny' or 'compact'. 'simple' only returns title and entry_id.
-          required: false
-          default: "tiny"
-          type: string
-      responses:
-        # Response code
-        200:
-          description: OK
-        400:
-          description: Bad request. Letter must be a single character, a-z or \#.
-        404:
-          description: An entry with the specified ID was not found.
-
-  /games/random/{total}:
-    get:
-      tags:
-        - "zxinfo"
-      summary: "Fetches list of random entries"
-      description: |
-        Fetches a list of random SOFTWARE entries from the categories:
-        * Adventure Game
-        * Arcade Game
-        * Casual Game
-        * Game
-        * Sport Game
-        * Strategy Game
-
-        All returned items has loading screen.
-
-      operationId: "getRandomGames"
-      produces:
-        - "application/json"
-      parameters:
-        - name: "total"
-          in: path
-          description: total number of entries to return
-          type: string
-          required: true
-        - name: mode
-          in: query
-          description: Specifies if returned JSON should be 'tiny', 'tiny', 'compact' or 'full'. Defaults to 'tiny'.
-          required: false
-          default: "tiny"
-          type: string
-      responses:
-        # Response code
-        200:
-          description: OK
-        400:
-          description: Bad request. Entry id must be an integer. larger than 0 and max 7 digits.
-        404:
-          description: An entry with the specified ID was not found.
-
   /search:
     get:
       tags:
         - "zxinfo"
-      summary: "General search for entries"
+      summary: "Most important endpoint, general search for entries."
       description: |
         Returns a List of entries matching input filters.
 
@@ -280,6 +174,112 @@ paths:
         200:
           description: "successful operation, JSON document with details"
 
+  /games/{game-id}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches a single entry by id"
+      description: |
+        This method fetches a single entry resource. It is the canonical URI for any entry resource provided by the API. Can be shared on e.g. facebook for a direct link to an entry
+
+      operationId: "getGameById"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "game-id"
+          in: path
+          description: ZXDB entry id. For WoS compatibility, e.g. 0002259, left padded with 0's if less than 7 digits.
+          type: string
+          required: true
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
+          required: false
+          default: "compact"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: OK
+        400:
+          description: Bad request. Entry id must be an integer. Number of digits between 1 and 7.
+        404:
+          description: An entry with the specified ID was not found.
+        500:
+          description: Something went wrong.
+
+  /games/byletter/{letter}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches list of entries starting with a specific letter"
+      description: |
+        Fetches a list of entries starting with a specific letter: a-Z or  \# for numbers. This endpoint supports a special simple output format, just returning title and id - use **mode=simple**
+
+      operationId: "getGamesByLetter"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "letter"
+          in: path
+          description: a-z - or # for numbers (case insensitive)
+          type: string
+          required: true
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'simple', 'tiny' or 'compact'. 'simple' only returns title and entry_id.
+          required: false
+          default: "tiny"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: OK
+        400:
+          description: Bad request. Letter must be a single character, a-z or \#.
+        404:
+          description: An entry with the specified ID was not found.
+
+  /games/random/{total}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches list of random entries"
+      description: |
+        Fetches a list of random SOFTWARE entries from the categories:
+        * Adventure Game
+        * Arcade Game
+        * Casual Game
+        * Game
+        * Sport Game
+        * Strategy Game
+
+        All returned items has loading screen.
+
+      operationId: "getRandomGames"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "total"
+          in: path
+          description: total number of entries to return
+          type: string
+          required: true
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'tiny', 'compact' or 'full'. Defaults to 'tiny'.
+          required: false
+          default: "tiny"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: OK
+        400:
+          description: Bad request. Entry id must be an integer. larger than 0 and max 7 digits.
+        404:
+          description: An entry with the specified ID was not found.
+
   /authors/{author-name}/games:
     get:
       summary: "Fetches list of entries filtered by author"
@@ -367,6 +367,114 @@ paths:
         200:
           description: |
             An array of games. Adds *X-Total-Count* to reponse header.
+
+  /magazines/:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches all magazines"
+      description: |
+        This method fetches basic info for all magazines.
+      operationId: "getAllMagazines"
+      produces:
+        - "application/json"
+      parameters:
+        - name: size
+          in: query
+          description: Specifies the page size for pagination
+          required: true
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination
+          required: true
+          type: integer
+        - name: sort
+          in: query
+          description: Specifies sorting mode. Can be on of name_asc, name_desc.
+          required: false
+          default: "name_asc"
+          type: string
+      responses:
+        # Response code
+        200:
+          description: |
+            An array of magazines. Adds *X-Total-Count* to reponse header.
+
+  /magazines/{magazine-name}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches a single magazine by name"
+      description: |
+        This method fetches a single magazine resource. It is the canonical URI for any entry resource provided by the API.
+
+          **Note: Output can be quite big, as it contains everything for a given magazine.**
+      operationId: "getMagazineByName"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "magazine-name"
+          in: path
+          description: Magazine name to fetch.
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: OK
+        404:
+          description: A magazine with the specified name was not found.
+
+  /magazines/{magazine-name}/issues:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches basic issue info for single magazine by name"
+      description: |
+        This method fetches all basic issue info for a single magazine.
+      operationId: "getIssuesByMagazineName"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "magazine-name"
+          in: path
+          description: Magazine name to fetch.
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: |
+            An array of basic issues info. Adds *X-Total-Count* to reponse header.
+
+  /magazines/{magazine-name}/issues/{issue-id}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches issue info for single magazine by name and issue-id"
+      description: |
+        This method fetches all issue info for a single magazine and issue-id.
+      operationId: "getIssue"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "magazine-name"
+          in: path
+          description: Magazine name to fetch.
+          type: string
+          required: true
+        - name: "issue-id"
+          in: path
+          description: issue-id to fetch.
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: OK
+        404:
+          description: A magazine with the specified name and issue-id was not found.
 
   /metadata/:
     get:
