@@ -232,6 +232,16 @@ paths:
           required: false
           default: "tiny"
           type: string
+        - name: size
+          in: query
+          description: Specifies the page size for pagination.
+          required: true
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination. documents.
+          required: true
+          type: integer
       responses:
         # Response code
         200:
