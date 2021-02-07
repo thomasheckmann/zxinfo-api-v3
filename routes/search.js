@@ -45,6 +45,21 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
+// constans for machinetype
+const ZXSPECTRUM = [
+  "ZX-Spectrum 128 +2",
+  "ZX-Spectrum 128 +2A/+3",
+  "ZX-Spectrum 128 +2B",
+  "ZX-Spectrum 128 +3",
+  "ZX-Spectrum 128K",
+  "ZX-Spectrum 128K (load in USR0 mode)",
+  "ZX-Spectrum 16K",
+  "ZX-Spectrum 16K/48K",
+  "ZX-Spectrum 48K",
+  "ZX-Spectrum 48K/128K",
+];
+const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
+
 var queryTerm1 = {
   match_all: {},
 };
@@ -651,6 +666,13 @@ router.use(function (req, res, next) {
 
 router.get("/", function (req, res, next) {
   debug("==> /search");
+  if (req.query.machinetype && req.query.machinetype === "ZXSPECTRUM") {
+    debug(`/search - machinetype=ZXSPECTRUM used`);
+    req.query.machinetype = ZXSPECTRUM;
+  } else if (req.query.machinetype && req.query.machinetype === "ZX81") {
+    debug(`/search - machinetype=ZX81 used`);
+    req.query.machinetype = ZX81;
+  }
   powerSearch(req.query, req.query.size, req.query.offset, req.query.mode).then(function (result) {
     debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
     debug(result);
