@@ -74,6 +74,10 @@ paths:
         Original entries are prioritized over modified versions. This is to ensure e.g. 'Manic Miner' shows up at the top :-)
         Additional options can be specified to futher narrow down search.
 
+        Specials:
+        *machinetype* - use ZXSPECTRUM, ZX81 or PENTAGON to cover all variants, as an alternative to specify each machine variant.
+        *genretype* - use GAMES to cover all game genres, as an alternative to specify each type.
+
       operationId: "search"
       produces:
         - "application/json"
