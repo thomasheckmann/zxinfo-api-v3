@@ -59,6 +59,7 @@ const ZXSPECTRUM = [
   "ZX-Spectrum 48K/128K",
 ];
 const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
+const PENTAGON = ["Scorpion", "Pentagon 128"];
 
 var queryTerm1 = {
   match_all: {},
@@ -666,13 +667,37 @@ router.use(function (req, res, next) {
 
 router.get("/", function (req, res, next) {
   debug("==> /search");
-  if (req.query.machinetype && req.query.machinetype === "ZXSPECTRUM") {
-    debug(`/search - machinetype=ZXSPECTRUM used`);
-    req.query.machinetype = ZXSPECTRUM;
-  } else if (req.query.machinetype && req.query.machinetype === "ZX81") {
-    debug(`/search - machinetype=ZX81 used`);
-    req.query.machinetype = ZX81;
+
+  if (req.query.machinetype) {
+    var mTypes = [];
+    if (!Array.isArray(req.query.machinetype)) {
+      req.query.machinetype = [req.query.machinetype];
+    }
+
+    for (var i = 0; i < req.query.machinetype.length; i++) {
+      debug(`${i} - ${req.query.machinetype[i]}`);
+      switch (req.query.machinetype[i]) {
+        case "ZXSPECTRUM":
+          debug("- ZXSPECTRUM -");
+          mTypes = mTypes.concat(ZXSPECTRUM);
+          break;
+        case "ZX81":
+          debug("- ZX81 -");
+          mTypes = mTypes.concat(ZX81);
+          break;
+        case "PENTAGON":
+          debug("- PENTAGON -");
+          mTypes = mTypes.concat(PENTAGON);
+          break;
+        default:
+          mTypes.push(req.query.machinetype[i]);
+          break;
+      }
+    }
+    req.query.machinetype = mTypes;
+    debug(`mType: ${mTypes}`);
   }
+
   powerSearch(req.query, req.query.size, req.query.offset, req.query.mode).then(function (result) {
     debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
     debug(result);
