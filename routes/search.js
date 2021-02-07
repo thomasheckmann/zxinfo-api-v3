@@ -61,6 +61,9 @@ const ZXSPECTRUM = [
 const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
 const PENTAGON = ["Scorpion", "Pentagon 128"];
 
+// constans for genretype
+const GAMES = ["Adventure Game", "Arcade Game", "Casual Game", "Game", "Sport Game", "Strategy Game"];
+
 var queryTerm1 = {
   match_all: {},
 };
@@ -696,6 +699,27 @@ router.get("/", function (req, res, next) {
     }
     req.query.machinetype = mTypes;
     debug(`mType: ${mTypes}`);
+  }
+  if (req.query.genretype) {
+    var gTypes = [];
+    if (!Array.isArray(req.query.genretype)) {
+      req.query.genretype = [req.query.genretype];
+    }
+
+    for (var i = 0; i < req.query.genretype.length; i++) {
+      debug(`${i} - ${req.query.genretype[i]}`);
+      switch (req.query.genretype[i]) {
+        case "GAMES":
+          debug("- GAMES -");
+          gTypes = gTypes.concat(GAMES);
+          break;
+        default:
+          gTypes.push(req.query.genretype[i]);
+          break;
+      }
+    }
+    req.query.genretype = gTypes;
+    debug(`mType: ${gTypes}`);
   }
 
   powerSearch(req.query, req.query.size, req.query.offset, req.query.mode).then(function (result) {
