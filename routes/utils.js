@@ -123,6 +123,11 @@ var getSortObject = function (sort_mode) {
           order: "desc",
         },
       },
+      {
+        "title.keyword": {
+          order: "asc",
+        },
+      },
     ];
   }
   return sort_object;
