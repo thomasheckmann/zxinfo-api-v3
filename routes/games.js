@@ -65,16 +65,18 @@ router.get("/:gameid", function (req, res, next) {
     `gameid: ${req.params.gameid}, len: ${req.params.gameid.length}, isInt: ${Number.isInteger(parseInt(req.params.gameid))}`
   );
 
+  // set default values for mode
+  req.query = tools.setDefaultValueMode(req.query);
+
   if (Number.isInteger(parseInt(req.params.gameid)) && req.params.gameid.length < 8) {
     const id = ("0000000" + req.params.gameid).slice(-7);
     getGameById(id, req.query.mode).then(
       function (result) {
+        debug(`########### RESPONSE from getGameById(${id},${req.query.mode})`);
+        debug(result);
+        debug(`#############################################################`);
         //res.send(tools.renderMagazineLinks(result));
-        if (req.query.mode === "titleonly") {
-          res.send(result._source.title);
-        } else {
-          res.send(result);
-        }
+        res.send(result);
       },
       function (reason) {
         debug(`[FAILED] reason: ${reason.message}`);

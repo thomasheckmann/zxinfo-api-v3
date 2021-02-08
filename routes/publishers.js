@@ -45,11 +45,10 @@ router.use(function (req, res, next) {
  * Notes:
  *      -
  */
-var getGamesByPublisher = function (name, page_size, offset, sort, outputmode) {
+var getGamesByPublisher = function (name, page_size, offset, outputmode, sort) {
   debug(`getGamesByPublisher(${name})`);
 
-  var sort_mode = sort == undefined ? "date_desc" : sort;
-  var sort_object = tools.getSortObject(sort_mode);
+  var sort_object = tools.getSortObject(sort);
 
   return elasticClient.search({
     _source: tools.es_source_list(outputmode),
@@ -115,14 +114,20 @@ var getGamesByPublisher = function (name, page_size, offset, sort, outputmode) {
 router.get("/:name/games", function (req, res, next) {
   debug("==> /publishers/:name/games");
 
-  getGamesByPublisher(req.params.name, req.query.size, req.query.offset, req.query.sort, req.query.mode).then(function (result) {
+  if (!req.query.sort) {
+    req.query.sort = "date_asc";
+  }
+  // set default values for mode, size & offset
+  req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
+
+  getGamesByPublisher(req.params.name, req.query.size, req.query.offset, req.query.mode, req.query.sort).then(function (result) {
     debug(
-      `########### RESPONSE from getGamesByPublisher(${req.params.name},${req.query.size}, ${req.query.offset}, ${req.query.sort}, ${req.query.mode})`
+      `########### RESPONSE from getGamesByPublisher(${req.params.name},${req.query.size}, ${req.query.offset}, ${req.query.mode}, ${req.query.sort})`
     );
     debug(result);
     debug(`#############################################################`);
     res.header("X-Total-Count", result.hits.total.value);
-    if (req.query.mode === "simple") {
+    if (req.query.output === "simple") {
       res.send(tools.renderSimpleOutput(result));
     } else {
       res.send(result);

@@ -23,13 +23,10 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
+var getGamesByAuthor = function (name, page_size, offset, outputmode, sort) {
   debug(`getGamesByAuthor(name: ${name}), sort: ${sort}, mode: ${outputmode}, size: ${page_size}, offset=${offset}`);
 
-  var sort_object = {};
-  if (sort === undefined) {
-    sort_object = tools.getSortObject("date_asc");
-  }
+  var sort_object = tools.getSortObject(sort);
 
   return elasticClient.search({
     _source: tools.es_source_list(outputmode),
@@ -105,14 +102,22 @@ router.use(function (req, res, next) {
 router.get("/:name/games", function (req, res, next) {
   debug("==> /authors/:name/games");
 
-  getGamesByAuthor(req.params.name, req.query.size, req.query.offset, req.query.sort, req.query.mode).then(function (result) {
+  if (!req.query.sort) {
+    req.query.sort = "date_asc";
+  }
+  // set default values for mode, size & offset
+  req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
+
+  //   powerSearch(req.query, req.query.size, req.query.offset, req.query.mode).then(function (result) {
+
+  getGamesByAuthor(req.params.name, req.query.size, req.query.offset, req.query.mode, req.query.sort).then(function (result) {
     debug(
-      `########### RESPONSE from getGamesByAuthor(${req.params.name},${req.query.size}, ${req.query.offset}, ${req.query.sort}, ${req.query.mode})`
+      `########### RESPONSE from getGamesByAuthor(${req.params.name},${req.query.size}, ${req.query.offset}, ${req.query.mode}, ${req.query.sort})`
     );
     debug(result);
     debug(`#############################################################`);
     res.header("X-Total-Count", result.hits.total.value);
-    if (req.query.mode === "simple") {
+    if (req.query.output === "simple") {
       res.send(tools.renderSimpleOutput(result));
     } else {
       res.send(result);

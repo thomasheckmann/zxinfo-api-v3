@@ -2,12 +2,56 @@
 
 var debug = require("debug")("zxinfo-api-v3:utils");
 
+const default_mode = "compact";
+const default_size = 25;
+const default_offset = 0;
+const default_sort = "rel_desc";
+
+/**
+ * sets default values, if they does not exists
+ *
+ * - mode
+ * - size
+ * - offset
+ * - sort
+ *
+ */
+var setDefaultValuesModeSizeOffsetSort = function (q) {
+  debug(`setDefaultValuesModeSizeOffsetSort`);
+  if (!q.mode) {
+    debug(`setting mode=${default_mode}`);
+    q.mode = default_mode;
+  }
+  if (!q.size) {
+    debug(`setting size=${default_size}`);
+    q.size = default_size;
+  }
+  if (!q.offset) {
+    debug(`setting offset=${default_offset}`);
+    q.offset = default_offset;
+  }
+  if (!q.sort) {
+    debug(`setting sort=${default_sort}`);
+    q.sort = default_sort;
+  }
+  return q;
+};
+
+var setDefaultValueMode = function (q) {
+  debug(`setDefaultValueMode`);
+  if (!q.mode) {
+    debug(`setting mode=${default_mode}`);
+    q.mode = default_mode;
+  }
+  return q;
+};
+
 /*	
 	Builds ES object for sorting, based on sort_mode.
 	sort_mode:
 		* title_asc or title_desc (sort by title)
 		* date_asc or date_desc   (sort by release date)
-		* rel_asc or rel_desc     (sort by release year)
+		* rel_asc or rel_desc     (sort by relevance score)
 */
 var getSortObject = function (sort_mode) {
   var sort_object;
@@ -71,22 +115,12 @@ var getSortObject = function (sort_mode) {
           order: "asc",
         },
       },
-      {
-        "title.keyword": {
-          order: "asc",
-        },
-      },
     ];
   } else if (sort_mode === "rel_desc") {
     sort_object = [
       {
         _score: {
           order: "desc",
-        },
-      },
-      {
-        "title.keyword": {
-          order: "asc",
         },
       },
     ];
@@ -221,6 +255,7 @@ var renderSimpleOutput = function (r) {
   return result;
 };
 
+/** TODO: one section, not 3 - simplify */
 var renderMagazineLinks = function (r) {
   function replaceMask(input, pattern, value) {
     var result = input;
@@ -308,4 +343,6 @@ module.exports = {
   renderSimpleOutput: renderSimpleOutput,
   getSortObject: getSortObject,
   renderMagazineLinks: renderMagazineLinks,
+  setDefaultValuesModeSizeOffsetSort: setDefaultValuesModeSizeOffsetSort,
+  setDefaultValueMode: setDefaultValueMode,
 };

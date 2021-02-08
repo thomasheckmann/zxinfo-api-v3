@@ -277,9 +277,7 @@ function removeFilter(filters, f) {
 var powerSearch = function (searchObject, page_size, offset, outputmode) {
   debug("powerSearch(): " + JSON.stringify(searchObject));
 
-  // title_asc, title_desc, date_asc, date_desc
-  var sort_mode = searchObject.sort == undefined ? "rel_desc" : searchObject.sort;
-  var sort_object = tools.getSortObject(sort_mode);
+  var sort_object = tools.getSortObject(searchObject.sort);
 
   var filterObjects = {};
 
@@ -671,6 +669,9 @@ router.use(function (req, res, next) {
 router.get("/", function (req, res, next) {
   debug("==> /search");
 
+  // set default values for mode, size & offset
+  req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
+
   if (req.query.machinetype) {
     var mTypes = [];
     if (!Array.isArray(req.query.machinetype)) {
@@ -728,7 +729,7 @@ router.get("/", function (req, res, next) {
     debug(`#############################################################`);
 
     res.header("X-Total-Count", result.hits.total.value);
-    if (req.query.mode === "simple") {
+    if (req.query.output === "simple") {
       res.send(tools.renderSimpleOutput(result));
     } else {
       res.send(result);

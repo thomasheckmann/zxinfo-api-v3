@@ -136,12 +136,15 @@ router.get("/:total", function (req, res, next) {
   debug("==> /games/random/:total");
   debug(`total: ${req.params.total}, mode: ${req.query.mode}`);
 
+  // set default values for mode
+  req.query = tools.setDefaultValueMode(req.query);
+
   getRandomX(req.params.total, req.query.mode).then(function (result) {
     debug(`########### RESPONSE from getRandomX(${req.params.total}, mode: ${req.query.mode})`);
     debug(result);
     debug(`#############################################################`);
     res.header("X-Total-Count", result.hits.total.value);
-    if (req.query.mode === "simple") {
+    if (req.query.output === "simple") {
       res.send(tools.renderSimpleOutput(result));
     } else {
       res.send(result);

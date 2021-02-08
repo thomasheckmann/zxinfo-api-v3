@@ -83,6 +83,9 @@ router.get("/:letter", function (req, res, next) {
   if (!req.query.mode || req.query.mode === "full") {
     req.query.mode = "tiny";
   }
+
+  req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
+
   var letter = req.params.letter.toLowerCase();
   if (letter.length !== 1) {
     res.status(400).end();
@@ -92,7 +95,7 @@ router.get("/:letter", function (req, res, next) {
       debug(result);
       debug(`#############################################################`);
       res.header("X-Total-Count", result.hits.total.value);
-      if (req.query.mode === "simple") {
+      if (req.query.output === "simple") {
         res.send(tools.renderSimpleOutput(result));
       } else {
         res.send(result);
