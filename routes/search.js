@@ -68,6 +68,27 @@ var queryTerm1 = {
   match_all: {},
 };
 
+function queryTermTitlesOnly(query) {
+  return {
+    bool: {
+      should: [
+        {
+          multi_match: {
+            query: query,
+            fields: ["title"],
+          },
+        },
+        {
+          match: {
+            titlesuggest: query,
+          },
+        },
+      ],
+      minimum_should_match: 1,
+    },
+  };
+}
+
 function queryTerm2(query) {
   debug(`queryTerm2(${query})`);
   return {
@@ -213,9 +234,9 @@ function queryTerm2(query) {
   };
 }
 
-var createQueryTermWithFilters = function (query, filters) {
+var createQueryTermWithFilters = function (query, filters, titlesonly) {
   if (query == undefined || query.length == 0) {
-    debug("empty query, return all");
+    debug(`createQueryTermWithFilters() - empty query}`);
     return {
       bool: {
         must: queryTerm1,
@@ -226,18 +247,31 @@ var createQueryTermWithFilters = function (query, filters) {
         },
       },
     };
-  }
-
-  return {
-    bool: {
-      must: [queryTerm2(query)],
-      filter: {
-        bool: {
-          must: filters,
+  } else if (titlesonly !== undefined && titlesonly === "true") {
+    debug(`createQueryTermWithFilters() - titlesonly`);
+    return {
+      bool: {
+        must: queryTermTitlesOnly(query),
+        filter: {
+          bool: {
+            must: filters,
+          },
         },
       },
-    },
-  };
+    };
+  } else {
+    debug(`createQueryTermWithFilters() - normal search`);
+    return {
+      bool: {
+        must: [queryTerm2(query)],
+        filter: {
+          bool: {
+            must: filters,
+          },
+        },
+      },
+    };
+  }
 };
 
 var createFilterItem = function (filterName, filterValues) {
@@ -274,7 +308,7 @@ function removeFilter(filters, f) {
   return filters.filter((value) => Object.keys(value).length !== 0);
 }
 
-var powerSearch = function (searchObject, page_size, offset, outputmode) {
+var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly) {
   debug("powerSearch(): " + JSON.stringify(searchObject));
 
   var sort_object = tools.getSortObject(searchObject.sort);
@@ -367,7 +401,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode) {
     }
   }
 
-  var query = createQueryTermWithFilters(searchObject.query, filters);
+  var query = createQueryTermWithFilters(searchObject.query, filters, titlesonly);
 
   var aggfilter = [
     query,
@@ -723,7 +757,7 @@ router.get("/", function (req, res, next) {
     debug(`mType: ${gTypes}`);
   }
 
-  powerSearch(req.query, req.query.size, req.query.offset, req.query.mode).then(function (result) {
+  powerSearch(req.query, req.query.size, req.query.offset, req.query.mode, req.query.titlesonly).then(function (result) {
     debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
     debug(result);
     debug(`#############################################################`);
