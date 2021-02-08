@@ -40,14 +40,42 @@ var getGamesByAuthor = function (name, page_size, offset, sort, outputmode) {
       size: page_size,
       from: offset * page_size,
       query: {
-        nested: {
-          path: "authors",
-          query: {
-            multi_match: {
-              query: name,
-              fields: ["authors.name.keyword^2", "authors.groupName"],
+        bool: {
+          should: [
+            {
+              nested: {
+                path: "authors",
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match_phrase_prefix: {
+                          "authors.name": name,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
             },
-          },
+            {
+              nested: {
+                path: "authors",
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match_phrase_prefix: {
+                          "authors.groupName": name,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+          minimum_should_match: 1,
         },
       },
       sort: sort_object,
