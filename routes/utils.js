@@ -1,6 +1,7 @@
 "use strict";
 
 var debug = require("debug")("zxinfo-api-v3:utils");
+var flatten = require("flat");
 
 const default_mode = "compact";
 const default_size = 25;
@@ -248,6 +249,11 @@ var es_source_list = function (outputmode) {
   }
 };
 
+/**
+ *
+ * simple output format: {id. title}
+ *
+ */
 var renderSimpleOutput = function (r) {
   debug(`renderSimpleOutput() :`);
   debug(r);
@@ -256,6 +262,28 @@ var renderSimpleOutput = function (r) {
   for (var i = 0; r.hits.hits && i < r.hits.hits.length; i++) {
     const item = r.hits.hits[i];
     result.push({ id: item._id, title: item._source.title });
+  }
+  return result;
+};
+
+/**
+ *
+ * flat output format: key=value
+ *
+ */
+var renderFlatOutputEntries = function (r) {
+  debug(`renderFlatOutputEntries() :`);
+  debug(r);
+
+  const data = flatten(r);
+  debug(`renderFlatOutputEntries()`);
+  debug(data);
+  var result = "";
+  for (let [key, value] of Object.entries(data)) {
+    if (key.startsWith("hits.")) {
+      result += key.replace("hits.", "").replace("_source.", "") + "=" + value + "\n";
+      debug(`${key}: ${value}`);
+    }
   }
   return result;
 };
@@ -346,6 +374,7 @@ module.exports = {
   es_source_item: es_source_item,
   es_source_list: es_source_list,
   renderSimpleOutput: renderSimpleOutput,
+  renderFlatOutputEntries: renderFlatOutputEntries,
   getSortObject: getSortObject,
   renderMagazineLinks: renderMagazineLinks,
   setDefaultValuesModeSizeOffsetSort: setDefaultValuesModeSizeOffsetSort,
