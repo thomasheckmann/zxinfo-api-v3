@@ -288,6 +288,22 @@ var renderFlatOutputEntries = function (r) {
   return result;
 };
 
+var renderFlatOutputEntry = function (r) {
+  debug(`renderFlatOutputEntries() :`);
+  debug(r);
+
+  const data = flatten(r);
+  debug(`renderFlatOutputEntries()`);
+  debug(data);
+  var result = "";
+  for (let [key, value] of Object.entries(data)) {
+    if (key.startsWith("_source.")) {
+      result += key.replace("_source.", "") + "=" + value + "\n";
+    }
+  }
+  return result;
+};
+
 /** TODO: one section, not 3 - simplify */
 var renderMagazineLinks = function (r) {
   function replaceMask(input, pattern, value) {
@@ -375,6 +391,7 @@ module.exports = {
   es_source_list: es_source_list,
   renderSimpleOutput: renderSimpleOutput,
   renderFlatOutputEntries: renderFlatOutputEntries,
+  renderFlatOutputEntry: renderFlatOutputEntry,
   getSortObject: getSortObject,
   renderMagazineLinks: renderMagazineLinks,
   setDefaultValuesModeSizeOffsetSort: setDefaultValuesModeSizeOffsetSort,

@@ -76,7 +76,12 @@ router.get("/:gameid", function (req, res, next) {
         debug(result);
         debug(`#############################################################`);
         //res.send(tools.renderMagazineLinks(result));
-        res.send(result);
+        if (req.query.output === "flat") {
+          res.header("content-type", "text/plain;charset=UTF-8");
+          res.send(tools.renderFlatOutputEntry(result));
+        } else {
+          res.send(result);
+        }
       },
       function (reason) {
         debug(`[FAILED] reason: ${reason.message}`);
