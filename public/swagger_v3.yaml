@@ -21,6 +21,8 @@ info:
 
     Most communication will occur on the community forum on https://spectrumcomputing.co.uk/forums/
 
+    Additional information can be found on the [Wiki](https://github.com/thomasheckmann/zxinfo-api-v3/wiki/ZXInfo-API-v3-documentation)
+
     **KNOWN CLIENTS using ZXInfo API**
 
     If you want to check out how the ZXInfo API is being used, please checkout the following:
@@ -45,9 +47,6 @@ basePath: /v3
 tags:
   - name: "zxinfo"
     description: "(Almost) Everything about Sinclair-related material including software, hardware, books, magazines, etc."
-    externalDocs:
-      description: "See more here"
-      url: "https://github.com/thomasheckmann/zxinfo-api-v3/wiki/ZXInfo-API-v3-documentation"
 schemes:
   - https
 consumes:
@@ -93,26 +92,57 @@ paths:
           required: false
           default: "compact"
           type: string
+        - name: size
+          in: query
+          description: Specifies the page size for pagination. If used in combination with offset=random, max value allowed is 10.
+          required: false
+          default: 25
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination. Use 'random' to return 'size' random items from result.
+          required: false
+          default: 0
+          type: string
         - name: sort
           in: query
-          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc, rel_asc or rel_desc. rel_asc/desc sorts on release date.
+          description: Specifies sorting mode.
           required: false
           default: "rel_desc"
           type: string
+          enum:
+            - title_asc
+            - title_desc
+            - date_asc
+            - date_desc
+            - rel_asc
+            - rel_desc
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - simple
+            - flat
         - name: "contenttype"
           in: query
-          description: "Filter by contenttype: SOFTWARE, HARDWARE, BOOK"
+          description: Filter by contenttype
           type: string
+          enum:
+            - SOFTWARE
+            - HARDWARE
+            - BOOK
           required: false
         - name: "language"
           in: query
-          description: "Filter by language: English, Spanish, ..."
+          description: "Filter by language: English, Spanish"
           type: string
           required: false
         - name: "year"
           in: query
           description: "Filter by year of release"
-          type: string
+          type: integer
           required: false
         - name: "genretype"
           in: query
@@ -164,16 +194,6 @@ paths:
           description: "Filter by groupname. See ZXDB documentation"
           type: string
           required: false
-        - name: size
-          in: query
-          description: Specifies the page size for pagination. If used in combination with offset=random, max value allowed is 10.
-          required: true
-          type: integer
-        - name: offset
-          in: query
-          description: Specifies the page offset for pagination. If 'random' used in combination with size to fetct random documents.
-          required: true
-          type: string
       responses:
         # Response code
         200:
@@ -198,10 +218,17 @@ paths:
           required: true
         - name: mode
           in: query
-          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
           required: false
           default: "compact"
           type: string
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - flat
       responses:
         # Response code
         200:
@@ -219,7 +246,7 @@ paths:
         - "zxinfo"
       summary: "Fetches list of entries starting with a specific letter"
       description: |
-        Fetches a list of entries starting with a specific letter: a-Z or  \# for numbers. This endpoint supports a special simple output format, just returning title and id - use **mode=simple**
+        Fetches a list of entries starting with a specific letter: a-Z or  \# for numbers.
 
       operationId: "getGamesByLetter"
       produces:
@@ -232,20 +259,30 @@ paths:
           required: true
         - name: mode
           in: query
-          description: Specifies if returned JSON should be 'simple', 'tiny' or 'compact'. 'simple' only returns title and entry_id.
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
           required: false
           default: "tiny"
           type: string
         - name: size
           in: query
           description: Specifies the page size for pagination.
-          required: true
+          required: false
+          default: 25
           type: integer
         - name: offset
           in: query
-          description: Specifies the page offset for pagination. documents.
-          required: true
+          description: Specifies the page offset for pagination.
+          required: false
+          default: 0
           type: integer
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - simple
+            - flat
       responses:
         # Response code
         200:
@@ -269,7 +306,7 @@ paths:
         * Sport Game
         * Strategy Game
 
-        All returned items has loading screen.
+        All returned items has loading and in-game screen.
 
       operationId: "getRandomGames"
       produces:
@@ -282,10 +319,18 @@ paths:
           required: true
         - name: mode
           in: query
-          description: Specifies if returned JSON should be 'tiny', 'tiny', 'compact' or 'full'. Defaults to 'tiny'.
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
           required: false
-          default: "tiny"
+          default: "compact"
           type: string
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - simple
+            - flat
       responses:
         # Response code
         200:
@@ -311,28 +356,45 @@ paths:
           description: Specifies name of author to lookup
           required: true
           type: string
-        - name: size
-          in: query
-          description: Specifies the page size for pagination
-          required: true
-          type: integer
-        - name: offset
-          in: query
-          description: Specifies the page offset for pagination
-          required: true
-          type: integer
         - name: mode
           in: query
-          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
           required: false
           default: "compact"
           type: string
+        - name: size
+          in: query
+          description: Specifies the page size for pagination.
+          required: false
+          default: 25
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination.
+          required: false
+          default: 0
+          type: integer
         - name: sort
           in: query
-          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc.
+          description: Specifies sorting mode.
           required: false
-          default: "date_desc"
+          default: "rel_desc"
           type: string
+          enum:
+            - title_asc
+            - title_desc
+            - date_asc
+            - date_desc
+            - rel_asc
+            - rel_desc
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - simple
+            - flat
       responses:
         # Response code
         200:
@@ -355,28 +417,45 @@ paths:
           description: Specifies name of publisher to lookup
           required: true
           type: string
-        - name: size
-          in: query
-          description: Specifies the page size for pagination
-          required: true
-          type: integer
-        - name: offset
-          in: query
-          description: Specifies the page offset for pagination
-          required: true
-          type: integer
         - name: mode
           in: query
-          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
           required: false
           default: "compact"
           type: string
+        - name: size
+          in: query
+          description: Specifies the page size for pagination.
+          required: false
+          default: 25
+          type: integer
+        - name: offset
+          in: query
+          description: Specifies the page offset for pagination.
+          required: false
+          default: 0
+          type: integer
         - name: sort
           in: query
-          description: Specifies sorting mode. Can be on of title_asc, title_desc, date_asc or date_desc.
+          description: Specifies sorting mode.
           required: false
-          default: "date_desc"
+          default: "rel_desc"
           type: string
+          enum:
+            - title_asc
+            - title_desc
+            - date_asc
+            - date_desc
+            - rel_asc
+            - rel_desc
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - simple
+            - flat
       responses:
         # Response code
         200:

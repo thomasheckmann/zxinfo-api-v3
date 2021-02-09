@@ -129,6 +129,9 @@ router.get("/:name/games", function (req, res, next) {
     res.header("X-Total-Count", result.hits.total.value);
     if (req.query.output === "simple") {
       res.send(tools.renderSimpleOutput(result));
+    } else if (req.query.output === "flat") {
+      res.header("content-type", "text/plain;charset=UTF-8");
+      res.send(tools.renderFlatOutputEntries(result));
     } else {
       res.send(result);
     }
