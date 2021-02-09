@@ -774,10 +774,4 @@ router.get("/", function (req, res, next) {
   });
 });
 
-router.get("/", (req, res) => {
-  console.log(`[CATCH ALL - ${moduleId}]`);
-  console.log(req.path);
-  res.send(`Hello World from /${moduleId}`);
-});
-
 module.exports = router;
