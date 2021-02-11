@@ -38,6 +38,7 @@ info:
     **ZXDB update 15.01.2021**
 
     changelog:
+    * [1.0.84](https://api.zxinfo.dk/changelogs/change-1.0.84-10022021.txt)
 
   contact:
     name: ZXInfo API development
