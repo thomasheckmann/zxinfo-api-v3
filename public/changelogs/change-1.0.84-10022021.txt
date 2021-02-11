@@ -1567,6 +1567,7 @@
 0006486 (Inspector Flukeit) - ADDITIONAL DOWNLOADS
 0006490 (Invincible Island) - MAGZINE REFERENCES
 0006513 (Johnnie Verso) - COMPILATION REFERENCE
+ - ADDED: 37645 - Wazertown Works Superproductions Compilation
 0006518 (Journey to the Centre of Eddie Smith's Head) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette inlay - Back - /zxdb/sinclair/entries/0006518/JourneyToTheCentreOfEddieSmithsHead_Back.jpg
 0006521 (Karyssia: Queen of Diamonds) - MAGZINE REFERENCES
@@ -1966,7 +1967,9 @@
 0013483 (Limited Edition Chart Attack) - AVAILABILITY [MIA -> Distribution denied]
 0013483 (Limited Edition Chart Attack) - RELEASES
 0013672 (Spectrum Computing 02) - COMPILATION CONTENT
+ - REMOVED: 5306 - Toady
 0013686 (Spectrum Computing 16) - COMPILATION CONTENT
+ - REMOVED: 5306 - Toady
 0013824 (Mega-Bert) - MAGZINE REFERENCES
 0013826 (Road Racer) - MAGZINE REFERENCES
 0013864 (MCoder) - MAGZINE REFERENCES
@@ -2002,6 +2005,7 @@
 0015138 (The Semi-Detached at the End of the Street) - PUBLISHERS
 0015138 (The Semi-Detached at the End of the Street) - RELEASES
 0015138 (The Semi-Detached at the End of the Street) - COMPILATION REFERENCE
+ - ADDED: 34770 - The Rubber Maze
 0015473 (Newsdesk issue 1) - REMARKS
 0015473 (Newsdesk issue 1) - PUBLISHERS
 0015473 (Newsdesk issue 1) - AUTHORS
@@ -2011,6 +2015,7 @@
 0015474 (Newsdesk issue 2) - AUTHORS
 0015474 (Newsdesk issue 2) - RELEASES
 0015727 (El Ojo del Dragon) - COMPILATION REFERENCE
+ - ADDED: 37645 - Wazertown Works Superproductions Compilation
 0015834 (Shoot Out) - MAGZINE REFERENCES
 0016790 (Network) - MAGZINE REFERENCES
 0016894 (Speech System 3) - MAGZINE REFERENCES
@@ -2610,6 +2615,9 @@
 0033464 (Lightfire) - ADDITIONAL DOWNLOADS
  - ADDED: Running screen - /zxdb/sinclair/entries/0033464/0033464-run-1.scr
 0034299 (Thoroughly Modern Willy) - AUTHORED WITH
+ - ADDED: 21744 - Hrust
+ - ADDED: 28048 - RCS
+ - ADDED: 27996 - ZX7
 0034302 (Ninjakul in the AUIC Temple) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette inlay - Back - /zxdb/sinclair/entries/0034302/NinjakulintheAUICTemple(MatraComputerAutomations)_Back.jpg
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034302/NinjakulintheAUICTemple(MatraComputerAutomations)_Tape.jpg
@@ -2672,6 +2680,8 @@
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034465/EggsterminatorThe(BumfunSoftware)_Tape.jpg
 0034616 (Super Moritz) - SERIES
 0034617 (Your crackers, m'lord!) - AUTHORED WITH
+ - ADDED: 28171 - FZX
+ - ADDED: 27996 - ZX7
 0034622 (Quadron) - RELEASES
  - ADDED: ReleaseSeq: 1 - [{"country":"UK","labelType":"Company","name":"Cronosoft [UK]","publisherSeq":1}]
 0034635 (Mister Kung Fu) - ADDITIONAL DOWNLOADS
@@ -2754,7 +2764,9 @@
 0034767 (Classic Arcadia Collection) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette inlay - Back - /zxdb/sinclair/entries/0034767/ClassicArcadiaCollection_Back.jpg
 0034770 (The Rubber Maze) - COMPILATION REFERENCE
+ - ADDED: 34770 - The Rubber Maze
 0034770 (The Rubber Maze) - COMPILATION CONTENT
+ - ADDED: 34770 - The Rubber Maze
 0034799 (Birdy Cantabile) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034799/BirdyCantabile(MatraComputerAutomations)_SideA.jpg
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034799/BirdyCantabile(MatraComputerAutomations)_SideB.jpg
@@ -2765,6 +2777,8 @@
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034815/BeingLeftisNotRight(MatraComputerAutomations)_SideA.jpg
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034815/BeingLeftisNotRight(MatraComputerAutomations)_SideB.jpg
 0034845 (Cosmito en Imperio Cobra) - AUTHORED WITH
+ - ADDED: 28048 - RCS
+ - ADDED: 27996 - ZX7
 0034877 (Generació Digital) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette inlay - Back - /zxdb/sinclair/entries/0034877/GeneracioDigital(MatraComputerAutomations)_Back.jpg
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0034877/GeneracioDigital(MatraComputerAutomations)_SideA.jpg
@@ -2897,6 +2911,7 @@
 0035211 (Space Sludge) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0035211/SpaceSludge_Tape.jpg
 0035222 (ZHL) - AUTHORED WITH
+ - ADDED: 27996 - ZX7
 0035242 (SQIJ'D!) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0035242/Sqijd_Tape.jpg
 0035335 (MT Engine MK3) - SERIES
@@ -3001,12 +3016,14 @@
  - ADDED: Loading screen - /zxdb/sinclair/entries/0036319/0036319-load-1.png
  - ADDED: Running screen - /zxdb/sinclair/entries/0036319/0036319-run-1.png
 0036381 (Alien Girl) - AUTHORED WITH
+ - ADDED: 30008 - MT Engine MK1 - La Churrera
 0036387 (H.E.R.O Returns) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0036387/HEROReturns(MatraComputerAutomations)_SideB.jpg
  - ADDED: Instructions - /zxdb/sinclair/entries/0036387/HERO.txt
  - ADDED: Loading screen - /zxdb/sinclair/entries/0036387/0036387-load-1.scr
  - ADDED: Running screen - /zxdb/sinclair/entries/0036387/0036387-run-1.scr
 0036388 (Batboy) - AUTHORED WITH
+ - ADDED: 30008 - MT Engine MK1 - La Churrera
 0036395 (Puta Mili) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0036395/PutaMili(MatraComputerAutomations)_SideB.jpg
  - ADDED: Instructions - /zxdb/sinclair/entries/0036395/PutaMili.pdf
@@ -3018,6 +3035,7 @@
  - ADDED: Loading screen - /zxdb/sinclair/entries/0036449/0036449-load-1.scr
  - ADDED: Running screen - /zxdb/sinclair/entries/0036449/0036449-run-1.scr
 0036451 (La Reliquia) - AUTHORED WITH
+ - ADDED: 20176 - Arcade Game Designer
 0036451 (La Reliquia) - ADDITIONAL DOWNLOADS
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0036451/ReliquiaLa(MatraComputerAutomations)_SideA.jpg
  - ADDED: Cassette scan - /zxdb/sinclair/entries/0036451/ReliquiaLa(MatraComputerAutomations)_SideB.jpg
@@ -3034,6 +3052,7 @@
 0036494 (Mire Mare) - YOUTUBE LINKS
 0036497 (HELL YEAH!) - RELEASES
 0036497 (HELL YEAH!) - AUTHORED WITH
+ - ADDED: 30005 - JOY
 0036497 (HELL YEAH!) - RELATED LINKS
 0036497 (HELL YEAH!) - YOUTUBE LINKS
 0036502 (Trashman: Crisis Time) - RELATED LINKS
