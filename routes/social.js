@@ -1,5 +1,5 @@
 /**
- * NODE_ENV=development PORT=8300 DEBUG=zxinfo-api-v3:moduleId* nodemon --ignorpublic/javascripts/config.js --exec npm start
+ * NODE_ENV=development PORT=8300 DEBUG=zxinfo-api-v3:social* nodemon --ignorpublic/javascripts/config.js --exec npm start
  *
  * https://developers.facebook.com/tools/debug/
  * https://developers.facebook.com/tools/debug/echo/?q=http%3A%2F%2Fdev.zxinfo.dk%2Fdetails%2F0002259
@@ -8,13 +8,13 @@
 
 "use strict";
 
-const moduleId = "moduleId";
+const moduleId = "social";
 
 var config = require("../config.json")[process.env.NODE_ENV || "development"];
 var express = require("express");
 var router = express.Router();
 
-var debug = require("debug")(`zxinfo-api-v3:social`); // TODO: Change debug identifier
+var debug = require("debug")(`zxinfo-api-v3:${moduleId}`);
 
 var tools = require("./utils");
 
@@ -44,7 +44,6 @@ var getGameById = function (gameid) {
 
 function loadscreen(source) {
   // iterate all additionals to find loading screen, if any
-  console.log(source);
   var loadscreen = "/images/placeholder.png";
   if (source.genreType == "Compilation") {
     loadscreen = "https://zxinfo.dk/media/images/compilation.png";
@@ -88,8 +87,8 @@ function loadscreen(source) {
  *
  ************************************************/
 router.use(function (req, res, next) {
-  console.log(`[social.js] got request - start processing, path: ${req.path}`);
-  console.log(`user-agent: ${req.headers["user-agent"]}`);
+  debug(`[social.js] got request - start processing, path: ${req.path}`);
+  debug(`user-agent: ${req.headers["user-agent"]}`);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   // do logging
@@ -104,7 +103,7 @@ router.use(function (req, res, next) {
 
 //TODO: handle id without trailing 0s
 router.get("/details/:gameid", (req, res) => {
-  console.log(`social.js /details:gameid - ${req.params.gameid}]`);
+  debug(`social.js /details:gameid - ${req.params.gameid}]`);
   if (Number.isInteger(parseInt(req.params.gameid)) && req.params.gameid.length < 8) {
     const id = ("0000000" + req.params.gameid).slice(-7);
 
@@ -134,7 +133,6 @@ router.get("/details/:gameid", (req, res) => {
           result._source.originalYearOfRelease +
           ")";
       }
-      // og_image = "https://ebimg.dk/ux/data/social/eblogo_1024.png";
       var html = `<html><head><title>${og_title} | ZXInfo</title>`;
       html += `<meta property="og:url" content="https://zxinfo.dk/details/${req.params.gameid}" />`;
       html += `<meta property="og:type" content="article" />`;
@@ -149,7 +147,6 @@ router.get("/details/:gameid", (req, res) => {
       html += `<h2>${og_description}</h2>`;
       html += `${og_image_type}<br/><img src="${og_image}"></img><br/>${og_image}<br/>`;
       html += `<div>`;
-      // html += JSON.stringify(result._source, null, 4);
       html += `</div>`;
       html += `</body ></html >`;
       html += ``;
