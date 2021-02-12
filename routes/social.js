@@ -153,7 +153,7 @@ router.get("/details/:gameid", (req, res) => {
 
 router.get("/*", (req, res) => {
   console.log(req);
-  res.send(`Hello, World! ${req.path}`);
+  res.send(`Hello, World - social! ${req.path}`);
 });
 
 module.exports = router;
