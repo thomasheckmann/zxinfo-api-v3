@@ -23,7 +23,23 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-var getGamesByLetter = function (letter, page_size, offset, outputmode) {
+// constans for machinetype
+const ZXSPECTRUM = [
+  "ZX-Spectrum 128 +2",
+  "ZX-Spectrum 128 +2A/+3",
+  "ZX-Spectrum 128 +2B",
+  "ZX-Spectrum 128 +3",
+  "ZX-Spectrum 128K",
+  "ZX-Spectrum 128K (load in USR0 mode)",
+  "ZX-Spectrum 16K",
+  "ZX-Spectrum 16K/48K",
+  "ZX-Spectrum 48K",
+  "ZX-Spectrum 48K/128K",
+];
+const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
+const PENTAGON = ["Scorpion", "Pentagon 128"];
+
+var getGamesByLetter = function (letter, machinetype, page_size, offset, outputmode) {
   debug(`getGamesByLetter() : ${letter}`);
 
   var expr;
@@ -31,6 +47,42 @@ var getGamesByLetter = function (letter, page_size, offset, outputmode) {
     expr = "[0-9].*";
   } else {
     expr = "[" + letter.toLowerCase() + letter.toUpperCase() + "].*";
+  }
+
+  var mustArray = [
+    {
+      regexp: {
+        "title.keyword": {
+          value: expr,
+          flags: "ALL",
+        },
+      },
+    },
+  ];
+
+  var shouldArray = [];
+  if (machinetype) {
+    if (!Array.isArray(machinetype)) {
+      machinetype = [machinetype];
+    }
+    var i = 0;
+    var should = [];
+    for (; i < machinetype.length; i++) {
+      var item = {
+        match: {
+          machineType: machinetype[i],
+        },
+      };
+      should.push(item);
+    }
+
+    shouldArray = should;
+  }
+
+  const boolObject = { must: mustArray };
+  if (machinetype) {
+    boolObject.should = shouldArray;
+    boolObject.minimum_should_match = 1;
   }
 
   return elasticClient.search({
@@ -41,12 +93,7 @@ var getGamesByLetter = function (letter, page_size, offset, outputmode) {
       size: page_size,
       from: offset * page_size,
       query: {
-        regexp: {
-          "title.keyword": {
-            value: expr,
-            flags: "ALL",
-          },
-        },
+        bool: boolObject,
       },
       sort: [{ "title.keyword": { order: "asc" } }],
     },
@@ -78,7 +125,7 @@ router.use(function (req, res, next) {
 */
 router.get("/:letter", function (req, res, next) {
   debug("==> /games/byletter/:letter");
-  debug(`letter: ${req.params.letter}, mode: ${req.query.mode}`);
+  debug(`letter: ${req.params.letter}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode}`);
 
   if (!req.query.mode || req.query.mode === "full") {
     req.query.mode = "tiny";
@@ -86,11 +133,43 @@ router.get("/:letter", function (req, res, next) {
 
   req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
 
+  if (req.query.machinetype) {
+    var mTypes = [];
+    if (!Array.isArray(req.query.machinetype)) {
+      req.query.machinetype = [req.query.machinetype];
+    }
+
+    for (var i = 0; i < req.query.machinetype.length; i++) {
+      debug(`${i} - ${req.query.machinetype[i]}`);
+      switch (req.query.machinetype[i]) {
+        case "ZXSPECTRUM":
+          debug("- ZXSPECTRUM -");
+          mTypes = mTypes.concat(ZXSPECTRUM);
+          break;
+        case "ZX81":
+          debug("- ZX81 -");
+          mTypes = mTypes.concat(ZX81);
+          break;
+        case "PENTAGON":
+          debug("- PENTAGON -");
+          mTypes = mTypes.concat(PENTAGON);
+          break;
+        default:
+          mTypes.push(req.query.machinetype[i]);
+          break;
+      }
+    }
+    req.query.machinetype = mTypes;
+    debug(`mType: ${mTypes}`);
+  }
+
   var letter = req.params.letter.toLowerCase();
   if (letter.length !== 1) {
     res.status(400).end();
   } else {
-    getGamesByLetter(req.params.letter, req.query.size, req.query.offset, req.query.mode).then(function (result) {
+    getGamesByLetter(req.params.letter, req.query.machinetype, req.query.size, req.query.offset, req.query.mode).then(function (
+      result
+    ) {
       debug(`########### RESPONSE from getGamesByLetter(${req.params.letter}, mode: ${req.query.mode})`);
       debug(result);
       debug(`#############################################################`);
