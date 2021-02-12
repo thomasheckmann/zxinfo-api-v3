@@ -44,28 +44,39 @@ var getGameById = function (gameid) {
 
 function loadscreen(source) {
   // iterate all additionals to find loading screen, if any
-
-  var loadscreen = null;
+  console.log(source);
+  var loadscreen = "/images/placeholder.png";
   if (source.genreType == "Compilation") {
-    loadscreen = "/images/compilation.png";
-  } else if (source.screens.length) {
-    var idx = 0;
-    var screen = null;
-    for (; loadscreen == null && idx < source.screens.length; idx++) {
-      if ("Loading screen" == source.screens[idx].type && "Picture" == source.screens[idx].format) {
-        loadscreen = source.screens[idx].url;
+    loadscreen = "https://zxinfo.dk/media/images/compilation.png";
+
+    /** Try to find Inlay for compilation - in additionals */
+    var i = 0;
+    var inlays = [];
+    for (; source.additionalDownloads !== undefined && i < source.additionalDownloads.length; i++) {
+      var item = source.additionalDownloads[i];
+      if (item.type.indexOf("inlay") != -1 && item.format.startsWith("Picture")) {
+        /** Ignore 'Back' */
+        if (item.path.indexOf("Back") == -1) {
+          inlays.push(item);
+        }
       }
+    }
+    if (inlays.length > 0) {
+      loadscreen = inlays[0].path.replace("/pub/sinclair/", "/thumbs/");
+    } else if (source.screens.length) {
+      loadscreen = source.screens[0].url;
+    } else {
+      /* no inlay found, and no running screens */
+      loadscreen = "/images/compilation.png";
     }
   }
 
-  if (loadscreen == null) {
-    loadscreen = media_url + "/images/empty.png";
-  } else if (source.contenttype == "BOOK") {
-    loadscreen = books_url + loadscreen;
-  } else if (source.contenttype == "HARDWARE") {
-    loadscreen = hw_url + loadscreen;
+  if (source.screens.length && source.screens[0].url && source.genreType !== "Compilation") {
+    loadscreen = source.screens[0].url;
+    loadscreen = loadscreen.replace("/pub/sinclair/books-pics", "/thumbs/books-pics");
+    loadscreen = "https://zxinfo.dk/media" + loadscreen;
   } else {
-    loadscreen = media_url + loadscreen;
+    loadscreen = "https://zxinfo.dk/media" + loadscreen;
   }
 
   return loadscreen;
@@ -109,9 +120,9 @@ router.get("/details/:gameid", (req, res) => {
       }
 
       var og_description;
-      if (result._source.machinetype === null) {
+      if (result._source.machineType === null) {
         og_description =
-          result._source.type + " - " + result._source.releases[0].publisher + "(" + result._source.yearofrelease + ")";
+          result._source.genreType + " - " + result._source.publishers[0].name + "(" + result._source.originalYearOfRelease + ")";
       } else {
         og_description =
           result._source.machineType +
