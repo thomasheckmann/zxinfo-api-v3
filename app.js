@@ -49,13 +49,13 @@ app.use("/v3/search/", search);
 app.use("/v3/metadata/", metadata);
 app.use("/v3/authors/", authors);
 app.use("/v3/publishers/", publishers);
-app.use("/social/", social);
 app.use("/v3/scr/", zx81scr);
+app.use("/social/", social);
 
 app.get("/", (req, res) => {
   console.log("[CATCH ALL]");
   console.log(req.path);
-  res.send("Hello World!");
+  res.send("Hello World! api-v3.main");
 });
 
 module.exports = app;

@@ -74,7 +74,7 @@ function loadscreen(source) {
  *
  ************************************************/
 router.use(function (req, res, next) {
-  console.log(`got request - start processing, path: ${req.path}`);
+  console.log(`[social.js] got request - start processing, path: ${req.path}`);
   console.log(`user-agent: ${req.headers["user-agent"]}`);
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
