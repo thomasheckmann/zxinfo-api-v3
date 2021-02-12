@@ -32,8 +32,11 @@ const books_url = "https://archive.zx-spectrum.org.uk/WoS";
 const hw_url = "https://archive.zx-spectrum.org.uk";
 
 var getGameById = function (gameid) {
-  debug(`social.js - getGameById(${gameid})`);
+  debug(`getGameById() : ${gameid}`);
+
   return elasticClient.get({
+    _source: tools.es_source_item("tiny"),
+    _sourceExcludes: ["titlesuggest", "publishersuggest", "authorsuggest", "metadata_author", "metadata_publisher"],
     index: es_index,
     id: gameid,
   });
@@ -91,64 +94,60 @@ router.use(function (req, res, next) {
 //TODO: handle id without trailing 0s
 router.get("/details/:gameid", (req, res) => {
   console.log(`social.js /details:gameid - ${req.params.gameid}]`);
-  getGameById(req.params.gameid).then(function (result) {
-    var og_url = "https://zxinfo.dk/details/" + req.params.gameid;
-    var og_title = result._source.title;
-    var og_image = loadscreen(result._source);
-    var og_image_type = "image/jpeg";
-    if (og_image.endsWith("png")) {
-      og_image_type = "image/png";
-    } else if (og_image.endsWith("gif")) {
-      og_image_type = "image/gif";
-    }
+  if (Number.isInteger(parseInt(req.params.gameid)) && req.params.gameid.length < 8) {
+    const id = ("0000000" + req.params.gameid).slice(-7);
 
-    var og_description;
-    if (result._source.machinetype === null) {
-      og_description =
-        result._source.type + " - " + result._source.releases[0].publisher + "(" + result._source.yearofrelease + ")";
-    } else {
-      og_description =
-        result._source.machineType +
-        ", " +
-        result._source.genre +
-        " - " +
-        result._source.publishers[0].name +
-        "(" +
-        result._source.originalYearOfRelease +
-        ")";
-    }
-    og_image = "https://ebimg.dk/ux/data/social/eblogo_1024.png";
-    var html = `<html><head><title>${og_title} | ZXInfo</title>`;
-    html += `<meta property="og:url" content="https://zxinfo.dk/details/0002259" />`;
-    html += `<meta property="og:type" content="article" />`;
-    html += `<meta property="og:title" content="${og_title}" />`;
-    html += `<meta property="og:description" content="${og_description}" />`;
-    html += `<meta property="og:image" content="${og_image}" />`;
-    html += `<meta property="og:image:width" content="250">`;
-    html += `<meta property="og:image:height" content="221">`;
-    // html += `<meta property="og:image:type" content="${og_image_type}" />`;
-    html += `</head><body>`;
-    html += `<h1>${og_title}</h1>`;
-    html += `<h2>${og_description}</h2>`;
-    html += `${og_image_type}<br/><img src="${og_image}"></img><br/>${og_image}<br/>`;
-    html += `<div>`;
-    // html += JSON.stringify(result._source, null, 4);
-    html += `</div>`;
-    html += `</body ></html >`;
-    html += ``;
+    getGameById(id).then(function (result) {
+      var og_url = "https://zxinfo.dk/details/" + req.params.gameid;
+      var og_title = result._source.title;
+      var og_image = loadscreen(result._source);
+      var og_image_type = "image/jpeg";
+      if (og_image.endsWith("png")) {
+        og_image_type = "image/png";
+      } else if (og_image.endsWith("gif")) {
+        og_image_type = "image/gif";
+      }
 
-    res.send(html);
-    /*
-    res.render("social", {
-      title: "ZXInfo - The open source ZXDB frontend",
-      og_url: og_url,
-      og_title: og_title,
-      og_image: og_image,
-      og_image_type: og_image_type,
-      og_description: og_description,
-	});
-	  */
-  });
+      var og_description;
+      if (result._source.machinetype === null) {
+        og_description =
+          result._source.type + " - " + result._source.releases[0].publisher + "(" + result._source.yearofrelease + ")";
+      } else {
+        og_description =
+          result._source.machineType +
+          ", " +
+          result._source.genre +
+          " - " +
+          result._source.publishers[0].name +
+          "(" +
+          result._source.originalYearOfRelease +
+          ")";
+      }
+      // og_image = "https://ebimg.dk/ux/data/social/eblogo_1024.png";
+      var html = `<html><head><title>${og_title} | ZXInfo</title>`;
+      html += `<meta property="og:url" content="https://zxinfo.dk/details/0002259" />`;
+      html += `<meta property="og:type" content="article" />`;
+      html += `<meta property="og:title" content="${og_title}" />`;
+      html += `<meta property="og:description" content="${og_description}" />`;
+      html += `<meta property="og:image" content="${og_image}" />`;
+      html += `<meta property="og:image:width" content="250">`;
+      html += `<meta property="og:image:height" content="221">`;
+      // html += `<meta property="og:image:type" content="${og_image_type}" />`;
+      html += `</head><body>`;
+      html += `<h1>${og_title}</h1>`;
+      html += `<h2>${og_description}</h2>`;
+      html += `${og_image_type}<br/><img src="${og_image}"></img><br/>${og_image}<br/>`;
+      html += `<div>`;
+      // html += JSON.stringify(result._source, null, 4);
+      html += `</div>`;
+      html += `</body ></html >`;
+      html += ``;
+
+      res.send(html);
+    });
+  } else {
+    res.status(404).end();
+  }
 });
 
 router.get("/*", (req, res) => {
