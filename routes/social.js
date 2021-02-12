@@ -130,8 +130,8 @@ router.get("/details/:gameid", (req, res) => {
       html += `<meta property="og:title" content="${og_title}" />`;
       html += `<meta property="og:description" content="${og_description}" />`;
       html += `<meta property="og:image" content="${og_image}" />`;
-      //html += `<meta property="og:image:width" content="250">`;
-      //html += `<meta property="og:image:height" content="221">`;
+      html += `<meta property="og:image:width" content="320">`;
+      html += `<meta property="og:image:height" content="200">`;
       html += `<meta property="og:image:type" content="${og_image_type}" />`;
       html += `</head><body>`;
       html += `<h1>${og_title}</h1>`;
