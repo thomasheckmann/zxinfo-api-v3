@@ -294,7 +294,57 @@ paths:
         404:
           description: An entry with the specified ID was not found.
 
-  /games/random/{total}:
+  /games/morelikethis/{game-id}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Fetches list of similar entries"
+      description: |
+        Fetches a list of entries using the 'morelikethis' feature of Elasticsearch. Fields considered:
+          * machineType
+          * genreType
+          * genreSubType
+          * contentType
+
+      operationId: "moreLikeThis"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "game-id"
+          in: path
+          description: ZXDB entry id. For WoS compatibility, e.g. 0002259, left padded with 0's if less than 7 digits.
+          type: string
+          required: true
+        - name: mode
+          in: query
+          description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
+          required: false
+          default: "compact"
+          type: string
+        - name: size
+          in: query
+          description: Specifies number of entries to return.
+          required: false
+          default: 25
+          type: integer
+        - name: output
+          in: query
+          description: Specifies output mode.
+          required: false
+          type: string
+          enum:
+            - simple
+            - flat
+      responses:
+        # Response code
+        200:
+          description: OK
+        400:
+          description: Bad request. Letter must be a single character, a-z or \#.
+        404:
+          description: An entry with the specified ID was not found.
+
+/games/random/{total}:
     get:
       tags:
         - "zxinfo"
