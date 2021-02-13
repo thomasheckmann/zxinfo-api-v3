@@ -12,6 +12,7 @@ var appConfig = require("./config.json");
 var games = require("./routes/games");
 var random = require("./routes/random");
 var byletter = require("./routes/byletter");
+var morelikethis = require("./routes/morelikethis");
 var suggest = require("./routes/suggest");
 var search = require("./routes/search");
 var metadata = require("./routes/metadata");
@@ -40,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // ROUTES
 app.use("/v3/games/byletter", byletter);
 app.use("/v3/games/random", random);
+app.use("/v3/games/morelikethis", morelikethis);
 app.use("/v3/games/", games);
 
 app.use("/v3/magazines/", magazines);
