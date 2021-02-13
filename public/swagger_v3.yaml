@@ -344,7 +344,7 @@ paths:
         404:
           description: An entry with the specified ID was not found.
 
-/games/random/{total}:
+  /games/random/{total}:
     get:
       tags:
         - "zxinfo"
