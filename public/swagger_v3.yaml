@@ -250,6 +250,9 @@ paths:
       description: |
         Fetches a list of entries starting with a specific letter: a-Z or  \# for numbers.
 
+        Specials:
+        *machinetype* - use ZXSPECTRUM, ZX81 or PENTAGON to cover all variants, as an alternative to specify each machine variant.
+
       operationId: "getGamesByLetter"
       produces:
         - "application/json"
@@ -259,6 +262,20 @@ paths:
           description: a-z - or # for numbers (case insensitive)
           type: string
           required: true
+        - name: "contenttype"
+          in: query
+          description: Filter by contenttype
+          type: string
+          enum:
+            - SOFTWARE
+            - HARDWARE
+            - BOOK
+          required: false
+        - name: "machinetype"
+          in: query
+          description: "Filter by machinetype, e.g. 'ZX-Spectrum 48K'"
+          type: string
+          required: false
         - name: mode
           in: query
           description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
