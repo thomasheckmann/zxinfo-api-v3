@@ -39,7 +39,7 @@ const ZXSPECTRUM = [
 const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
 const PENTAGON = ["Scorpion", "Pentagon 128"];
 
-var getGamesByLetter = function (letter, machinetype, page_size, offset, outputmode) {
+var getGamesByLetter = function (letter, contenttype, machinetype, page_size, offset, outputmode) {
   debug(`getGamesByLetter() : ${letter}`);
 
   var expr;
@@ -59,6 +59,10 @@ var getGamesByLetter = function (letter, machinetype, page_size, offset, outputm
       },
     },
   ];
+
+  if (contenttype) {
+    mustArray.push({ match: { contentType: contenttype } });
+  }
 
   var shouldArray = [];
   if (machinetype) {
@@ -125,7 +129,9 @@ router.use(function (req, res, next) {
 */
 router.get("/:letter", function (req, res, next) {
   debug("==> /games/byletter/:letter");
-  debug(`letter: ${req.params.letter}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode}`);
+  debug(
+    `letter: ${req.params.letter}, contenttype: ${req.query.contenttype}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode}`
+  );
 
   if (!req.query.mode || req.query.mode === "full") {
     req.query.mode = "tiny";
@@ -167,10 +173,17 @@ router.get("/:letter", function (req, res, next) {
   if (letter.length !== 1) {
     res.status(400).end();
   } else {
-    getGamesByLetter(req.params.letter, req.query.machinetype, req.query.size, req.query.offset, req.query.mode).then(function (
-      result
-    ) {
-      debug(`########### RESPONSE from getGamesByLetter(${req.params.letter}, mode: ${req.query.mode})`);
+    getGamesByLetter(
+      req.params.letter,
+      req.query.contenttype,
+      req.query.machinetype,
+      req.query.size,
+      req.query.offset,
+      req.query.mode
+    ).then(function (result) {
+      debug(
+        `########### RESPONSE from getGamesByLetter(${req.params.letter}, contenttype: ${req.query.contenttype}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode})`
+      );
       debug(result);
       debug(`#############################################################`);
       res.header("X-Total-Count", result.hits.total.value);
