@@ -135,7 +135,7 @@ router.get("/details/:gameid", (req, res) => {
       }
       var html = `<html><head><title>${og_title} | ZXInfo</title>`;
       html += `<meta property="og:url" content="https://zxinfo.dk/details/${req.params.gameid}" />`;
-      html += `<meta property="og:type" content="article" />`;
+      html += `<meta property="og:type" content="website" />`;
       html += `<meta property="og:title" content="${og_title}" />`;
       html += `<meta property="og:description" content="${og_description}" />`;
       html += `<meta property="og:image" content="${og_image}" />`;
@@ -159,8 +159,25 @@ router.get("/details/:gameid", (req, res) => {
 });
 
 router.get("/*", (req, res) => {
-  console.log(req);
-  res.send(`Hello, World - social! ${req.path}`);
+  var html = `<html><head><title>ZXInfo</title>`;
+  html += `<meta property="og:url" content="https://zxinfo.dk/" />`;
+  html += `<meta property="og:type" content="website" />`;
+  html += `<meta property="og:title" content="ZXInfo - The open source ZXDB frontend" />`;
+  html += `<meta property="og:description" content="Provides a fantastic desktop and mobile friendly interface to search and browse the ZXDB catalogue for almost all Spectrum software, hardware and books ever released." />`;
+  html += `<meta property="og:image" content="https://zxinfo.dk/media/icons/android-chrome-512x512.png" />`;
+  html += `<meta property="og:image:width" content="512">`;
+  html += `<meta property="og:image:height" content="512">`;
+  html += `<meta property="og:image:type" content="image/png" />`;
+  html += `</head><body>`;
+  html += `<h1>ZXInfo - The open source ZXDB frontend</h1>`;
+  html += `<h2>Provides a fantastic desktop and mobile friendly interface to search and browse the ZXDB catalogue for almost all Spectrum software, hardware and books ever released.</h2>`;
+  html += `image/png<br/><img src="https://zxinfo.dk/media/icons/android-chrome-512x512.png"></img><br/>https://zxinfo.dk/media/icons/android-chrome-512x512.png<br/>`;
+  html += `<div>`;
+  html += `</div>`;
+  html += `</body ></html >`;
+  html += ``;
+
+  res.send(html);
 });
 
 module.exports = router;
