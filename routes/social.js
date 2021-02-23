@@ -31,6 +31,28 @@ const media_url = "https://zxinfo.dk/media";
 const books_url = "https://archive.zx-spectrum.org.uk/WoS";
 const hw_url = "https://archive.zx-spectrum.org.uk";
 
+function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
+  var html = `<html><head><title>${title}</title>`;
+  html += `<meta property="og:url" content="${url}" />`;
+  html += `<meta property="og:type" content="website" />`;
+  html += `<meta property="og:title" content="${title_long}" />`;
+  html += `<meta property="og:description" content="${description}" />`;
+  html += `<meta property="og:image" content="${img_url}" />`;
+  html += `<meta property="og:image:width" content="${img_width}">`;
+  html += `<meta property="og:image:height" content="${img_height}">`;
+  html += `<meta property="og:image:type" content="${img_type}" />`;
+  html += `</head><body>`;
+  html += `<h1>${title_long}</h1>`;
+  html += `<h2>${description}</h2>`;
+  html += `<br/><img src="${img_url}"></img><br/>${img_url}<br/>`;
+  html += `<div>`;
+  html += `</div>`;
+  html += `</body></html >`;
+  html += ``;
+
+  return html;
+}
+
 var getGameById = function (gameid) {
   debug(`getGameById() : ${gameid}`);
 
@@ -133,23 +155,17 @@ router.get("/details/:gameid", (req, res) => {
           result._source.originalYearOfRelease +
           ")";
       }
-      var html = `<html><head><title>${og_title} | ZXInfo</title>`;
-      html += `<meta property="og:url" content="https://zxinfo.dk/details/${req.params.gameid}" />`;
-      html += `<meta property="og:type" content="website" />`;
-      html += `<meta property="og:title" content="${og_title}" />`;
-      html += `<meta property="og:description" content="${og_description}" />`;
-      html += `<meta property="og:image" content="${og_image}" />`;
-      html += `<meta property="og:image:width" content="320">`;
-      html += `<meta property="og:image:height" content="200">`;
-      html += `<meta property="og:image:type" content="${og_image_type}" />`;
-      html += `</head><body>`;
-      html += `<h1>${og_title}</h1>`;
-      html += `<h2>${og_description}</h2>`;
-      html += `${og_image_type}<br/><img src="${og_image}"></img><br/>${og_image}<br/>`;
-      html += `<div>`;
-      html += `</div>`;
-      html += `</body ></html >`;
-      html += ``;
+      // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
+      var html = getHTML(
+        og_title,
+        "ZXInfo - The open source ZXDB frontend",
+        og_description,
+        `https://zxinfo.dk/details/${req.params.gameid}`,
+        og_image,
+        "320",
+        "200",
+        og_image_type
+      );
 
       res.send(html);
     });
@@ -159,23 +175,18 @@ router.get("/details/:gameid", (req, res) => {
 });
 
 router.get("/*", (req, res) => {
-  var html = `<html><head><title>ZXInfo</title>`;
-  html += `<meta property="og:url" content="https://zxinfo.dk/" />`;
-  html += `<meta property="og:type" content="website" />`;
-  html += `<meta property="og:title" content="ZXInfo - The open source ZXDB frontend" />`;
-  html += `<meta property="og:description" content="Provides a fantastic desktop and mobile friendly interface to search and browse the ZXDB catalogue for almost all Spectrum software, hardware and books ever released." />`;
-  html += `<meta property="og:image" content="https://zxinfo.dk/media/icons/android-chrome-512x512.png" />`;
-  html += `<meta property="og:image:width" content="512">`;
-  html += `<meta property="og:image:height" content="512">`;
-  html += `<meta property="og:image:type" content="image/png" />`;
-  html += `</head><body>`;
-  html += `<h1>ZXInfo - The open source ZXDB frontend</h1>`;
-  html += `<h2>Provides a fantastic desktop and mobile friendly interface to search and browse the ZXDB catalogue for almost all Spectrum software, hardware and books ever released.</h2>`;
-  html += `image/png<br/><img src="https://zxinfo.dk/media/icons/android-chrome-512x512.png"></img><br/>https://zxinfo.dk/media/icons/android-chrome-512x512.png<br/>`;
-  html += `<div>`;
-  html += `</div>`;
-  html += `</body ></html >`;
-  html += ``;
+  // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
+
+  var html = getHTML(
+    "ZXInfo",
+    "ZXInfo - The open source ZXDB frontend",
+    "Provides a fantastic desktop and mobile friendly interface to search and browse the ZXDB catalogue for almost all Spectrum software, hardware and books ever released.",
+    "https://zxinfo.dk/",
+    "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
+    "512",
+    "512",
+    "image/png"
+  );
 
   res.send(html);
 });
