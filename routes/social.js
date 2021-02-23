@@ -196,6 +196,42 @@ router.get("/search/:query", (req, res) => {
   res.send(html);
 });
 
+router.get("/publisher/:name", (req, res) => {
+  debug(`social.js /publisher/ - ${req.params.name}]`);
+
+  var description = "Publisher: " + req.params.name;
+  var html = getHTML(
+    "ZXInfo",
+    "ZXInfo - The open source ZXDB frontend",
+    description,
+    "https://zxinfo.dk/publisher/" + encodeURIComponent(req.params.name),
+    "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
+    "512",
+    "512",
+    "image/png"
+  );
+
+  res.send(html);
+});
+
+router.get("/author/:name", (req, res) => {
+  debug(`social.js /publisher/ - ${req.params.name}]`);
+
+  var description = "Author: " + req.params.name;
+  var html = getHTML(
+    "ZXInfo",
+    "ZXInfo - The open source ZXDB frontend",
+    description,
+    "https://zxinfo.dk/author/" + encodeURIComponent(req.params.name),
+    "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
+    "512",
+    "512",
+    "image/png"
+  );
+
+  res.send(html);
+});
+
 router.get("/*", (req, res) => {
   // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
 
