@@ -174,6 +174,28 @@ router.get("/details/:gameid", (req, res) => {
   }
 });
 
+router.get("/search/:query", (req, res) => {
+  debug(`social.js /search/ - ${req.query}]`);
+
+  var queryString = Object.keys(req.query)
+    .map((key) => key + "=" + encodeURIComponent(req.query[key]))
+    .join("&");
+
+  var description = queryString;
+  var html = getHTML(
+    "ZXInfo",
+    "ZXInfo - The open source ZXDB frontend",
+    "Keyword: " + req.params.query,
+    "https://zxinfo.dk/search/" + encodeURIComponent(req.params.query) + "?" + description,
+    "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
+    "512",
+    "512",
+    "image/png"
+  );
+
+  res.send(html);
+});
+
 router.get("/*", (req, res) => {
   // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
 
