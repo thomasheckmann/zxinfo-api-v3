@@ -178,15 +178,17 @@ router.get("/search/:query", (req, res) => {
   debug(`social.js /search/ - ${req.query}]`);
 
   var queryString = Object.keys(req.query)
-    .map((key) => key + "=" + encodeURIComponent(req.query[key]))
+    .map((key) => {
+      return key + "=" + encodeURIComponent(req.query[key]);
+    })
     .join("&");
 
   var description = queryString;
   var html = getHTML(
     "ZXInfo",
     "ZXInfo - The open source ZXDB frontend",
-    "Keyword: " + req.params.query,
-    "https://zxinfo.dk/search/" + encodeURIComponent(req.params.query) + "?" + description,
+    `Keyword: ${req.params.query}`,
+    `https://zxinfo.dk/search/${encodeURIComponent(req.params.query)}?${description}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
     "512",
     "512",
@@ -204,7 +206,7 @@ router.get("/publisher/:name", (req, res) => {
     "ZXInfo",
     "ZXInfo - The open source ZXDB frontend",
     description,
-    "https://zxinfo.dk/publisher/" + encodeURIComponent(req.params.name),
+    `https://zxinfo.dk/publisher/${encodeURIComponent(req.params.name)}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
     "512",
     "512",
@@ -222,7 +224,7 @@ router.get("/author/:name", (req, res) => {
     "ZXInfo",
     "ZXInfo - The open source ZXDB frontend",
     description,
-    "https://zxinfo.dk/author/" + encodeURIComponent(req.params.name),
+    `https://zxinfo.dk/author/${encodeURIComponent(req.params.name)}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
     "512",
     "512",

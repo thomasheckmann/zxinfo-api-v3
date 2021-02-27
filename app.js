@@ -21,6 +21,7 @@ var publishers = require("./routes/publishers");
 var social = require("./routes/social");
 var zx81scr = require("./routes/zx81scr");
 var magazines = require("./routes/magazines");
+var md5hash = require("./routes/md5hash");
 
 if (process.env.NODE_ENV === undefined) {
   console.log("NODE_ENV not defined, must be 'development' or 'production'");
@@ -49,6 +50,9 @@ app.use("/v3/magazines/", magazines);
 app.use("/v3/suggest/", suggest);
 app.use("/v3/search/", search);
 app.use("/v3/metadata/", metadata);
+
+app.use("/v3/filecheck/", md5hash);
+
 app.use("/v3/authors/", authors);
 app.use("/v3/publishers/", publishers);
 app.use("/v3/scr/", zx81scr);
