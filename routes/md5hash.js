@@ -73,11 +73,15 @@ router.get("/:hash", (req, res) => {
       debug(`#############################################################`);
       res.header("X-Total-Count", result.hits.total.value);
 
-      const md5hash = result.hits.hits[0]._source.md5hash;
-      const entry_id = result.hits.hits[0]._id;
-      const title = result.hits.hits[0]._source.title;
-      var picked = md5hash.find((o) => o.md5 === req.params.hash);
-      res.send({ entry_id: entry_id, title: title, file: picked });
+      if (result.hits.total.value === 0) {
+        res.status(404).end();
+      } else {
+        const md5hash = result.hits.hits[0]._source.md5hash;
+        const entry_id = result.hits.hits[0]._id;
+        const title = result.hits.hits[0]._source.title;
+        var picked = md5hash.find((o) => o.md5 === req.params.hash);
+        res.send({ entry_id: entry_id, title: title, file: picked });
+      }
     },
     function (reason) {
       debug(`[FAILED] reason: ${reason.message}`);
