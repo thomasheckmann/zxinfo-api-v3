@@ -237,9 +237,11 @@ function queryTerm2(query) {
 var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype) {
   if (query == undefined || query.length == 0) {
     debug(`createQueryTermWithFilters() - empty query}`);
+    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+    debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
     return {
       bool: {
-        must: queryTerm1,
+        must: [queryTerm1, tosectype_should],
         filter: {
           bool: {
             must: filters,
@@ -249,9 +251,11 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
     };
   } else if (titlesonly !== undefined && titlesonly === "true") {
     debug(`createQueryTermWithFilters() - titlesonly`);
+    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+    debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
     return {
       bool: {
-        must: queryTermTitlesOnly(query),
+        must: [queryTermTitlesOnly(query), tosectype_should],
         filter: {
           bool: {
             must: filters,
