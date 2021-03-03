@@ -238,32 +238,59 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
   if (query == undefined || query.length == 0) {
     debug(`createQueryTermWithFilters() - empty query}`);
     var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
-    debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
-    return {
-      bool: {
-        must: [queryTerm1, tosectype_should],
-        filter: {
-          bool: {
-            must: filters,
+    if (tosectype) {
+      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
+      return {
+        bool: {
+          must: [queryTerm1, tosectype_should],
+          filter: {
+            bool: {
+              must: filters,
+            },
           },
         },
-      },
-    };
+      };
+    } else {
+      debug(`no tosectype`);
+      return {
+        bool: {
+          must: [queryTerm1],
+          filter: {
+            bool: {
+              must: filters,
+            },
+          },
+        },
+      };
+    }
   } else if (titlesonly !== undefined && titlesonly === "true") {
     debug(`createQueryTermWithFilters() - titlesonly`);
     var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
-
-    debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
-    return {
-      bool: {
-        must: [queryTermTitlesOnly(query), tosectype_should],
-        filter: {
-          bool: {
-            must: filters,
+    if (tosectype) {
+      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
+      return {
+        bool: {
+          must: [queryTermTitlesOnly(query), tosectype_should],
+          filter: {
+            bool: {
+              must: filters,
+            },
           },
         },
-      },
-    };
+      };
+    } else {
+      debug(`no tosectype`);
+      return {
+        bool: {
+          must: [queryTermTitlesOnly(query)],
+          filter: {
+            bool: {
+              must: filters,
+            },
+          },
+        },
+      };
+    }
   } else {
     debug(`createQueryTermWithFilters() - normal search`);
     debug(`queryTerm2: \n${JSON.stringify(queryTerm2(query), null, 4)}`);
@@ -281,7 +308,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
         },
       };
     } else {
-      debug(`no tosectype filer`);
+      debug(`no tosectype`);
       return {
         bool: {
           must: [queryTerm2(query)],
