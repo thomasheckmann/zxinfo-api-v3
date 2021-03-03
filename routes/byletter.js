@@ -39,7 +39,7 @@ const ZXSPECTRUM = [
 const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
 const PENTAGON = ["Scorpion", "Pentagon 128"];
 
-var getGamesByLetter = function (letter, contenttype, machinetype, page_size, offset, outputmode) {
+var getGamesByLetter = function (letter, contenttype, machinetype, page_size, offset, outputmode, tosectype) {
   debug(`getGamesByLetter() : ${letter}`);
 
   var expr;
@@ -64,7 +64,6 @@ var getGamesByLetter = function (letter, contenttype, machinetype, page_size, of
     mustArray.push({ match: { contentType: contenttype } });
   }
 
-  var shouldArray = [];
   if (machinetype) {
     if (!Array.isArray(machinetype)) {
       machinetype = [machinetype];
@@ -79,15 +78,30 @@ var getGamesByLetter = function (letter, contenttype, machinetype, page_size, of
       };
       should.push(item);
     }
+    mustArray.push({ bool: { should: should, minimum_should_match: 1 } });
+  }
 
-    shouldArray = should;
+  if (tosectype) {
+    if (!Array.isArray(tosectype)) {
+      tosectype = [tosectype];
+    }
+    var i = 0;
+    var should = [];
+    for (; i < tosectype.length; i++) {
+      var item = {
+        regexp: {
+          "tosec.path": {
+            value: `.*(${tosectype[i].toLowerCase()}|${tosectype[i].toUpperCase()})`,
+            flags: "ALL",
+          },
+        },
+      };
+      should.push(item);
+    }
+    mustArray.push({ bool: { should: should, minimum_should_match: 1 } });
   }
 
   const boolObject = { must: mustArray };
-  if (machinetype) {
-    boolObject.should = shouldArray;
-    boolObject.minimum_should_match = 1;
-  }
 
   return elasticClient.search({
     _source: tools.es_source_list(outputmode),
@@ -130,7 +144,7 @@ router.use(function (req, res, next) {
 router.get("/:letter", function (req, res, next) {
   debug("==> /games/byletter/:letter");
   debug(
-    `letter: ${req.params.letter}, contenttype: ${req.query.contenttype}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode}`
+    `letter: ${req.params.letter}, contenttype: ${req.query.contenttype}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode}, tosectype= ${req.query.tosectype}`
   );
 
   if (!req.query.mode || req.query.mode === "full") {
@@ -179,10 +193,11 @@ router.get("/:letter", function (req, res, next) {
       req.query.machinetype,
       req.query.size,
       req.query.offset,
-      req.query.mode
+      req.query.mode,
+      req.query.tosectype
     ).then(function (result) {
       debug(
-        `########### RESPONSE from getGamesByLetter(${req.params.letter}, contenttype: ${req.query.contenttype}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode})`
+        `########### RESPONSE from getGamesByLetter(${req.params.letter}, contenttype: ${req.query.contenttype}, machinetype: ${req.query.machinetype}, mode: ${req.query.mode}, tosectype = ${req.query.tosectype})`
       );
       debug(result);
       debug(`#############################################################`);
