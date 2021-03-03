@@ -252,6 +252,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
   } else if (titlesonly !== undefined && titlesonly === "true") {
     debug(`createQueryTermWithFilters() - titlesonly`);
     var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+
     debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
     return {
       bool: {
@@ -267,17 +268,31 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
     debug(`createQueryTermWithFilters() - normal search`);
     debug(`queryTerm2: \n${JSON.stringify(queryTerm2(query), null, 4)}`);
     var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
-    debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
-    return {
-      bool: {
-        must: [queryTerm2(query), tosectype_should],
-        filter: {
-          bool: {
-            must: filters,
+    if (tosectype) {
+      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
+      return {
+        bool: {
+          must: [queryTerm2(query), tosectype_should],
+          filter: {
+            bool: {
+              must: filters,
+            },
           },
         },
-      },
-    };
+      };
+    } else {
+      debug(`no tosectype filer`);
+      return {
+        bool: {
+          must: [queryTerm2(query)],
+          filter: {
+            bool: {
+              must: filters,
+            },
+          },
+        },
+      };
+    }
   }
 };
 
