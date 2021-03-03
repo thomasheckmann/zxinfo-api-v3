@@ -234,7 +234,7 @@ function queryTerm2(query) {
   };
 }
 
-var createQueryTermWithFilters = function (query, filters, titlesonly) {
+var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype) {
   if (query == undefined || query.length == 0) {
     debug(`createQueryTermWithFilters() - empty query}`);
     return {
@@ -261,9 +261,12 @@ var createQueryTermWithFilters = function (query, filters, titlesonly) {
     };
   } else {
     debug(`createQueryTermWithFilters() - normal search`);
+    debug(`queryTerm2: \n${JSON.stringify(queryTerm2(query), null, 4)}`);
+    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+    debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
     return {
       bool: {
-        must: [queryTerm2(query)],
+        must: [queryTerm2(query), tosectype_should],
         filter: {
           bool: {
             must: filters,
@@ -293,12 +296,39 @@ var createFilterItem = function (filterName, filterValues) {
       should.push(item);
     }
 
-    item_should = { bool: { should: should } };
+    item_should = { bool: { should: should, minimum_should_match: 1 } };
   }
   debug(JSON.stringify(item_should));
   return item_should;
 };
 
+var createFilterItemTosecType = function (filterName, filterValues) {
+  debug(`createFilterItem(${filterName}, ${filterValues})`);
+  var item_should = {};
+
+  if (filterValues !== undefined && filterValues.length > 0) {
+    if (!Array.isArray(filterValues)) {
+      filterValues = [filterValues];
+    }
+    var i = 0;
+    var should = [];
+    for (; i < filterValues.length; i++) {
+      var item = {
+        regexp: {
+          "tosec.path": {
+            value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})`,
+            flags: "ALL",
+          },
+        },
+      };
+      should.push(item);
+    }
+
+    item_should = { bool: { should: should, minimum_should_match: 1 } };
+  }
+  debug(JSON.stringify(item_should));
+  return item_should;
+};
 /**
  * Helper for aggregation - each aggregation should include all filters, except its own
  */
@@ -351,6 +381,8 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   var year_should = createFilterItem("originalYearOfRelease", searchObject.year);
   filterObjects["yearofrelease"] = year_should;
 
+  var tosectype_should = createFilterItemTosecType("tosectype", searchObject.tosectype);
+  filterObjects["tosectype"] = tosectype_should;
   /**
 
     -- (C)ompetition - Tron256(17819) - competition
@@ -401,7 +433,8 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     }
   }
 
-  var query = createQueryTermWithFilters(searchObject.query, filters, titlesonly);
+  debug(`powerSearch(): filters=${JSON.stringify(filters)}`);
+  var query = createQueryTermWithFilters(searchObject.query, filters, titlesonly, searchObject.tosectype);
 
   var aggfilter = [
     query,
