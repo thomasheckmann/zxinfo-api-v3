@@ -146,7 +146,7 @@ router.get("/details/:gameid", (req, res) => {
           result._source.genreType + " - " + result._source.publishers[0].name + "(" + result._source.originalYearOfRelease + ")";
       } else {
         og_description = result._source.machineType + ", " + result._source.genre;
-        if (result._source.publishers[0]) {
+        if (result._source.publishers) {
           og_description += " - " + result._source.publishers[0].name;
         }
         if (result._source.originalYearOfRelease) {
