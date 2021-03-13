@@ -158,7 +158,7 @@ router.get("/details/:gameid", (req, res) => {
       // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
       var html = getHTML(
         og_title,
-        "ZXInfo - The open source ZXDB frontend",
+        og_title,
         og_description,
         `https://zxinfo.dk/details/${req.params.gameid}`,
         og_image,
