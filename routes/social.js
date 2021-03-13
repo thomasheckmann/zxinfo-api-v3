@@ -145,15 +145,13 @@ router.get("/details/:gameid", (req, res) => {
         og_description =
           result._source.genreType + " - " + result._source.publishers[0].name + "(" + result._source.originalYearOfRelease + ")";
       } else {
-        og_description =
-          result._source.machineType +
-          ", " +
-          result._source.genre +
-          " - " +
-          result._source.publishers[0].name +
-          "(" +
-          result._source.originalYearOfRelease +
-          ")";
+        og_description = result._source.machineType + ", " + result._source.genre;
+        if (result._source.publishers[0]) {
+          og_description += " - " + result._source.publishers[0].name;
+        }
+        if (result._source.originalYearOfRelease) {
+          og_description += "(" + result._source.originalYearOfRelease + ")";
+        }
       }
       // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
       var html = getHTML(
