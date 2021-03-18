@@ -1,4 +1,10 @@
 /**
+ * Lookup entry by md5 (32) or sha512 (128) hash
+ *
+ * http://localhost:8300/v3/filecheck/82bb33587530d337323ef3cd4456d4c4
+ * or
+ * http://localhost:8300/v3/filecheck/d4792184f2e471c4cc38e6f1f234ab4276c537224d2ca2f19f0b36695afc9a03ac4fb5dd4afdf549384725a91901221de825867627fac019ef0f5e033561f3a4
+ *
  * NODE_ENV=development PORT=8300 DEBUG=zxinfo-api-v3:moduleId* nodemon --ignorpublic/javascripts/config.js --exec npm start
  */
 
@@ -23,8 +29,8 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-var md5lookup = function (md5hash) {
-  debug(`md5lookup() : ${md5hash}`);
+var hashLookup = function (hash) {
+  debug(`md5lookup() : ${hash}`);
 
   return elasticClient.search({
     _sourceIncludes: ["_id", "title", "md5hash"],
@@ -32,10 +38,9 @@ var md5lookup = function (md5hash) {
     index: es_index,
     body: {
       query: {
-        match: {
-          "md5hash.md5": {
-            query: md5hash,
-          },
+        multi_match: {
+          query: hash,
+          fields: ["md5hash.md5", "md5hash.sha512"],
         },
       },
     },
@@ -66,9 +71,14 @@ router.get("/:hash", (req, res) => {
   debug("==> /filecheck:hash");
   debug(`hash: ${req.params.hash}`);
 
-  md5lookup(req.params.hash).then(
+  if (req.params.hash.length !== 32 && req.params.hash.length !== 128) {
+    debug(`NOT a hash (length = 32 or 128)`);
+    res.status(500).end();
+    return;
+  }
+  hashLookup(req.params.hash).then(
     function (result) {
-      debug(`########### RESPONSE from md5lookup(${req.params.hash})`);
+      debug(`########### RESPONSE from hashLookup(${req.params.hash})`);
       debug(result);
       debug(`#############################################################`);
       res.header("X-Total-Count", result.hits.total.value);
@@ -77,9 +87,12 @@ router.get("/:hash", (req, res) => {
         res.status(404).end();
       } else {
         const md5hash = result.hits.hits[0]._source.md5hash;
+        const sha512 = result.hits.hits[0]._source.sha512;
         const entry_id = result.hits.hits[0]._id;
         const title = result.hits.hits[0]._source.title;
-        var picked = md5hash.find((o) => o.md5 === req.params.hash);
+        var picked;
+        if (req.params.hash.length == 32) picked = md5hash.find((o) => o.md5 === req.params.hash);
+        if (req.params.hash.length == 128) picked = md5hash.find((o) => o.sha512 === req.params.hash);
         res.send({ entry_id: entry_id, title: title, file: picked });
       }
     },
