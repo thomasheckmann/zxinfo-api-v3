@@ -730,3 +730,27 @@ paths:
         # Response code
         200:
           description: OK
+
+  /filecheck/{hash}:
+    get:
+      tags:
+        - "zxinfo"
+      summary: "Loookup game by file"
+      description: |
+        Lookup a game by md5 or sha512 hash of file. If found, returns id and title for found entry.
+
+        Use md5 <file> or sha512sum <file> to generate hash for file.
+
+      operationId: "getFileByHash"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "hash"
+          in: path
+          description: MD5 (length 32) or SHA512 (length 128) hash
+          type: string
+          required: true
+      responses:
+        # Response code
+        200:
+          description: OK
