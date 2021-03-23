@@ -4,6 +4,22 @@
  * https://developers.facebook.com/tools/debug/
  * https://developers.facebook.com/tools/debug/echo/?q=http%3A%2F%2Fdev.zxinfo.dk%2Fdetails%2F0002259
  * https://developers.facebook.com/docs/sharing/webmasters/
+ * 
+ * nginx configuration:
+        # if facebook or MS Teams - rewrite to /social service
+        set $social 0;
+        if ($http_user_agent ~* "facebookexternalhit|SkypeUriPreview") {
+                set $social 1;
+        }
+
+		# media files excluded
+        if ($request_uri ~ "media") {
+                set $social 0;
+        }
+        if ($social = 1) {
+                rewrite ^/(.*)$ /social/$1 break;
+		}
+ * 
  */
 
 "use strict";
@@ -44,7 +60,7 @@ function getHTML(title, title_long, description, url, img_url, img_width, img_he
   html += `</head><body>`;
   html += `<h1>${title_long}</h1>`;
   html += `<h2>${description}</h2>`;
-  html += `<br/><img src="${img_url}"></img><br/>${img_url}<br/>`;
+  html += `<br/><img src="${img_url}" width="${img_width}" height="${img_height}"></img><br/>${img_url}<br/>`;
   html += `<div>`;
   html += `</div>`;
   html += `</body></html >`;
@@ -89,6 +105,22 @@ function loadscreen(source) {
     } else {
       /* no inlay found, and no running screens */
       loadscreen = "/images/compilation.png";
+    }
+  }
+
+  if (source.genreType === "Hardware") {
+    if (source.screens.length && source.screens[0].url) {
+    } else if (source.additionalDownloads) {
+      loadscreen = null;
+      for (var addIdx = 0; addIdx < source.additionalDownloads.length; addIdx++) {
+        var hwItem = source.additionalDownloads[addIdx];
+        if (hwItem.type === "Hardware picture" && hwItem.format === "Picture (JPG)" && !loadscreen) {
+          loadscreen = hwItem.path;
+        }
+      }
+      if (!loadscreen) {
+        loadscreen = "/images/placeholder.png";
+      }
     }
   }
 
