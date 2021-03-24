@@ -271,6 +271,24 @@ router.get("/author/:name", (req, res) => {
   res.send(html);
 });
 
+router.get("/letter/:letter", (req, res) => {
+  debug(`social.js /letter/ - ${req.params.letter}]`);
+
+  var description = "Games starting with letter: " + req.params.letter;
+  var html = getHTML(
+    "ZXInfo",
+    "ZXInfo - The open source ZXDB frontend",
+    description,
+    `https://zxinfo.dk/letter/${encodeURIComponent(req.params.letter)}`,
+    "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
+    "512",
+    "512",
+    "image/png"
+  );
+
+  res.send(html);
+});
+
 router.get("/*", (req, res) => {
   // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
 
