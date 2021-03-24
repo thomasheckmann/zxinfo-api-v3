@@ -147,6 +147,7 @@ var es_source_item = function (outputmode) {
     /* compact output */
     var source_includes = [
       "title",
+      "contentType",
       "originalYearOfRelease",
       "originalMonthOfRelease",
       "originalDayOfRelease",
@@ -186,6 +187,7 @@ var es_source_item = function (outputmode) {
   } else if (outputmode == "tiny") {
     return [
       "title",
+      "contentType",
       "originalYearOfRelease",
       "machineType",
       "genre",

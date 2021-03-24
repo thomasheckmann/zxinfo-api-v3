@@ -185,15 +185,22 @@ router.get("/details/:gameid", (req, res) => {
           og_description += "(" + result._source.originalYearOfRelease + ")";
         }
       }
-      // function getHTML(title, title_long, description, url, img_url, img_width, img_height, img_type) {
+
+      var img_width = 256;
+      var img_height = 192;
+      console.log(result._source.contentType);
+      if (result._source.contentType === "SOFTWARE") {
+        img_width = 512;
+        img_height = 384;
+      }
       var html = getHTML(
         og_title,
         og_title,
         og_description,
         `https://zxinfo.dk/details/${req.params.gameid}`,
         og_image,
-        "320",
-        "200",
+        img_width,
+        img_height,
         og_image_type
       );
 
