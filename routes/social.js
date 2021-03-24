@@ -194,7 +194,7 @@ router.get("/details/:gameid", (req, res) => {
         img_height = 384;
       }
       var html = getHTML(
-        og_title,
+        og_title + " | ZXInfo.dk",
         og_title,
         og_description,
         `https://zxinfo.dk/details/${req.params.gameid}`,
@@ -223,7 +223,7 @@ router.get("/search/:query", (req, res) => {
   var description = queryString;
   var html = getHTML(
     "ZXInfo",
-    "ZXInfo - The open source ZXDB frontend",
+    "The open source ZXDB frontend",
     `Keyword: ${req.params.query}`,
     `https://zxinfo.dk/search/${encodeURIComponent(req.params.query)}?${description}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
@@ -241,7 +241,7 @@ router.get("/publisher/:name", (req, res) => {
   var description = "Publisher: " + req.params.name;
   var html = getHTML(
     "ZXInfo",
-    "ZXInfo - The open source ZXDB frontend",
+    "The open source ZXDB frontend",
     description,
     `https://zxinfo.dk/publisher/${encodeURIComponent(req.params.name)}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
@@ -259,7 +259,7 @@ router.get("/author/:name", (req, res) => {
   var description = "Author: " + req.params.name;
   var html = getHTML(
     "ZXInfo",
-    "ZXInfo - The open source ZXDB frontend",
+    "The open source ZXDB frontend",
     description,
     `https://zxinfo.dk/author/${encodeURIComponent(req.params.name)}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
@@ -277,7 +277,7 @@ router.get("/letter/:letter", (req, res) => {
   var description = "Games starting with letter: " + req.params.letter;
   var html = getHTML(
     "ZXInfo",
-    "ZXInfo - The open source ZXDB frontend",
+    "The open source ZXDB frontend",
     description,
     `https://zxinfo.dk/letter/${encodeURIComponent(req.params.letter)}`,
     "https://zxinfo.dk/media/icons/android-chrome-512x512.png",
