@@ -190,8 +190,8 @@ router.get("/details/:gameid", (req, res) => {
       var img_height = 192;
       console.log(result._source.contentType);
       if (result._source.contentType === "SOFTWARE") {
-        img_width = 450;
-        img_height = 315;
+        img_width = 320;
+        img_height = 240;
       }
       var html = getHTML(
         og_title + " | ZXInfo.dk",
