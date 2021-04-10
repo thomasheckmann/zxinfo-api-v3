@@ -148,6 +148,7 @@ var es_source_item = function (outputmode) {
     var source_includes = [
       "title",
       "contentType",
+      "zxinfoVersion",
       "originalYearOfRelease",
       "originalMonthOfRelease",
       "originalDayOfRelease",
@@ -187,6 +188,7 @@ var es_source_item = function (outputmode) {
   } else if (outputmode == "tiny") {
     return [
       "title",
+      "zxinfoVersion",
       "contentType",
       "originalYearOfRelease",
       "machineType",
