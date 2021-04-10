@@ -221,6 +221,7 @@ var es_source_list = function (outputmode) {
     var source_includes = [
       "title",
       "contentType",
+      "zxinfoVersion",
       "originalYearOfRelease",
       "originalMonthOfRelease",
       "originalDayOfRelease",
@@ -242,6 +243,7 @@ var es_source_list = function (outputmode) {
     return [
       "title",
       "contentType",
+      "zxinfoVersion",
       "originalYearOfRelease",
       "machineType",
       "score",
