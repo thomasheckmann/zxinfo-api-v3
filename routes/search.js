@@ -384,7 +384,7 @@ function removeFilter(filters, f) {
   return filters.filter((value) => Object.keys(value).length !== 0);
 }
 
-var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly) {
+var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg) {
   debug("powerSearch(): " + JSON.stringify(searchObject));
 
   var sort_object = tools.getSortObject(searchObject.sort);
@@ -534,229 +534,241 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   fs.writeFileSync("createQueryTermWithFilters.json", JSON.stringify(query));
   fs.writeFileSync("queryObject.json", JSON.stringify(queryObject));
 */
-  return elasticClient.search({
-    _source: tools.es_source_list(outputmode),
-    _source_excludes: "titlesuggest, metadata_author,authorsuggest",
-    filter_path: "-hits.hits.sort,-hits.hits.highlight,-hits.hits._explanation",
-    index: es_index,
-    body: {
-      track_scores: true,
-      size: page_size,
-      from: fromOffset,
-      query: {
-        boosting: {
-          positive: queryObject,
-          negative: {
-            exists: {
-              field: "modificationOf.title",
-            },
-          },
-          negative_boost: 0.5,
-        },
-      },
-      sort: sort_object,
-      highlight: {
-        fields: {
-          title: {},
-          alsoknownas: {},
-          /*"releases.as_title": {},*/
-          "publishers.name": {},
-          "releases.name": {},
-          "authors..name": {},
-          /*"authors.authors.alias": {},*/
-          "authors.groupName": {},
-        },
-      },
-      aggregations: {
-        all_entries: {
-          global: {},
-          aggregations: {
-            aggMachineTypes: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, machinetype_should),
-                },
-              },
-              aggregations: {
-                filtered_machinetypes: {
-                  terms: {
-                    size: 100,
-                    field: "machineType",
-                    order: {
-                      _key: "desc",
-                    },
-                  },
-                },
+
+  if (includeagg === undefined || includeagg === "false")
+    return elasticClient.search({
+      _source: tools.es_source_list(outputmode),
+      _source_excludes: "titlesuggest, metadata_author,authorsuggest",
+      index: es_index,
+      body: {
+        track_scores: true,
+        size: page_size,
+        from: fromOffset,
+        query: {
+          boosting: {
+            positive: queryObject,
+            negative: {
+              exists: {
+                field: "modificationOf.title",
               },
             },
-            aggControls: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, controls_should),
-                },
-              },
-              aggregations: {
-                filtered_controls: {
-                  terms: {
-                    size: 100,
-                    field: "controls.control",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggMultiplayerMode: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, multiplayermode_should),
-                },
-              },
-              aggregations: {
-                filtered_multiplayermode: {
-                  terms: {
-                    size: 100,
-                    field: "multiplayerMode",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggMultiplayerType: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, multiplayertype_should),
-                },
-              },
-              aggregations: {
-                filtered_multiplayertype: {
-                  terms: {
-                    size: 100,
-                    field: "multiplayerType",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggOriginalPublication: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, originalpublication_should),
-                },
-              },
-              aggregations: {
-                filtered_originalpublication: {
-                  terms: {
-                    size: 100,
-                    field: "originalPublication",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggAvailability: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, availability_should),
-                },
-              },
-              aggregations: {
-                filtered_availability: {
-                  terms: {
-                    size: 100,
-                    field: "availability",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggType: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, genretype_should),
-                },
-              },
-              aggregations: {
-                filtered_type: {
-                  terms: {
-                    size: 100,
-                    field: "genreType",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggSubType: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, genresubtype_should),
-                },
-              },
-              aggregations: {
-                filtered_type: {
-                  terms: {
-                    size: 100,
-                    field: "genreSubType",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggLanguage: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, language_should),
-                },
-              },
-              aggregations: {
-                filtered_language: {
-                  terms: {
-                    size: 100,
-                    field: "language",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            aggOriginalYearOfRelease: {
-              filter: {
-                bool: {
-                  must: removeFilter(aggfilter, year_should),
-                },
-              },
-              aggregations: {
-                filtered_year: {
-                  terms: {
-                    size: 100,
-                    field: "originalYearOfRelease",
-                    order: {
-                      _key: "asc",
-                    },
-                  },
-                },
-              },
-            },
-            /** insert new AGG here */
+            negative_boost: 0.5,
           },
         },
+        sort: sort_object,
       },
-    }, // end body
-  });
+    });
+  else
+    return elasticClient.search({
+      _source: tools.es_source_list(outputmode),
+      _source_excludes: "titlesuggest, metadata_author,authorsuggest",
+      index: es_index,
+      body: {
+        track_scores: true,
+        size: page_size,
+        from: fromOffset,
+        query: {
+          boosting: {
+            positive: queryObject,
+            negative: {
+              exists: {
+                field: "modificationOf.title",
+              },
+            },
+            negative_boost: 0.5,
+          },
+        },
+        sort: sort_object,
+        aggregations: {
+          all_entries: {
+            global: {},
+            aggregations: {
+              aggMachineTypes: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, machinetype_should),
+                  },
+                },
+                aggregations: {
+                  filtered_machinetypes: {
+                    terms: {
+                      size: 100,
+                      field: "machineType",
+                      order: {
+                        _key: "desc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggControls: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, controls_should),
+                  },
+                },
+                aggregations: {
+                  filtered_controls: {
+                    terms: {
+                      size: 100,
+                      field: "controls.control",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggMultiplayerMode: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, multiplayermode_should),
+                  },
+                },
+                aggregations: {
+                  filtered_multiplayermode: {
+                    terms: {
+                      size: 100,
+                      field: "multiplayerMode",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggMultiplayerType: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, multiplayertype_should),
+                  },
+                },
+                aggregations: {
+                  filtered_multiplayertype: {
+                    terms: {
+                      size: 100,
+                      field: "multiplayerType",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggOriginalPublication: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, originalpublication_should),
+                  },
+                },
+                aggregations: {
+                  filtered_originalpublication: {
+                    terms: {
+                      size: 100,
+                      field: "originalPublication",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggAvailability: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, availability_should),
+                  },
+                },
+                aggregations: {
+                  filtered_availability: {
+                    terms: {
+                      size: 100,
+                      field: "availability",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggType: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, genretype_should),
+                  },
+                },
+                aggregations: {
+                  filtered_type: {
+                    terms: {
+                      size: 100,
+                      field: "genreType",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggSubType: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, genresubtype_should),
+                  },
+                },
+                aggregations: {
+                  filtered_type: {
+                    terms: {
+                      size: 100,
+                      field: "genreSubType",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggLanguage: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, language_should),
+                  },
+                },
+                aggregations: {
+                  filtered_language: {
+                    terms: {
+                      size: 100,
+                      field: "language",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              aggOriginalYearOfRelease: {
+                filter: {
+                  bool: {
+                    must: removeFilter(aggfilter, year_should),
+                  },
+                },
+                aggregations: {
+                  filtered_year: {
+                    terms: {
+                      size: 100,
+                      field: "originalYearOfRelease",
+                      order: {
+                        _key: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+              /** insert new AGG here */
+            },
+          },
+        },
+      }, // end body
+    });
 };
 
 /************************************************
@@ -836,21 +848,25 @@ router.get("/", function (req, res, next) {
     debug(`mType: ${gTypes}`);
   }
 
-  powerSearch(req.query, req.query.size, req.query.offset, req.query.mode, req.query.titlesonly).then(function (result) {
-    debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
-    debug(result);
-    debug(`#############################################################`);
+  powerSearch(req.query, req.query.size, req.query.offset, req.query.mode, req.query.titlesonly, req.query.includeagg).then(
+    function (result) {
+      debug(
+        `########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`
+      );
+      debug(result);
+      debug(`#############################################################`);
 
-    res.header("X-Total-Count", result.hits.total.value);
-    if (req.query.output === "simple") {
-      res.send(tools.renderSimpleOutput(result));
-    } else if (req.query.output === "flat") {
-      res.header("content-type", "text/plain;charset=UTF-8");
-      res.send(tools.renderFlatOutputEntries(result));
-    } else {
-      res.send(result);
+      res.header("X-Total-Count", result.hits.total.value);
+      if (req.query.output === "simple") {
+        res.send(tools.renderSimpleOutput(result));
+      } else if (req.query.output === "flat") {
+        res.header("content-type", "text/plain;charset=UTF-8");
+        res.send(tools.renderFlatOutputEntries(result));
+      } else {
+        res.send(result);
+      }
     }
-  });
+  );
 });
 
 module.exports = router;
