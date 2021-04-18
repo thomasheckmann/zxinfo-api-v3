@@ -384,8 +384,13 @@ function removeFilter(filters, f) {
   return filters.filter((value) => Object.keys(value).length !== 0);
 }
 
-var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg) {
+var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg, explainId) {
   debug("powerSearch(): " + JSON.stringify(searchObject));
+
+  if (Number.isInteger(parseInt(explainId)) && explainId.length < 8) {
+    explainId = ("0000000" + explainId).slice(-7);
+  }
+  debug(`powerSearch(): explainId = ${explainId}`);
 
   var sort_object = tools.getSortObject(searchObject.sort);
 
@@ -535,7 +540,27 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   fs.writeFileSync("queryObject.json", JSON.stringify(queryObject));
 */
 
-  if (includeagg === undefined || includeagg === "false")
+  if (explainId !== undefined) {
+    return elasticClient.explain({
+      _source: tools.es_source_list(outputmode),
+      _source_excludes: "titlesuggest, metadata_author,authorsuggest",
+      index: es_index,
+      id: explainId,
+      body: {
+        query: {
+          boosting: {
+            positive: queryObject,
+            negative: {
+              exists: {
+                field: "modificationOf.title",
+              },
+            },
+            negative_boost: 0.5,
+          },
+        },
+      },
+    });
+  } else if (includeagg === undefined || includeagg === "false")
     return elasticClient.search({
       _source: tools.es_source_list(outputmode),
       _source_excludes: "titlesuggest, metadata_author,authorsuggest",
@@ -848,14 +873,22 @@ router.get("/", function (req, res, next) {
     debug(`mType: ${gTypes}`);
   }
 
-  powerSearch(req.query, req.query.size, req.query.offset, req.query.mode, req.query.titlesonly, req.query.includeagg).then(
-    function (result) {
-      debug(
-        `########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`
-      );
-      debug(result);
-      debug(`#############################################################`);
+  powerSearch(
+    req.query,
+    req.query.size,
+    req.query.offset,
+    req.query.mode,
+    req.query.titlesonly,
+    req.query.includeagg,
+    req.query.explain
+  ).then(function (result) {
+    debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
+    debug(result);
+    debug(`#############################################################`);
 
+    if (req.query.explain !== undefined) {
+      res.send(result);
+    } else {
       res.header("X-Total-Count", result.hits.total.value);
       if (req.query.output === "simple") {
         res.send(tools.renderSimpleOutput(result));
@@ -866,7 +899,7 @@ router.get("/", function (req, res, next) {
         res.send(result);
       }
     }
-  );
+  });
 });
 
 module.exports = router;
