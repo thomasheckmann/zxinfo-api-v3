@@ -79,6 +79,12 @@ function queryTermTitlesOnly(query) {
           },
         },
         {
+          multi_match: {
+            query: query,
+            fields: ["title.ngram"],
+          },
+        },
+        {
           match: {
             titlesuggest: query,
           },
@@ -99,10 +105,18 @@ function queryTerm2(query) {
             query: query,
             fields: ["title"],
             fuzziness: "AUTO",
-            boost: 2.0,
+            boost: 4.0,
           },
         },
         {
+          multi_match: {
+            query: query,
+            fields: ["title.ngram"],
+            boost: 4.0,
+          },
+        },
+        /*
+			{
           match: {
             titlesuggest: query,
           },
@@ -111,7 +125,7 @@ function queryTerm2(query) {
           match: {
             authorsuggest: query,
           },
-        },
+        },*/
         /* release titles / aliases */
         {
           nested: {
@@ -127,50 +141,11 @@ function queryTerm2(query) {
                 ],
               },
             },
-            boost: 1.9,
+            boost: 1.1,
           },
         },
         /* */
-        /* publisher names */
-        {
-          nested: {
-            path: "publishers",
-            query: {
-              bool: {
-                must: [
-                  {
-                    match: {
-                      "publishers.name": query,
-                    },
-                  },
-                ],
-              },
-            },
-            boost: 1.5,
-          },
-        },
-        /* */
-        /* authors names */
-        {
-          nested: {
-            path: "authors",
-            query: {
-              bool: {
-                must: [
-                  {
-                    multi_match: {
-                      query: query,
-                      fields: ["authors.name", "authors.groupName"],
-                    },
-                  },
-                ],
-              },
-            },
-            boost: 1.5,
-          },
-        },
-        /* */
-        /* publisher names */
+        /* releases publisers */
         {
           nested: {
             path: "releases.publishers",
@@ -189,22 +164,23 @@ function queryTerm2(query) {
           },
         },
         /* */
-        /* authors group name */
+        /* publisher names */
         {
           nested: {
-            path: "authors",
+            path: "publishers",
             query: {
               bool: {
                 must: [
                   {
-                    match: {
-                      "authors.groupName": query,
+                    multi_match: {
+                      query: query,
+                      fields: ["publishers.name"],
                     },
                   },
                 ],
               },
             },
-            boost: 1.3,
+            boost: 1.5,
           },
         },
         /* */
@@ -222,10 +198,37 @@ function queryTerm2(query) {
           },
         },
         /* */
+        /* authors name and group */
+        {
+          nested: {
+            path: "authors",
+            query: {
+              bool: {
+                must: [
+                  {
+                    multi_match: {
+                      query: query,
+                      fields: ["authors.name^5", "authors.groupName^5"],
+                    },
+                  },
+                ],
+              },
+            },
+            boost: 1.5,
+          },
+        },
+        /* */
         /* comments */
         {
-          match: {
-            remarks: "to show gary",
+          bool: {
+            must: [
+              {
+                match: {
+                  remarks: query,
+                },
+              },
+            ],
+            boost: 2.0,
           },
         },
         /* */
@@ -533,12 +536,6 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     fromOffset = offset * page_size;
     queryObject = query;
   }
-
-  /* DEBUG
-  const fs = require("fs");
-  fs.writeFileSync("createQueryTermWithFilters.json", JSON.stringify(query));
-  fs.writeFileSync("queryObject.json", JSON.stringify(queryObject));
-*/
 
   if (explainId !== undefined) {
     return elasticClient.explain({
