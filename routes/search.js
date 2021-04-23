@@ -101,18 +101,26 @@ function queryTerm2(query) {
     bool: {
       should: [
         {
-          multi_match: {
-            query: query,
-            fields: ["title"],
-            fuzziness: "AUTO",
-            boost: 4.0,
+          match: {
+            title: {
+              query: query,
+              boost: 20,
+            },
           },
         },
         {
           multi_match: {
             query: query,
             fields: ["title.ngram"],
-            boost: 4.0,
+            boost: 8.0,
+          },
+        },
+        {
+          multi_match: {
+            query: query,
+            fields: ["title"],
+            fuzziness: "AUTO",
+            boost: 6.0,
           },
         },
         /*
@@ -141,7 +149,7 @@ function queryTerm2(query) {
                 ],
               },
             },
-            boost: 1.1,
+            boost: 8,
           },
         },
         /* */
@@ -160,7 +168,7 @@ function queryTerm2(query) {
                 ],
               },
             },
-            boost: 1.3,
+            boost: 8,
           },
         },
         /* */
@@ -180,7 +188,7 @@ function queryTerm2(query) {
                 ],
               },
             },
-            boost: 1.5,
+            boost: 10,
           },
         },
         /* */
@@ -208,13 +216,13 @@ function queryTerm2(query) {
                   {
                     multi_match: {
                       query: query,
-                      fields: ["authors.name^5", "authors.groupName^5"],
+                      fields: ["authors.name^5", "authors.groupName"],
                     },
                   },
                 ],
               },
             },
-            boost: 1.5,
+            boost: 10,
           },
         },
         /* */
