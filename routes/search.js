@@ -431,9 +431,10 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   var multiplayertype_should = createFilterItem("multiplayerType", searchObject.multiplayertype);
   filterObjects["multiplayertype"] = multiplayertype_should;
 
+  /**
   var originalpublication_should = createFilterItem("originalPublication", searchObject.originalpublication);
   filterObjects["originalpublication"] = originalpublication_should;
-
+*/
   var availability_should = createFilterItem("availability", searchObject.availability);
   filterObjects["availability"] = availability_should;
 
@@ -507,7 +508,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     controls_should,
     multiplayermode_should,
     multiplayertype_should,
-    originalpublication_should,
+    // originalpublication_should,
     availability_should,
     language_should,
     year_should,
@@ -685,6 +686,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
                   },
                 },
               },
+              /**
               aggOriginalPublication: {
                 filter: {
                   bool: {
@@ -703,6 +705,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
                   },
                 },
               },
+ */
               aggAvailability: {
                 filter: {
                   bool: {
