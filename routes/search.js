@@ -73,20 +73,24 @@ function queryTermTitlesOnly(query) {
     bool: {
       should: [
         {
-          multi_match: {
-            query: query,
-            fields: ["title"],
+          match: {
+            title: {
+              query: query,
+              boost: 6
+            }
           },
         },
         {
-          multi_match: {
-            query: query,
-            fields: ["title.ngram"],
-          },
+          match_phrase: {
+            title: {
+              query: query,
+              boost: 4
+            }
+          }
         },
         {
           match: {
-            titlesuggest: query,
+            titlesuggest: { query: query, boost: 10 },
           },
         },
       ],
@@ -95,6 +99,10 @@ function queryTermTitlesOnly(query) {
   };
 }
 
+/**
+ * 
+ *  Basic Query (without filters, aggregations etc...)
+ */
 function queryTerm2(query) {
   debug(`queryTerm2(${query})`);
   return {
@@ -104,37 +112,23 @@ function queryTerm2(query) {
           match: {
             title: {
               query: query,
-              boost: 20,
-            },
+              boost: 6
+            }
           },
         },
         {
-          multi_match: {
-            query: query,
-            fields: ["title.ngram"],
-            boost: 8.0,
-          },
-        },
-        {
-          multi_match: {
-            query: query,
-            fields: ["title"],
-            fuzziness: "AUTO",
-            boost: 6.0,
-          },
-        },
-        /*
-			{
-          match: {
-            titlesuggest: query,
-          },
+          match_phrase: {
+            title: {
+              query: query,
+              boost: 4
+            }
+          }
         },
         {
           match: {
-            authorsuggest: query,
+            titlesuggest: { query: query, boost: 10 },
           },
-        },*/
-        /* release titles / aliases */
+        },
         {
           nested: {
             path: "releases",
@@ -149,10 +143,9 @@ function queryTerm2(query) {
                 ],
               },
             },
-            boost: 8,
+            boost: 1.5,
           },
         },
-        /* */
         /* releases publisers */
         {
           nested: {
@@ -168,7 +161,7 @@ function queryTerm2(query) {
                 ],
               },
             },
-            boost: 8,
+            boost: 2,
           },
         },
         /* */
@@ -180,49 +173,44 @@ function queryTerm2(query) {
               bool: {
                 must: [
                   {
-                    multi_match: {
-                      query: query,
-                      fields: ["publishers.name"],
-                    },
-                  },
+                    match_phrase: {
+                      "publishers.name": {
+                        query: query
+                      }
+                    }
+                  }
                 ],
               },
             },
-            boost: 10,
+            boost: 8,
           },
         },
-        /* */
-        /* publishers note */
-        {
-          bool: {
-            must: [
-              {
-                match: {
-                  "publishers.notes.text": query,
-                },
-              },
-            ],
-            boost: 1.2,
-          },
-        },
-        /* */
         /* authors name and group */
         {
           nested: {
             path: "authors",
             query: {
               bool: {
-                must: [
+                should: [
                   {
-                    multi_match: {
-                      query: query,
-                      fields: ["authors.name^5", "authors.groupName"],
-                    },
+                    match_phrase: {
+                      "authors.name": {
+                        query: query
+                      }
+                    }
                   },
-                ],
+                  {
+                    match_phrase: {
+                      "authors.groupName": {
+                        query: query
+                      }
+                    }
+                  },
+                ], minimum_should_match: 1,
+
               },
             },
-            boost: 10,
+            boost: 2.5,
           },
         },
         /* */
@@ -236,7 +224,7 @@ function queryTerm2(query) {
                 },
               },
             ],
-            boost: 2.0,
+            boost: 0,
           },
         },
         /* */
@@ -557,9 +545,20 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
           boosting: {
             positive: queryObject,
             negative: {
-              exists: {
-                field: "modificationOf.title",
-              },
+              bool: {
+                should: [
+                  {
+                    exists: {
+                      field: "modificationOf.title",
+                    },
+                  },
+                  {
+                    exists: {
+                      field: "inspiredBy.title",
+                    },
+                  }
+                ]
+              }
             },
             negative_boost: 0.5,
           },
@@ -579,9 +578,20 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
           boosting: {
             positive: queryObject,
             negative: {
-              exists: {
-                field: "modificationOf.title",
-              },
+              bool: {
+                should: [
+                  {
+                    exists: {
+                      field: "modificationOf.title",
+                    },
+                  },
+                  {
+                    exists: {
+                      field: "inspiredBy.title",
+                    },
+                  },
+                ]
+              }
             },
             negative_boost: 0.5,
           },
@@ -602,9 +612,20 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
           boosting: {
             positive: queryObject,
             negative: {
-              exists: {
-                field: "modificationOf.title",
-              },
+              bool: {
+                should: [
+                  {
+                    exists: {
+                      field: "modificationOf.title",
+                    },
+                  },
+                  {
+                    exists: {
+                      field: "inspiredBy.title",
+                    },
+                  }
+                ]
+              }
             },
             negative_boost: 0.5,
           },

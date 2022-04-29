@@ -181,6 +181,8 @@ var es_source_item = function (outputmode) {
       "bookContents",
       "modificationOf",
       "modifiedBy",
+      "inspiredBy",
+      "otherPlatform",
       "additionalDownloads",
       "screens",
     ];
