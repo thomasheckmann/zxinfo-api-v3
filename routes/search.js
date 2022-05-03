@@ -93,6 +93,9 @@ function queryTermTitlesOnly(query) {
             titlesuggest: { query: query, boost: 10 },
           },
         },
+        {
+          wildcard: { title: "*" + query + "*" }
+        },
       ],
       minimum_should_match: 1,
     },
@@ -128,6 +131,9 @@ function queryTerm2(query) {
           match: {
             titlesuggest: { query: query, boost: 10 },
           },
+        },
+        {
+          wildcard: { title: "*" + query + "*" }
         },
         {
           nested: {
