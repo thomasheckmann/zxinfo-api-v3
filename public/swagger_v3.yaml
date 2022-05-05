@@ -101,6 +101,17 @@ paths:
           description: "something to query for"
           type: string
           required: false
+        - name: "titlesonly"
+          in: query
+          description: "restrict search to title only"
+          type: boolean
+          required: false
+          default: false
+        - name: "tosectype"
+          in: query
+          description: "restrict search to entries with these TOSEC types, e.g. tzx, tap or dsk"
+          type: string
+          required: false
         - name: mode
           in: query
           description: Specifies if returned JSON should be 'tiny', 'compact' or 'full'. Compact format is ideal for creating an overview page showing the result
