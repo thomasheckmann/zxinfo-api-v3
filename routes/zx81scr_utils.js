@@ -7,7 +7,7 @@ const fs = require("fs");
 var debug = require("debug")("zxinfo-services:scr");
 
 /**
-	y = 0-191
+  y = 0-191
 
  */
 function calculateDisplayFile(y) {
@@ -52,26 +52,31 @@ function convertBMP(filename, image, offsetx, offsety) {
 
   var calulated_offset_x = 0;
   var calulated_offset_y = 0;
-  debug(`[BMP] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
-  debug(`[BMP] Provided offset = (${offsetx},${offsety})`);
+  debug(`[convert] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
+  debug(`[convert] Provided offset = (${offsetx},${offsety})`);
 
-  if (image.bitmap.width < 440 && image.bitmap.height < 330) {
-    calulated_offset_x = Math.round((image.bitmap.width - 256) / 2);
-    calulated_offset_y = Math.round((image.bitmap.height - 192) / 2);
-    debug(`[BMP] Calculating offset = (${calulated_offset_x},${calulated_offset_y})`);
-  }
+  if (image.bitmap.width === 320 && image.bitmap.height === 256) { 
+    // ZX81 iOS/iPad
+    calulated_offset_x = Math.round((image.bitmap.width-256) / 2);
+    calulated_offset_y = Math.round((image.bitmap.height - 192) / 2) + 1;
+    debug(`[convert] ZX81 case, Calculating offset = (${calulated_offset_x},${calulated_offset_y})`);
+  } else if (image.bitmap.width < 440 && image.bitmap.height < 330) {
+      calulated_offset_x = Math.round((image.bitmap.width - 256) / 2);
+      calulated_offset_y = Math.round((image.bitmap.height - 192) / 2);
+      debug(`[convert] Calculating offset = (${calulated_offset_x},${calulated_offset_y})`);
+    }
 
   // If user provided are different from calculated, use user provided
   if (offsetx < 0) {
     offsetx = calulated_offset_x;
-    debug(`[BMP] Using calculated offsetx`);
+    debug(`[convert] Using calculated offsetx`);
   }
   if (offsety < 0) {
     offsety = calulated_offset_y;
-    debug(`[BMP] Using calculated offsety`);
+    debug(`[convert] Using calculated offsety`);
   }
 
-  debug(`[BMP] Using offset = (${offsetx},${offsety})`);
+  debug(`[convert] Using offset = (${offsetx},${offsety})`);
 
   /* GENERATE CLEAN PNG OF INPUT */
   let cleanimage = new Jimp(image.bitmap.width, image.bitmap.height, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
