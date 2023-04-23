@@ -44,6 +44,10 @@ function convertBMP(filename, image, offsetx, offsety) {
    *
    * SZ81 is known to produce 320x240 or scaled (From sz18 manual: ALT-R Cycle between 960x720, 640x480 and 320x240)
    *
+   * ZXSP is known to produce 320x240 in GIF format
+   * 
+   * ZX81 by Kevin is known to produce 640 x 512 in PNG format
+   * - on iOS/iPAD and JPG on macOS (via Photos)
    */
 
   var calulated_offset_x = 0;
