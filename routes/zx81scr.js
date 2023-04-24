@@ -50,19 +50,17 @@ router.post("/upload", upload.single("file"), (req, res) => {
   debug(`[upload] - offsetx = ${offsetx}, offsety = ${offsety}`);
 
   var name = req.file.originalname.split(".").slice(0, -1).join(".");
-  if (req.file.originalname.toLowerCase().endsWith(".bmp") || req.file.originalname.toLowerCase().endsWith(".png") || req.file.originalname.toLowerCase().endsWith(".gif") || req.file.originalname.toLowerCase().endsWith(".jpg")) {
+  if (
+    req.file.originalname.toLowerCase().endsWith(".bmp") ||
+    req.file.originalname.toLowerCase().endsWith(".png") ||
+    req.file.originalname.toLowerCase().endsWith(".gif") ||
+    req.file.originalname.toLowerCase().endsWith(".jpg")
+  ) {
     // load BMP, PNG or GIF
     Jimp.read(req.file.path, (err, image) => {
       if (err) throw err;
 
       debug(`[BMP] source - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
-
-      if (image.bitmap.width === 640 && image.bitmap.height === 512) {
-        // ZX81 - 640x512
-        image.resize(320, 256);
-      } else if (image.bitmap.width > 413) {
-        image.resize(320, 240);
-      }
 
       var r = zx81.convertBMP(req.file.originalname, image, offsetx, offsety);
       var imagePNG = r.png;
