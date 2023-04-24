@@ -28,7 +28,7 @@ function calculateDisplayFile(y) {
  */
 function convertBMP(filename, image, offsetx, offsety) {
   debug(`[convertBMP] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
-  convertIMAGE(filename, image, offsetx, offsety, "./uploads/");
+  return convertIMAGE(filename, image, offsetx, offsety, "./uploads/");
 }
 
 /**
