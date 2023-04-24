@@ -3,6 +3,7 @@
 const zx81 = require("./zx81tables");
 const Jimp = require("jimp");
 const fs = require("fs");
+var path = require("path");
 
 var debug = require("debug")("zxinfo-services:scr");
 
@@ -22,62 +23,87 @@ function calculateDisplayFile(y) {
 }
 
 /**
- * Converts BMP to SCR, s81, TXT & PNG
+ *
+ * WRAPPER Around convertIMAGE, just keep for compability
+ */
+function convertBMP(filename, image, offsetx, offsety) {
+  debug(`[convertBMP] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
+  return convertIMAGE(filename, image, offsetx, offsety, "./uploads/");
+}
+
+/**
+ * Converts Image to SCR, s81, TXT & PNG
  *
  * @param {*} filename
  * @param {*} image
  * @param {*} offsetx
  * @param {*} offsety
  *
- * Returns Base64 of PNG
+ * Returns Base64 of Cleaned - PNG
+ *
+ * Handle different sizes.
+ * EightyOne is known to produce the following sizes:
+ *	* No Border:		256x192 pixels
+ *	* Small Border:		264x200 pixels
+ *	* Standard Border:	320x240 pixels
+ *	* Large border:		400x300 pixels
+ *	* Full frame:		413x312 pixels
+ *
+ * SZ81 is known to produce 320x240 or scaled (From sz18 manual: ALT-R Cycle between 960x720, 640x480 and 320x240)
+ *
+ * ZXSP is known to produce 320x240 in GIF format
+ *
+ * ZX81 by Kevin is known to produce 640 x 512 in PNG format
+ * - on iOS/iPAD and JPG on macOS (via Photos)
  */
-function convertBMP(filename, image, offsetx, offsety) {
-  /**
-   *
-   * Handle different sizes.
-   * EightyOne is known to produce the following sizes:
-   *	* No Border:		256x192 pixels
-   *	* Small Border:		264x200 pixels
-   *	* Standard Border:	320x240 pixels
-   *	* Large border:		400x300 pixels
-   *	* Full frame:		413x312 pixels
-   *
-   * SZ81 is known to produce 320x240 or scaled (From sz18 manual: ALT-R Cycle between 960x720, 640x480 and 320x240)
-   *
-   * ZXSP is known to produce 320x240 in GIF format
-   * 
-   * ZX81 by Kevin is known to produce 640 x 512 in PNG format
-   * - on iOS/iPAD and JPG on macOS (via Photos)
-   */
+function convertIMAGE(filename, image, offsetx, offsety, outputfolder) {
+  const basename = path.basename(filename);
+  debug(`[convertIMAGE] - filename: ${filename}, basename: ${basename}`);
+  debug(`[${basename}] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
+  debug(`[${basename}] - provided offset = (${offsetx},${offsety})`);
 
   var calulated_offset_x = 0;
   var calulated_offset_y = 0;
-  debug(`[convert] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
-  debug(`[convert] Provided offset = (${offsetx},${offsety})`);
 
-  if (image.bitmap.width === 320 && image.bitmap.height === 256) { 
-    // ZX81 iOS/iPad
-    calulated_offset_x = Math.round((image.bitmap.width-256) / 2);
-    calulated_offset_y = Math.round((image.bitmap.height - 192) / 2) + 1;
-    debug(`[convert] ZX81 case, Calculating offset = (${calulated_offset_x},${calulated_offset_y})`);
-  } else if (image.bitmap.width < 440 && image.bitmap.height < 330) {
-      calulated_offset_x = Math.round((image.bitmap.width - 256) / 2);
-      calulated_offset_y = Math.round((image.bitmap.height - 192) / 2);
-      debug(`[convert] Calculating offset = (${calulated_offset_x},${calulated_offset_y})`);
+  const ratio = image.bitmap.height / image.bitmap.width;
+  const remainder = image.bitmap.width % 256; // against org. screen, to determine if there is a border
+
+  // resize to actual size, based on aspect ratio
+  if (image.bitmap.width > 320 && image.bitmap.height > 256) {
+    debug(`[${basename}] - ratio: ${ratio}, ${remainder === 0 ? "No border" : "Border" + remainder}`);
+
+    if (remainder === 0) {
+      debug(`[${basename}] - Resizing to: ${256} x ${256 * ratio} (no border)`);
+      image.resize(256, 256 * ratio);
+    } else {
+      debug(`[${basename}] - Resizing to: ${320} x ${320 * ratio} (border)`);
+      image.resize(320, 320 * ratio);
     }
+  }
+
+  calulated_offset_x = Math.round((image.bitmap.width - 256) / 2);
+  calulated_offset_y = Math.round((image.bitmap.height - 192) / 2);
+
+  // Semi ZX81 Emulator hack... ask Kevin?
+  if (ratio === 0.8 && image.bitmap.height === 256) {
+    calulated_offset_y++;
+  }
+
+  debug(`[${basename}] Calculating offset = (${calulated_offset_x},${calulated_offset_y})`);
 
   // If user provided are different from calculated, use user provided
   if (offsetx < 0) {
     offsetx = calulated_offset_x;
-    debug(`[convert] Using calculated offsetx`);
+    debug(`[${basename}] Using calculated offsetx`);
   }
   if (offsety < 0) {
     offsety = calulated_offset_y;
-    debug(`[convert] Using calculated offsety`);
+    debug(`[${basename}] Using calculated offsety`);
   }
 
-  debug(`[convert] Using offset = (${offsetx},${offsety})`);
+  debug(`[${basename}] Using offset = (${offsetx},${offsety})`);
 
+  debug(`[${basename}] 1) - Create cleaned PNG of output`);
   /* GENERATE CLEAN PNG OF INPUT */
   let cleanimage = new Jimp(image.bitmap.width, image.bitmap.height, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
     if (err) throw err;
@@ -94,6 +120,7 @@ function convertBMP(filename, image, offsetx, offsety) {
     }
   }
 
+  debug(`[convertIMAGE] 2) - Create overlay PNG showing offset used`);
   /* GENERATE PNG SHOWING OVERLAY */
   let overlay = new Jimp(256, 192, Jimp.cssColorToHex("#ff0000"), (err, image) => {
     if (err) throw err;
@@ -105,6 +132,7 @@ function convertBMP(filename, image, offsetx, offsety) {
     opacityDest: 0.9,
   });
 
+  debug(`[${basename}] 3) - Convert to SCR, S81 and .TXT`);
   var valid = true; // BMP only contains ZX81 characters...
   var dfile = new Array(6912);
 
@@ -158,14 +186,24 @@ function convertBMP(filename, image, offsetx, offsety) {
     dfile[6144 + i] = blackwhiteattr;
   }
 
-  if (!valid) console.log("################ NOT ZX81 ONLY ###############");
-  var name = filename.split(".").slice(0, -1).join(".");
+  if (!valid) {
+    debug(`[${basename}] Warning, image contains non ZX81 chars as well`);
+  }
+
+  debug(`[${basename}] 4) - Writing output files`);
+  // var name = filename.split(".").slice(0, -1).join(".");
+  const name = path.parse(basename).name;
   try {
-    fs.writeFileSync("./uploads/" + name + ".s81", new Buffer.from(output_zx81));
-    fs.writeFileSync("./uploads/" + name + ".txt", new Buffer.from(textline_utc));
-    fs.writeFileSync("./uploads/" + name + ".scr", new Buffer.from(dfile));
-    cleanimage.write("./uploads/" + name + ".png");
-    overlay.write("./uploads/" + name + "_ovr.png");
+    debug(`[${basename}] - ${name}.s81`);
+    fs.writeFileSync(outputfolder + name + ".s81", new Buffer.from(output_zx81));
+    debug(`[${basename}] - ${name}.txt`);
+    fs.writeFileSync(outputfolder + name + ".txt", new Buffer.from(textline_utc));
+    debug(`[${basename}] - ${name}.scr`);
+    fs.writeFileSync(outputfolder + name + ".scr", new Buffer.from(dfile));
+    debug(`[${basename}] - ${name}.png`);
+    cleanimage.write(outputfolder + name + ".png");
+    debug(`[${basename}] - ${name}_ovr.png`);
+    overlay.write(outputfolder + name + "_ovr.png");
   } catch (e) {
     console.error(e);
   }
@@ -175,7 +213,10 @@ function convertBMP(filename, image, offsetx, offsety) {
 }
 
 function convertSCR(file, offsetx, offsety) {
-  var filename_base = file.originalname.split(".").slice(0, -1).join(".");
+  debug(`[convertSCR] - file: ${file}`);
+  //var filename_base = file.originalname.split(".").slice(0, -1).join(".");
+
+  const filename_base = path.parse(file.originalname).name;
   var scrData = fs.readFileSync(file.path);
 
   let image = new Jimp(256, 192, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
@@ -205,8 +246,9 @@ function convertSCR(file, offsetx, offsety) {
 }
 
 function convertS81(file, offsetx, offsety) {
-  console.log("[CONVERTSS81]");
-  var filename_base = file.originalname.split(".").slice(0, -1).join(".");
+  debug(`[convertS81] - file: ${file}`);
+  //var filename_base = file.originalname.split(".").slice(0, -1).join(".");
+  const filename_base = path.parse(file.originalname).name;
   var scrData = fs.readFileSync(file.path);
 
   function getByValueChr(map, searchValue) {
@@ -245,6 +287,7 @@ function convertS81(file, offsetx, offsety) {
 }
 
 module.exports = {
+  convertIMAGE: convertIMAGE,
   convertBMP: convertBMP,
   convertSCR: convertSCR,
   convertS81: convertS81,
