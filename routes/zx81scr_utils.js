@@ -120,7 +120,7 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder) {
     }
   }
 
-  debug(`[convertIMAGE] 2) - Create overlay PNG showing offset used`);
+  debug(`[${basename}] 2) - Create overlay PNG showing offset used`);
   /* GENERATE PNG SHOWING OVERLAY */
   let overlay = new Jimp(256, 192, Jimp.cssColorToHex("#ff0000"), (err, image) => {
     if (err) throw err;
