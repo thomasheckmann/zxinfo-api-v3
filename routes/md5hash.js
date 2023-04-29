@@ -33,7 +33,7 @@ var hashLookup = function (hash) {
   debug(`md5lookup() : ${hash}`);
 
   return elasticClient.search({
-    _sourceIncludes: ["_id", "title", "md5hash"],
+    _sourceIncludes: ["_id", "title", "zxinfoVersion", "contentType", "originalYearOfRelease", "machineType", "genre", "genreType", "genreSubType", "publishers.name", "md5hash"],
     _sourceExcludes: ["titlesuggest", "publishersuggest", "authorsuggest", "metadata_author", "metadata_publisher"],
     index: es_index,
     body: {
@@ -87,13 +87,26 @@ router.get("/:hash", (req, res) => {
         res.status(404).end();
       } else {
         const md5hash = result.hits.hits[0]._source.md5hash;
-        const sha512 = result.hits.hits[0]._source.sha512;
-        const entry_id = result.hits.hits[0]._id;
-        const title = result.hits.hits[0]._source.title;
+        // const sha512 = result.hits.hits[0]._source.sha512;
+
+        var entry = {};
+        entry.entry_id = result.hits.hits[0]._id;
+        entry.title = result.hits.hits[0]._source.title;
+        entry.zxinfoVersion = result.hits.hits[0]._source.zxinfoVersion;
+        entry.contentType = result.hits.hits[0]._source.contentType;
+        entry.originalYearOfRelease = result.hits.hits[0]._source.originalYearOfRelease;
+        entry.machineType = result.hits.hits[0]._source.machineType;
+        entry.genre = result.hits.hits[0]._source.genre;
+        entry.genreType = result.hits.hits[0]._source.genreType;
+        entry.genreSubType = result.hits.hits[0]._source.genreSubType;
+        entry.publishers = result.hits.hits[0]._source.publishers;
+        console.log(result.hits.hits);
         var picked;
         if (req.params.hash.length == 32) picked = md5hash.find((o) => o.md5 === req.params.hash);
         if (req.params.hash.length == 128) picked = md5hash.find((o) => o.sha512 === req.params.hash);
-        res.send({ entry_id: entry_id, title: title, file: picked });
+        entry.file= picked;
+        res.send(entry);
+        // res.send({ entry_id: entry_id, title: title, file: picked });
       }
     },
     function (reason) {
