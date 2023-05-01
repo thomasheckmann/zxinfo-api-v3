@@ -102,8 +102,13 @@ router.get("/:hash", (req, res) => {
         entry.publishers = result.hits.hits[0]._source.publishers;
         console.log(result.hits.hits);
         var picked;
-        if (req.params.hash.length == 32) picked = md5hash.find((o) => o.md5 === req.params.hash);
-        if (req.params.hash.length == 128) picked = md5hash.find((o) => o.sha512 === req.params.hash);
+
+        // 82055e3fcd911c98dd3193ae3fa486cf530cfdad154523ce17c73fe54a9d1c6c9c0c55f506aa0daaf7cb7b07c3169a44ff92fbaffe078686e1ccddaa215f198b
+        // Exists in two different sources with different filenames
+        if (req.params.hash.length == 32) picked = md5hash.filter((o) => o.md5 === req.params.hash);
+        if (req.params.hash.length == 128) picked = md5hash.filter((o) => o.sha512 === req.params.hash);
+
+        console.log(picked);
         entry.file= picked;
         res.send(entry);
         // res.send({ entry_id: entry_id, title: title, file: picked });
