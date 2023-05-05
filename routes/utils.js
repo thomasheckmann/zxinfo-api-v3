@@ -237,6 +237,7 @@ var es_source_list = function (outputmode) {
       "authors",
       "publishers",
       "releases.publishers",
+      "releases.files",
       "additionalDownloads",
       "screens",
     ];
