@@ -1,6 +1,7 @@
 "use strict";
 
 const zx81 = require("./zx81tables");
+const zx80 = require("./zx80tables");
 const Jimp = require("jimp");
 const fs = require("fs");
 var path = require("path");
@@ -26,9 +27,10 @@ function calculateDisplayFile(y) {
  *
  * WRAPPER Around convertIMAGE, just keep for compability
  */
-function convertBMP(filename, image, offsetx, offsety) {
+function convertBMP(filename, image, offsetx, offsety, model) {
+  console.log(model);
   debug(`[convertBMP] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
-  return convertIMAGE(filename, image, offsetx, offsety, "./uploads/");
+  return convertIMAGE(filename, image, offsetx, offsety, "./uploads/", model);
 }
 
 /**
@@ -38,6 +40,7 @@ function convertBMP(filename, image, offsetx, offsety) {
  * @param {*} image
  * @param {*} offsetx
  * @param {*} offsety
+ * @param {*} model ZX80
  *
  * Returns Base64 of Cleaned - PNG
  *
@@ -56,7 +59,7 @@ function convertBMP(filename, image, offsetx, offsety) {
  * ZX81 by Kevin is known to produce 640 x 512 in PNG format
  * - on iOS/iPAD and JPG on macOS (via Photos)
  */
-function convertIMAGE(filename, image, offsetx, offsety, outputfolder) {
+function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
   const basename = path.basename(filename);
   debug(`[convertIMAGE] - filename: ${filename}, basename: ${basename}`);
   debug(`[${basename}] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
@@ -163,6 +166,7 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder) {
         pattern += binary.padStart(8, "0");
       }
       var lookup = zx81.charmap.get(pattern);
+      if (model === "ZX80") lookup = zx80.charmap.get(pattern);
 
       valid &= lookup !== undefined;
 
@@ -187,7 +191,7 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder) {
   }
 
   if (!valid) {
-    debug(`[${basename}] Warning, image contains non ZX81 chars as well`);
+    debug(`[${basename}] Warning, image contains non ZX81/80 chars as well`);
   }
 
   debug(`[${basename}] 4) - Writing output files`);
@@ -247,7 +251,6 @@ function convertSCR(file, offsetx, offsety) {
 
 function convertS81(file, offsetx, offsety) {
   debug(`[convertS81] - file: ${file}`);
-  //var filename_base = file.originalname.split(".").slice(0, -1).join(".");
   const filename_base = path.parse(file.originalname).name;
   var scrData = fs.readFileSync(file.path);
 

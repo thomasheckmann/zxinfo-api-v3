@@ -1,5 +1,6 @@
 /**
 NODE_ENV=development PORT=8300 DEBUG=zxinfo-services:scr.* nodemon --ignore public/javascripts/config.js
+NODE_ENV=development2 PORT=8300 DEBUG=zxinfo-services:scr.* nodemon --ignorpublic/javascripts/config.js --exec 'yarn run start'
 
 https://blog.bitsrc.io/uploading-files-and-images-with-vue-and-express-2018ca0eecd0
 https://bezkoder.com/vue-axios-file-upload/
@@ -46,8 +47,9 @@ router.post("/upload", upload.single("file"), (req, res) => {
 
   const offsetx = parseInt(req.query.ox);
   const offsety = parseInt(req.query.oy);
+  const model = req.query.zx80 ? "ZX80" : "ZX81";
 
-  debug(`[upload] - offsetx = ${offsetx}, offsety = ${offsety}`);
+  debug(`[upload] - offsetx = ${offsetx}, offsety = ${offsety}, model = ${model}`);
 
   var name = req.file.originalname.split(".").slice(0, -1).join(".");
   if (
@@ -62,7 +64,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
 
       debug(`[BMP] source - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
 
-      var r = zx81.convertBMP(req.file.originalname, image, offsetx, offsety);
+      var r = zx81.convertBMP(req.file.originalname, image, offsetx, offsety, model);
       var imagePNG = r.png;
       imagePNG.getBase64(Jimp.MIME_PNG, (error, img) => {
         if (error) throw error;
@@ -76,7 +78,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
                 filename: name + ".png",
               },
               ovr: { filename: name + "_ovr.png" },
-              s81: { filename: name + ".s81" },
+              s81: { filename: name + (model === "ZX91" ? ".s81": ".s80") },
               scr: { filename: name + ".scr" },
               txt: { filename: name + ".txt", data: r.txt },
               used_offsetx: r.used_offsetx,
