@@ -47,7 +47,11 @@ router.post("/upload", upload.single("file"), (req, res) => {
 
   const offsetx = parseInt(req.query.ox);
   const offsety = parseInt(req.query.oy);
-  const model = req.query.zx80 ? "ZX80" : "ZX81";
+  var model = "ZX81";
+  console.log(req.query.zx80);
+  if(req.query.zx80 === "true") {
+    model = "ZX80";
+  }
 
   debug(`[upload] - offsetx = ${offsetx}, offsety = ${offsety}, model = ${model}`);
 

@@ -28,7 +28,6 @@ function calculateDisplayFile(y) {
  * WRAPPER Around convertIMAGE, just keep for compability
  */
 function convertBMP(filename, image, offsetx, offsety, model) {
-  console.log(model);
   debug(`[convertBMP] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
   return convertIMAGE(filename, image, offsetx, offsety, "./uploads/", model);
 }
@@ -168,6 +167,7 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
       var lookup = zx81.charmap.get(pattern);
       if (model === "ZX80") lookup = zx80.charmap.get(pattern);
 
+      // console.log(`model: ${model}, lookup: ${lookup}`);
       valid &= lookup !== undefined;
 
       var chr = lookup == undefined ? "?" : lookup.chr;
