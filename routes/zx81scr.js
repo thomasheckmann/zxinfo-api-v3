@@ -111,7 +111,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
               filename: name + ".png",
             },
             ovr: { filename: name + "_ovr.png" },
-            s81: { filename: name + ".s81" },
+            s81: { filename: name + (model === "ZX81" ? ".s81": ".s80") },
             scr: { filename: name + ".scr" },
             txt: { filename: name + ".txt", data: r.txt },
             used_offsetx: r.used_offsetx,
