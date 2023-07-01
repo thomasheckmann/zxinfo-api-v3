@@ -20,7 +20,7 @@ const Jimp = require("jimp");
 const zx81 = require("./zx81scr_utils");
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["bmp", "png", "gif", "jpg", "s81", "scr"];
+  const allowedTypes = ["bmp", "png", "gif", "jpg", "s81", "s80", "scr"];
   var extension = file.originalname.substring(file.originalname.lastIndexOf(".") + 1).toLowerCase();
 
   if (!allowedTypes.includes(extension)) {
@@ -48,7 +48,6 @@ router.post("/upload", upload.single("file"), (req, res) => {
   const offsetx = parseInt(req.query.ox);
   const offsety = parseInt(req.query.oy);
   var model = "ZX81";
-  console.log(req.query.zx80);
   if(req.query.zx80 === "true") {
     model = "ZX80";
   }
@@ -82,7 +81,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
                 filename: name + ".png",
               },
               ovr: { filename: name + "_ovr.png" },
-              s81: { filename: name + (model === "ZX91" ? ".s81": ".s80") },
+              s81: { filename: name + (model === "ZX81" ? ".s81": ".s80") },
               scr: { filename: name + ".scr" },
               txt: { filename: name + ".txt", data: r.txt },
               used_offsetx: r.used_offsetx,
@@ -93,8 +92,12 @@ router.post("/upload", upload.single("file"), (req, res) => {
         }
       });
     });
-  } else if (req.file.originalname.toLowerCase().endsWith(".s81")) {
-    var r = zx81.convertS81(req.file, offsetx, offsety);
+  } else if (req.file.originalname.toLowerCase().endsWith(".s81")||req.file.originalname.toLowerCase().endsWith(".s80")) {
+    var model = "ZX81";
+    if(req.file.originalname.toLowerCase().endsWith(".s80")) {
+      model = "ZX80";
+    }
+    var r = zx81.convertBMP(req.file, offsetx, offsety, model);
     var imagePNG = r.png;
     imagePNG.getBase64(Jimp.MIME_PNG, (error, img) => {
       if (error) throw error;

@@ -198,8 +198,14 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
   // var name = filename.split(".").slice(0, -1).join(".");
   const name = path.parse(basename).name;
   try {
-    debug(`[${basename}] - ${name}.s81`);
-    fs.writeFileSync(outputfolder + name + ".s81", new Buffer.from(output_zx81));
+    if (model === "ZX80") {
+      debug(`[${basename}] - ${name}.s80`);
+      fs.writeFileSync(outputfolder + name + ".s80", new Buffer.from(output_zx81));
+    } else {
+      debug(`[${basename}] - ${name}.s81`);
+      fs.writeFileSync(outputfolder + name + ".s81", new Buffer.from(output_zx81));
+    }
+
     debug(`[${basename}] - ${name}.txt`);
     fs.writeFileSync(outputfolder + name + ".txt", new Buffer.from(textline_utc));
     debug(`[${basename}] - ${name}.scr`);
@@ -249,7 +255,7 @@ function convertSCR(file, offsetx, offsety) {
   return convertBMP(file.originalname, image, 0, 0);
 }
 
-function convertS81(file, offsetx, offsety) {
+function convertS81(file, offsetx, offsety, model) {
   debug(`[convertS81] - file: ${file}`);
   const filename_base = path.parse(file.originalname).name;
   var scrData = fs.readFileSync(file.path);
@@ -260,6 +266,12 @@ function convertS81(file, offsetx, offsety) {
     }
   }
 
+  var charmap = zx81.charmap;
+
+  if(model === "ZX80") {
+    charmap = zx80.charmap;
+  }
+
   let image = new Jimp(256, 192, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
     if (err) throw err;
   });
@@ -268,7 +280,7 @@ function convertS81(file, offsetx, offsety) {
     for (var x = 0; x < 32; x++) {
       var idx = y * 32 + x;
       var data = scrData[idx];
-      var chr = getByValueChr(zx81.charmap, data);
+      var chr = getByValueChr(charmap, data);
       var bit_index = 0;
       for (var dy = 0; dy < 8; dy++) {
         for (var dx = 0; dx < 8; dx++) {
@@ -286,7 +298,7 @@ function convertS81(file, offsetx, offsety) {
     }
   }
 
-  return convertBMP(file.originalname, image, 0, 0);
+  return convertBMP(file.originalname, image, 0, 0, model);
 }
 
 module.exports = {
