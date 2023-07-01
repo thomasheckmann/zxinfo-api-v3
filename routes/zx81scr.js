@@ -97,7 +97,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
     if(req.file.originalname.toLowerCase().endsWith(".s80")) {
       model = "ZX80";
     }
-    var r = zx81.convertBMP(req.file, offsetx, offsety, model);
+    var r = zx81.convertS81(req.file, offsetx, offsety, model);
     var imagePNG = r.png;
     imagePNG.getBase64(Jimp.MIME_PNG, (error, img) => {
       if (error) throw error;
