@@ -147,6 +147,7 @@ var es_source_item = function (outputmode) {
     /* compact output */
     var source_includes = [
       "title",
+      "xrated",
       "contentType",
       "zxinfoVersion",
       "originalYearOfRelease",
@@ -190,6 +191,7 @@ var es_source_item = function (outputmode) {
   } else if (outputmode == "tiny") {
     return [
       "title",
+      "xrated",
       "zxinfoVersion",
       "contentType",
       "originalYearOfRelease",
@@ -222,6 +224,7 @@ var es_source_list = function (outputmode) {
     /* compact output */
     var source_includes = [
       "title",
+      "xrated",
       "contentType",
       "zxinfoVersion",
       "originalYearOfRelease",
@@ -245,6 +248,7 @@ var es_source_list = function (outputmode) {
   } else if (outputmode == "tiny") {
     return [
       "title",
+      "xrated",
       "contentType",
       "zxinfoVersion",
       "originalYearOfRelease",
