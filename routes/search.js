@@ -404,6 +404,9 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   var contenttype_should = createFilterItem("contentType", searchObject.contenttype);
   filterObjects["contenttype"] = contenttype_should;
 
+  var xrated_should = createFilterItem("xrated", searchObject.xrated);
+  filterObjects["xrated"] = xrated_should;
+
   //  var type_should = createFilterItem("type", searchObject.type);
   //  filterObjects["type"] = type_should;
 
@@ -496,6 +499,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   var aggfilter = [
     query,
     contenttype_should,
+    xrated_should,
     genretype_should,
     genresubtype_should,
     machinetype_should,
