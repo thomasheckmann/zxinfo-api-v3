@@ -28,19 +28,22 @@ info:
     If you want to check out how the ZXInfo API is being used, please checkout the following:
 
     * Web site https://zxinfo.dk - a modern full featured web site build using Vue.js and Vuetify.
-    * [Virtual TR-DOS](https://vtrd.in/) - the largest archive of software (games, electronic press, system programs, pc tools) for the ZX Spectrum with TR-DOS.
-    * ZX Spectrum Frontend Meta Generator [GitHub](https://github.com/leemm/zxspectrum-meta-generator) - Create your metadata for various emulator frontends.
+    * ZXInfo file browser [GitHub](https://github.com/thomasheckmann/zxinfo-file-browser) - kind of a "Picasa for ZX Spectrum emulator files".
     * Microdrive Emulator [OqtaDrive](https://oqtadrive.org/01.overview/features/) - emulates a bank of 8 Microdrives for use with a Sinclair ZX Spectrum with Interface 1, or with a Sinclair QL.
     * ZX Tape Player App [GitHub](https://github.com/semack/zx_tape_player) - Cross platform TZX/TAP player for iOS and Android
-    * Android [Zx App](https://play.google.com/store/apps/details?id=com.bricboys.zxapp) - ZX Spectrum stuff search engine
-    * SpeccyBot https://github.com/druellan/speccybot - an interactive chat bot for Telegram that allows searching online for Spectrum related information.
+    * ZX Spectrum Gamer [Google Play](https://play.google.com/store/apps/details?id=com.cooolapps.spectrumgamer) - an app that makes it easier to access Sinclair ZX Spectrum games information.
+    * [Virtual TR-DOS](https://vtrd.in/) - the largest archive of software (games, electronic press, system programs, pc tools) for the ZX Spectrum with TR-DOS.
+    * ZX Spectrum Frontend Meta Generator [GitHub](https://github.com/leemm/zxspectrum-meta-generator) - Create your metadata for various emulator frontends.
+    * Android ZX App[Google Play](https://play.google.com/store/apps/details?id=com.bricboys.zxapp) - ZX Spectrum stuff search engine
     * Emulator [ZEsarUX](https://github.com/chernandezba/zesarux) - ZX Second-Emulator And Released for UniX.
     * WoSC https://worldofspectrum.net - WoSC (WOS Classic) is the spiritual successor to the legendary World Of Spectrum site.
-    * ZXInfoTV [AppleTV](https://github.com/thomasheckmann/zxinfo-tv) - a video focused experiece for your AppleTV
+    * SpeccyBot https://github.com/druellan/speccybot - an interactive chat bot for Telegram that allows searching online for Spectrum related information.
+    * ZXInfoTV [AppleTV](https://github.com/thomasheckmann/zxinfo-tv) - PoC for a video focused experiece for your AppleTV
 
-    [**ZXDB update 18.12.2023**](https://zxinfo.dk/whatsnew)
+    [**ZXDB update 06.01.2024**](https://zxinfo.dk/whatsnew)
 
     Latest ZXDB version:
+    * 1.0.180
     * 1.0.179
     * 1.0.178
     * 1.0.175
