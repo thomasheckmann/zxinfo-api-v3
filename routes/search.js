@@ -456,15 +456,32 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
 
   if (searchObject.group === "C") {
     grouptype_id = "competition";
+  } else if (searchObject.group === "D") {
+    grouptype_id = "demoParty";
   } else if (searchObject.group === "F") {
     grouptype_id = "features";
-  } else if (searchObject.group === "N") {
-    grouptype_id = "series";
+  } else if (searchObject.group === "G") {
+    grouptype_id = "graphicalView";
+  } else if (searchObject.group === "L") {
+    grouptype_id = "programmingLanguage";
+  } else if (searchObject.group === "M") {
+    grouptype_id = "screenMovement";
+  } else if (searchObject.group === "P") {
+    grouptype_id = "sport";
+  } else if (searchObject.group === "R") {
+    grouptype_id = "copyright";
+//  } else if (searchObject.group === "N") {
+//    grouptype_id = "series";
   } else if (searchObject.group === "T") {
     grouptype_id = "themedGroup";
   } else if (searchObject.group === "U") {
     grouptype_id = "unsortedGroup";
+  } else if (searchObject.group === "X") {
+    grouptype_id = "crossPlatform";
+  } else if (searchObject.group === "Z") {
+    grouptype_id = "featuresZX81";
   }
+  
 
   var groupandname_must = {};
   if (searchObject.group !== undefined && searchObject.groupname !== undefined) {
