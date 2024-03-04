@@ -30,6 +30,7 @@ info:
     * Web site https://zxinfo.dk - a modern full featured web site build using Vue.js and Vuetify.
     * ZXInfo file browser [GitHub](https://github.com/thomasheckmann/zxinfo-file-browser) - kind of a "Picasa for ZX Spectrum emulator files".
     * Microdrive Emulator [OqtaDrive](https://oqtadrive.org/01.overview/features/) - emulates a bank of 8 Microdrives for use with a Sinclair ZX Spectrum with Interface 1, or with a Sinclair QL.
+    * Virtual Filesystem [ZXDBFS](https://www.hermitretro.com/zxdbfs.html) - a filesystem-like environment enabling you to search and load games seamlessly over the Internet through a standard file interface.
     * ZX Tape Player App [GitHub](https://github.com/semack/zx_tape_player) - Cross platform TZX/TAP player for iOS and Android
     * ZX Spectrum Gamer [Google Play](https://play.google.com/store/apps/details?id=com.cooolapps.spectrumgamer) - an app that makes it easier to access Sinclair ZX Spectrum games information.
     * [Virtual TR-DOS](https://vtrd.in/) - the largest archive of software (games, electronic press, system programs, pc tools) for the ZX Spectrum with TR-DOS.
@@ -40,9 +41,10 @@ info:
     * SpeccyBot https://github.com/druellan/speccybot - an interactive chat bot for Telegram that allows searching online for Spectrum related information.
     * ZXInfoTV [AppleTV](https://github.com/thomasheckmann/zxinfo-tv) - PoC for a video focused experiece for your AppleTV
 
-    [**ZXDB update 12.02.2024**](https://zxinfo.dk/whatsnew)
+    [**ZXDB update 01.03.2024**](https://zxinfo.dk/whatsnew)
 
     Latest ZXDB version:
+    * 1.0.185
     * 1.0.184
     * 1.0.182
     * 1.0.180
