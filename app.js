@@ -9,6 +9,7 @@ app.use(cors());
 var appConfig = require("./config.json");
 
 /* ROUTES */
+const v4_api = require("./routes_v4/v4_api");
 var games = require("./routes/games");
 var random = require("./routes/random");
 var byletter = require("./routes/byletter");
@@ -39,6 +40,9 @@ console.log("###############################################################");
 console.log("#");
 
 app.use(express.static(path.join(__dirname, "public")));
+
+// API v4
+app.use("/v4/", v4_api);
 
 // ROUTES
 app.use("/v3/games/byletter", byletter);

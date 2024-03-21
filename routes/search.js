@@ -40,7 +40,7 @@ var elasticsearch = require("elasticsearch");
 var elasticClient = new elasticsearch.Client({
   host: config.es_host,
   apiVersion: config.es_apiVersion,
-  log: "error" /*config.es_log,*/,
+  log: "debug" /*config.es_log,*/,
 });
 
 var es_index = config.zxinfo_index;
