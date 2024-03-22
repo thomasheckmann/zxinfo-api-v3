@@ -398,7 +398,7 @@ function createAggregationQuery(req, query) {
     function removeFilter(filters, f) {
         var newFilter = [...filters];
         const index = newFilter.indexOf(f);
-        if(index >= 0) {
+        if (index >= 0) {
             newFilter.splice(index, 1);
         }
 
@@ -462,15 +462,14 @@ function createAggregationQuery(req, query) {
 
     aggObjects["aggMachineTypes"] = createAggObject(aggfilter, "machinetypes", "machineType");
     aggObjects["aggGenreType"] = createAggObject(aggfilter, "genretype", "genreType");
-    /**
-        aggObjects["aggGenreSubType"] = createAggObject("genresubtype", "genreSubType");
-        aggObjects["aggControls"] = createAggObject("controls", "controls.control");
-        aggObjects["aggMultiplayerMode"] = createAggObject("multiplayermode", "multiplayerMode");
-        aggObjects["aggMultiplayerType"] = createAggObject("multiplayertype", "multiplayerType");
-        aggObjects["aggAvailability"] = createAggObject("availability", "availability");
-        aggObjects["aggLanguage"] = createAggObject("language", "language");
-        aggObjects["aggOriginalYearOfRelease"] = createAggObject("yearofrelease", "originalYearOfRelease");
-    */
+    aggObjects["aggGenreSubType"] = createAggObject(aggfilter, "genresubtype", "genreSubType");
+    aggObjects["aggControls"] = createAggObject(aggfilter, "controls", "controls.control");
+    aggObjects["aggMultiplayerMode"] = createAggObject(aggfilter, "multiplayermode", "multiplayerMode");
+    aggObjects["aggMultiplayerType"] = createAggObject(aggfilter, "multiplayertype", "multiplayerType");
+    aggObjects["aggAvailability"] = createAggObject(aggfilter, "availability", "availability");
+    aggObjects["aggLanguage"] = createAggObject(aggfilter, "language", "language");
+    aggObjects["aggOriginalYearOfRelease"] = createAggObject(aggfilter, "yearofrelease", "originalYearOfRelease");
+
     return {
         all_entries: {
             global: {},
