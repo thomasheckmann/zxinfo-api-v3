@@ -409,14 +409,7 @@ function createAggregationQuery(req, query) {
     }
 
     function createAggObject(filterlist, filtername, fieldName) {
-        // debug(`createAggObject: ${filtername}, ${fieldName}\t${JSON.stringify(filterlist, null, 2)}`);
-        // debug(`createAggObject - filter: ${removeFilter([...filterlist], filterObjects[filtername])}`);
-        // "aggMachineTypes", "machinetypes", "machineType"
-
-        // debug(`createAggObject - filter before: ${JSON.stringify(filterlist, null, 2)}`);
-        debug(`createAggObject - about to remove: (${filtername}), ${JSON.stringify(filterObjects[filtername], null, 2)}`);
         var filter = removeFilter(filterlist, filterObjects[filtername]);
-        // debug(`createAggObject - filter after: ${JSON.stringify(filter, null, 2)}`);
         var aggObject = {
             filter: {
                 bool: {
@@ -436,7 +429,6 @@ function createAggregationQuery(req, query) {
                 },
             },
         }
-        debug(`createAggObject - return: ${JSON.stringify(aggObject, null, 2)}`);
 
         return aggObject;
     }
@@ -455,8 +447,8 @@ function createAggregationQuery(req, query) {
         }
     }
 
-    debug(`Building aggregations: base=${JSON.stringify(query, null, 2)}`);
-    debug(`Building aggregations: aggfilter=${JSON.stringify(aggfilter, null, 2)}`);
+    // debug(`Building aggregations: base=${JSON.stringify(query, null, 2)}`);
+    // debug(`Building aggregations: aggfilter=${JSON.stringify(aggfilter, null, 2)}`);
     var aggObjects = {};
     // aggName, filtername, fieldname
 

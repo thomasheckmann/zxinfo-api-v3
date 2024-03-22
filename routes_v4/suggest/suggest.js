@@ -6,7 +6,7 @@
 
 const moduleId = "suggest";
 const debug = require("debug")(`zxinfo-api-v4:${moduleId}`);
-const tools = require("../../routes/utils");
+const helpers = require("../helpersRequest");
 
 var express = require("express");
 var router = express.Router();
@@ -261,9 +261,7 @@ var preparePublisherSuggestions = function (result) {
  *
  ************************************************/
 router.use(function (req, res, next) {
-  debug(`API v4 [${moduleId}] - ${req.path}`);
-
-  next(); // make sure we go to the next routes and don't stop here
+  helpers.defaultRouter(moduleId, debug, req, res, next);
 });
 
 /************************************************
