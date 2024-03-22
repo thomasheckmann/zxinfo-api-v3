@@ -260,6 +260,7 @@ router.get("/search/titles/:searchterm", function (req, res, next) {
             negative_boost: 0.5,
         },
     };
+
     search.powerSearch(q, aggregationQuery, req.query.size, req.query.offset, sortObject, req.query.mode).then(function (result) {
         debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
         debug(result);
