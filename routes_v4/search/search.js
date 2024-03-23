@@ -132,9 +132,9 @@ router.get("/search/screens/:searchterm", function (req, res, next) {
     const sortObject = tools.getSortObject(req.query.sort);
     const filterQuery = queryHelper.createFilterQuery(req);
 
-    const query = queryHelper.queryTermScreenOnly(req.params.searchterm, filterQuery);
+    const q = queryHelper.queryTermScreenOnly(req.params.searchterm, filterQuery);
 
-    const q = queryHelper.createAggregationQuery(req, query);
+    const aggregationQuery = queryHelper.createAggregationQuery(req, q);
 
     search.searchEntries(q, aggregationQuery, req.query.size, req.query.offset, sortObject, req.query.mode, req.query.explain, req.query.output, res);
 });
