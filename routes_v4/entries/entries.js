@@ -158,7 +158,7 @@ router.get("/entries/morelikethis/:entryid", function (req, res, next) {
       }
     };
 
-    const aggregationQuery = queryHelper.createAggregationQuery(req, query);
+    const aggregationQuery = queryHelper.createAggregationQuery(req, q);
 
     search.searchEntries(q, aggregationQuery, req.query.size, req.query.offset, sortObject, req.query.mode, req.query.explain, req.query.output, res);
   } else {
