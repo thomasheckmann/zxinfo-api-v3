@@ -14,10 +14,12 @@ function queryTermDefault(searchTerm, filterObject) {
                     },
                 },
                 {
-                    match_phrase: {
-                        "textscan.text": {
-                            query: searchTerm, boost: 6
-                        },
+                    term: {
+                        "title.keyword": {
+                            value: searchTerm,
+                            case_insensitive: true,
+                            boost: 8
+                        }
                     }
                 },
                 {
@@ -38,6 +40,13 @@ function queryTermDefault(searchTerm, filterObject) {
                 },
                 {
                     wildcard: { title: "*" + searchTerm + "*" }
+                },
+                {
+                    match_phrase: {
+                        "textscan.text": {
+                            query: searchTerm, boost: 6
+                        },
+                    }
                 },
                 {
                     nested: {
@@ -162,6 +171,15 @@ function queryTermTitlesOnly(searchTerm, filterObject) {
     return {
         bool: {
             should: [
+                {
+                    term: {
+                        "title.keyword": {
+                            value: searchTerm,
+                            case_insensitive: true,
+                            boost: 8
+                        }
+                    }
+                },
                 {
                     match: {
                         title: {
