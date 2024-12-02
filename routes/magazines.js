@@ -161,8 +161,8 @@ var getIssue = function (name, issueid) {
 router.use(function (req, res, next) {
   debug(`got request - start processing, path: ${req.path}`);
   debug(`user-agent: ${req.headers["user-agent"]}`);
-  // res.header("Access-Control-Allow-Origin", "*");
-  //res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   // do logging
   next(); // make sure we go to the next routes and don't stop here
 });
