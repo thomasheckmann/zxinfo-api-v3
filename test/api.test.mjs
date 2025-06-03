@@ -3,7 +3,7 @@ import assert from 'node:assert';
 
 describe("Testing API endpoint", function () {
   test("running tests on API", async function (t) {
-    const API_ENDPOINT = "http://localhost:8300/v3";
+    const API_ENDPOINT = "http://localhost:8000/v3";
 
     await t.test("testing /metadata", async (t) => {
       const request = await fetch(API_ENDPOINT + "/metadata", {
@@ -56,7 +56,7 @@ describe("Testing API endpoint", function () {
   });
 
   test("running tests on SOURCES", async function (t) {
-    const API_ENDPOINT = "http://localhost:8300/v3";
+    const API_ENDPOINT = "http://localhost:8000/v3";
 
     await t.test("SOURCE: ZX81 STUFF, testing 3D Monster Maze(0028617)", async (t) => {
       const request = await fetch(API_ENDPOINT + "/filecheck/412b28086cbe44d3054b8649c43c67c4318f46e7a9e8f35e7468e734f934d541390aced5a1f486beb4929cb2440a557fcbd10a41703e292834b386e4490fa512", {

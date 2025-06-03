@@ -14,7 +14,7 @@
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "container": {
-    "es_host": "http://zxinfo-es:9200",
+    "es_host": "http://zxinfo-es:9000",
     "es_apiVersion": "7.0",
     "es_log": "error",
     "zxinfo_index": "zxinfo_games",
