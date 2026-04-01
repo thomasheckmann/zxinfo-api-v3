@@ -272,53 +272,24 @@ function createFilterItem(filterName, filterValues) {
     return item_should;
 };
 
-/**
- * Filter by playable type:
- * TOSEC - TZX & TAP
- * SC - tzx.zip & tzp.zip
- */
-const createFilterItemPlayableType = function (filterName, filterValues) {
-    debug(`createFilterItemPlayableType(${filterName}, ${filterValues})`);
-    let item_should = {};
+var createFilterItemTosecType = function (filterName, filterValues) {
+    debug(`createFilterItem(${filterName}, ${filterValues})`);
+    var item_should = {};
 
     if (filterValues !== undefined && filterValues.length > 0) {
         if (!Array.isArray(filterValues)) {
             filterValues = [filterValues];
         }
-        let i = 0;
-        const should = [];
+        var i = 0;
+        var should = [];
         for (; i < filterValues.length; i++) {
-            const item = {
+            var item = {
                 regexp: {
                     "tosec.path": {
                         value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})`,
                         flags: "ALL",
                     },
                 },
-            };
-            should.push(item);
-        }
-
-        i = 0;
-        for (; i < filterValues.length; i++) {
-            const item = {
-                nested: {
-                    path: "releases.files",
-                    query: {
-                        bool: {
-                            must: [
-                                {
-                                    regexp: {
-                                        "releases.files.path": {
-                                            value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})\.(zip|ZIP)`,
-                                            flags: "ALL"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
             };
             should.push(item);
         }
@@ -365,7 +336,7 @@ function createFilterObjects(req) {
     var year_should = createFilterItem("originalYearOfRelease", req.query.year);
     filterObjects["yearofrelease"] = year_should;
 
-    var tosectype_should = createFilterItemPlayableType("tosectype", req.query.tosectype);
+    var tosectype_should = createFilterItemTosecType("tosectype", req.query.tosectype);
     filterObjects["tosectype"] = tosectype_should;
 
     var grouptype_id = "";
