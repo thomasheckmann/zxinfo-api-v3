@@ -3,7 +3,7 @@ import assert from 'node:assert';
 
 describe("Testing API endpoint", function () {
   test("running tests on API", async function (t) {
-    const API_ENDPOINT = "http://localhost:8000/v3";
+    const API_ENDPOINT = "http://localhost:8300/v3";
 
     await t.test("testing /metadata", async (t) => {
       const request = await fetch(API_ENDPOINT + "/metadata", {
@@ -39,8 +39,8 @@ describe("Testing API endpoint", function () {
       assert.strictEqual(request.status, 200);
       const body = await request.json();
       assert.deepStrictEqual(body.entry_id, "0034458");
-      assert.deepStrictEqual(body.file[0].source, "TOSEC 2020");
-      assert.deepStrictEqual(body.file[1].source, "spectrumcomputing.co.uk");
+      assert.deepStrictEqual(body.file[0].source, "spectrumcomputing.co.uk");
+      assert.deepStrictEqual(body.file[1].source, "TOSEC 2023");
     })
 
     await t.test("testing /filecheck - 3D Monster Maze(0028617) - sha512, ZX81 STUFF", async (t) => {
@@ -56,7 +56,7 @@ describe("Testing API endpoint", function () {
   });
 
   test("running tests on SOURCES", async function (t) {
-    const API_ENDPOINT = "http://localhost:8000/v3";
+    const API_ENDPOINT = "http://localhost:8300/v3";
 
     await t.test("SOURCE: ZX81 STUFF, testing 3D Monster Maze(0028617)", async (t) => {
       const request = await fetch(API_ENDPOINT + "/filecheck/412b28086cbe44d3054b8649c43c67c4318f46e7a9e8f35e7468e734f934d541390aced5a1f486beb4929cb2440a557fcbd10a41703e292834b386e4490fa512", {
@@ -68,13 +68,13 @@ describe("Testing API endpoint", function () {
       assert.deepStrictEqual(body.file[0].source, "ZX81 STUFF");
     })
 
-    await t.test("SOURCE: NVG, 180(0000015)", async (t) => {
-      const request = await fetch(API_ENDPOINT + "/filecheck/eaf4781b93906240eb929aac582c5126c2a915280e3f8c4162217c616ef93526eca82fda66977be66baf07f5389fd1a8d5758cc62995416169f05bcc6d30933a", {
+    await t.test("SOURCE: NVG, Adding(0025060)", async (t) => {
+      const request = await fetch(API_ENDPOINT + "/filecheck/c2b7e589403502e4542ed09618fa6b0880a459ca16b6fef00bf684b044b7fb6f9d8f733f65e40e7924a7957e78b9f94dfdf0beff52a6dfa6eee9a3467a4a1606", {
         method: 'GET',
       });
       assert.strictEqual(request.status, 200);
       const body = await request.json();
-      assert.deepStrictEqual(body.entry_id, "0000015");
+      assert.deepStrictEqual(body.entry_id, "0025060");
       assert.deepStrictEqual(body.file[0].source, "ftp.nvg.unit.no");
     })
 

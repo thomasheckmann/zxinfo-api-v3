@@ -96,8 +96,35 @@ var getGamesByLetter = function (letter, contenttype, machinetype, page_size, of
           },
         },
       };
+      
       should.push(item);
     }
+
+    i = 0;
+    for (; i < tosectype.length; i++) {
+      var item = {
+        nested: {
+          path: "releases.files",
+          query: {
+            bool: {
+              must: [
+                {
+                  regexp: {
+                    "releases.files.path": {
+                      value: `.*(${tosectype[i].toLowerCase()}|${tosectype[i].toUpperCase()})\.(zip|ZIP)`,
+                      flags: "ALL"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      };
+      should.push(item);
+
+    }
+    
     mustArray.push({ bool: { should: should, minimum_should_match: 1 } });
   }
 

@@ -1,21 +1,22 @@
 {
   "development": {
-    "es_host": "http://localhost:9200",
-    "es_apiVersion": "7.0",
+    "es_host": "http://localhost:9400",
+    "es_path": "",
+    "es_apiVersion": "7.x",
     "es_log": "debug",
     "zxinfo_index": "zxinfo_games",
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "production": {
-    "es_host": "http://localhost:9200",
+    "es_host": "http://zxinfo-es:9200",
     "es_apiVersion": "7.0",
     "es_log": "error",
     "zxinfo_index": "zxinfo_games",
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "container": {
-    "es_host": "http://zxinfo-es:9000",
-    "es_apiVersion": "7.0",
+    "es_host": "http://zxinfo-es:9200",
+    "es_apiVersion": "7.x",
     "es_log": "error",
     "zxinfo_index": "zxinfo_games",
     "zxinfo_magazines_index": "zxinfo_magazines"

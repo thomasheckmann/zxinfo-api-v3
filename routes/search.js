@@ -239,15 +239,15 @@ function queryTerm2(query) {
   };
 }
 
-var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype) {
+var createQueryTermWithFilters = function (query, filters, titlesonly, playabletype) {
   if (query == undefined || query.length == 0) {
     debug(`createQueryTermWithFilters() - empty query}`);
-    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
-    if (tosectype) {
-      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
+    var playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
+    if (playabletype) {
+      debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
       return {
         bool: {
-          must: [queryTerm1, tosectype_should],
+          must: [queryTerm1, playabletype_should],
           filter: {
             bool: {
               must: filters,
@@ -256,7 +256,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
         },
       };
     } else {
-      debug(`no tosectype`);
+      debug(`no playabletype`);
       return {
         bool: {
           must: [queryTerm1],
@@ -270,12 +270,12 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
     }
   } else if (titlesonly !== undefined && titlesonly === "true") {
     debug(`createQueryTermWithFilters() - titlesonly`);
-    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
-    if (tosectype) {
-      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
+    var playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
+    if (playabletype) {
+      debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
       return {
         bool: {
-          must: [queryTermTitlesOnly(query), tosectype_should],
+          must: [queryTermTitlesOnly(query), playabletype_should],
           filter: {
             bool: {
               must: filters,
@@ -284,7 +284,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
         },
       };
     } else {
-      debug(`no tosectype`);
+      debug(`no playabletype`);
       return {
         bool: {
           must: [queryTermTitlesOnly(query)],
@@ -299,12 +299,12 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
   } else {
     debug(`createQueryTermWithFilters() - normal search`);
     debug(`queryTerm2: \n${JSON.stringify(queryTerm2(query), null, 4)}`);
-    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
-    if (tosectype) {
-      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
+    var playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
+    if (playabletype) {
+      debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
       return {
         bool: {
-          must: [queryTerm2(query), tosectype_should],
+          must: [queryTerm2(query), playabletype_should],
           filter: {
             bool: {
               must: filters,
@@ -313,7 +313,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype
         },
       };
     } else {
-      debug(`no tosectype`);
+      debug(`no playabletype`);
       return {
         bool: {
           must: [queryTerm2(query)],
@@ -353,8 +353,13 @@ var createFilterItem = function (filterName, filterValues) {
   return item_should;
 };
 
-var createFilterItemTosecType = function (filterName, filterValues) {
-  debug(`createFilterItem(${filterName}, ${filterValues})`);
+/**
+ * Filter by playable type:
+ * TOSEC - TZX & TAP
+ * SC - tzx.zip & tzp.zip
+ */
+var createFilterItemPlayableType = function (filterName, filterValues) {
+  debug(`createFilterItemPlayableType(${filterName}, ${filterValues})`);
   var item_should = {};
 
   if (filterValues !== undefined && filterValues.length > 0) {
@@ -375,11 +380,36 @@ var createFilterItemTosecType = function (filterName, filterValues) {
       should.push(item);
     }
 
+    i = 0;
+    for (; i < filterValues.length; i++) {
+      var item = {
+        nested: {
+          path: "releases.files",
+          query: {
+            bool: {
+              must: [
+                {
+                  regexp: {
+                    "releases.files.path": {
+                      value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})\.(zip|ZIP)`,
+                      flags: "ALL"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      };
+      should.push(item);
+    }
+
     item_should = { bool: { should: should, minimum_should_match: 1 } };
   }
   debug(JSON.stringify(item_should));
   return item_should;
 };
+
 /**
  * Helper for aggregation - each aggregation should include all filters, except its own
  */
@@ -440,8 +470,9 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   var year_should = createFilterItem("originalYearOfRelease", searchObject.year);
   filterObjects["yearofrelease"] = year_should;
 
-  var tosectype_should = createFilterItemTosecType("tosectype", searchObject.tosectype);
-  filterObjects["tosectype"] = tosectype_should;
+  var playabletype_should = createFilterItemPlayableType("playabletype", searchObject.tosectype);
+  filterObjects["playabletype"] = playabletype_should;
+
   /**
 
     -- (C)ompetition - Tron256(17819) - competition
@@ -470,8 +501,8 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     grouptype_id = "sport";
   } else if (searchObject.group === "R") {
     grouptype_id = "copyright";
-//  } else if (searchObject.group === "N") {
-//    grouptype_id = "series";
+    //  } else if (searchObject.group === "N") {
+    //    grouptype_id = "series";
   } else if (searchObject.group === "T") {
     grouptype_id = "themedGroup";
   } else if (searchObject.group === "U") {
@@ -481,7 +512,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   } else if (searchObject.group === "Z") {
     grouptype_id = "featuresZX81";
   }
-  
+
 
   var groupandname_must = {};
   if (searchObject.group !== undefined && searchObject.groupname !== undefined) {
@@ -511,7 +542,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
 
   debug(`powerSearch(): filters=${JSON.stringify(filters)}`);
   var query = createQueryTermWithFilters(searchObject.query, filters, titlesonly, searchObject.tosectype);
-
+  // console.log('query: ' + JSON.stringify(query, null, 4));
   var aggfilter = [
     query,
     contenttype_should,
