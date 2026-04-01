@@ -12,24 +12,30 @@
 
 const moduleId = "moduleId";
 
-var config = require("../config.json")[process.env.NODE_ENV || "development"];
-var express = require("express");
-var router = express.Router();
+const config = require("../config.json")[process.env.NODE_ENV || "development"];
+const express = require("express");
+const router = express.Router();
 
-var debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug identifier
+const debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug identifier
 
-var tools = require("./utils");
+const tools = require("./utils");
 
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
+const elasticsearch = require("elasticsearch");
+const elasticClient = new elasticsearch.Client({
   host: config.es_host,
   apiVersion: config.es_apiVersion,
   log: config.es_log,
 });
 
-var es_index = config.zxinfo_index;
+const es_index = config.zxinfo_index;
 
-var hashLookup = function (hash) {
+// Hash type constants
+const HASH_LENGTH = {
+  MD5: 32,
+  SHA512: 128,
+};
+
+const hashLookup = function (hash) {
   debug(`md5lookup() : ${hash}`);
 
   return elasticClient.search({
@@ -52,7 +58,7 @@ var hashLookup = function (hash) {
  * common to use for all requests
  *
  ************************************************/
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   debug(`got request - start processing, path: ${req.path}`);
   debug(`user-agent: ${req.headers["user-agent"]}`);
   res.header("Access-Control-Allow-Origin", "*");
@@ -67,62 +73,66 @@ router.use(function (req, res, next) {
  *
  ************************************************/
 
-router.get("/:hash", (req, res) => {
-  debug("==> /filecheck:hash");
-  debug(`hash: ${req.params.hash}`);
+router.get("/:hash", async (req, res) => {
+  try {
+    debug("==> /filecheck:hash");
+    debug(`hash: ${req.params.hash}`);
 
-  if (req.params.hash.length !== 32 && req.params.hash.length !== 128) {
-    debug(`NOT a hash (length = 32 or 128)`);
-    res.status(500).end();
-    return;
-  }
-  hashLookup(req.params.hash).then(
-    function (result) {
-      debug(`########### RESPONSE from hashLookup(${req.params.hash})`);
-      debug(result);
-      debug(`#############################################################`);
-      res.header("X-Total-Count", result.hits.total.value);
-
-      if (result.hits.total.value === 0) {
-        res.status(404).end();
-      } else {
-        const md5hash = result.hits.hits[0]._source.md5hash;
-        // const sha512 = result.hits.hits[0]._source.sha512;
-
-        var entry = {};
-        entry.entry_id = result.hits.hits[0]._id;
-        entry.title = result.hits.hits[0]._source.title;
-        entry.zxinfoVersion = result.hits.hits[0]._source.zxinfoVersion;
-        entry.contentType = result.hits.hits[0]._source.contentType;
-        entry.originalYearOfRelease = result.hits.hits[0]._source.originalYearOfRelease;
-        entry.machineType = result.hits.hits[0]._source.machineType;
-        entry.genre = result.hits.hits[0]._source.genre;
-        entry.genreType = result.hits.hits[0]._source.genreType;
-        entry.genreSubType = result.hits.hits[0]._source.genreSubType;
-        entry.publishers = result.hits.hits[0]._source.publishers;
-        console.log(result.hits.hits);
-        var picked;
-
-        // 82055e3fcd911c98dd3193ae3fa486cf530cfdad154523ce17c73fe54a9d1c6c9c0c55f506aa0daaf7cb7b07c3169a44ff92fbaffe078686e1ccddaa215f198b
-        // Exists in two different sources with different filenames
-        if (req.params.hash.length == 32) picked = md5hash.filter((o) => o.md5 === req.params.hash);
-        if (req.params.hash.length == 128) picked = md5hash.filter((o) => o.sha512 === req.params.hash);
-
-        console.log(picked);
-        entry.file= picked;
-        res.send(entry);
-        // res.send({ entry_id: entry_id, title: title, file: picked });
-      }
-    },
-    function (reason) {
-      debug(`[FAILED] reason: ${reason.message}`);
-      if (reason.message === "Not Found") {
-        res.status(404).end();
-      } else {
-        res.status(500).end();
-      }
+    // Validate hash format (MD5: 32 chars or SHA512: 128 chars)
+    if (req.params.hash.length !== HASH_LENGTH.MD5 && req.params.hash.length !== HASH_LENGTH.SHA512) {
+      debug(`NOT a hash (length must be ${HASH_LENGTH.MD5} or ${HASH_LENGTH.SHA512})`);
+      res.status(400).json({ error: "Invalid hash format" });
+      return;
     }
-  );
+
+    const result = await hashLookup(req.params.hash);
+    debug(`########### RESPONSE from hashLookup(${req.params.hash})`);
+    debug(result);
+    debug(`#############################################################`);
+    res.header("X-Total-Count", result.hits.total.value);
+
+    if (result.hits.total.value === 0) {
+      res.status(404).end();
+      return;
+    }
+
+    // Destructure source data to reduce repetitive access
+    const source = result.hits.hits[0]._source;
+    const { md5hash, _id } = result.hits.hits[0];
+
+    debug(`Found entry with ${source.md5hash?.length || 0} hash entries`);
+
+    // Map hash type based on input length
+    const hashType = req.params.hash.length === HASH_LENGTH.MD5 ? "md5" : "sha512";
+    const matches = md5hash.filter((entry) => entry[hashType] === req.params.hash);
+
+    debug(`Matched hash entries: ${matches.length}`);
+
+    // Build response entry
+    const entry = {
+      entry_id: _id,
+      title: source.title,
+      zxinfoVersion: source.zxinfoVersion,
+      contentType: source.contentType,
+      originalYearOfRelease: source.originalYearOfRelease,
+      machineType: source.machineType,
+      genre: source.genre,
+      genreType: source.genreType,
+      genreSubType: source.genreSubType,
+      publishers: source.publishers,
+      file: matches,
+    };
+
+    res.send(entry);
+  } catch (err) {
+    debug(`[ERROR] ${err.message}`);
+    debug(err.stack);
+    if (err.message === "Not Found") {
+      res.status(404).end();
+    } else {
+      res.status(503).json({ error: "Search service unavailable", message: err.message });
+    }
+  }
 });
 
 module.exports = router;
