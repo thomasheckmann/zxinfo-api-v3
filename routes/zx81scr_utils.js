@@ -2,7 +2,7 @@
 
 const zx81 = require("./zx81tables");
 const zx80 = require("./zx80tables");
-const Jimp = require("jimp");
+const { Jimp, JimpMime, BlendMode, intToRGBA, cssColorToHex } = require("jimp");
 const fs = require("fs");
 var path = require("path");
 
@@ -58,7 +58,7 @@ function convertBMP(filename, image, offsetx, offsety, model) {
  * ZX81 by Kevin is known to produce 640 x 512 in PNG format
  * - on iOS/iPAD and JPG on macOS (via Photos)
  */
-function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
+async function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
   const basename = path.basename(filename);
   debug(`[convertIMAGE] - filename: ${filename}, basename: ${basename}`);
   debug(`[${basename}] - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
@@ -76,10 +76,10 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
 
     if (remainder === 0) {
       debug(`[${basename}] - Resizing to: ${256} x ${256 * ratio} (no border)`);
-      image.resize(256, 256 * ratio);
+      image.resize({ w: 256, h: 256 * ratio });
     } else {
       debug(`[${basename}] - Resizing to: ${320} x ${320 * ratio} (border)`);
-      image.resize(320, 320 * ratio);
+      image.resize({ w: 320, h: 320 * ratio });
     }
   }
 
@@ -107,29 +107,25 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
 
   debug(`[${basename}] 1) - Create cleaned PNG of output`);
   /* GENERATE CLEAN PNG OF INPUT */
-  let cleanimage = new Jimp(image.bitmap.width, image.bitmap.height, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
-    if (err) throw err;
-  });
+  let cleanimage = new Jimp({ width: image.bitmap.width, height: image.bitmap.height, color: 0xcdcdcdff });
   for (var x = 0; x < image.bitmap.width; x++) {
     for (var y = 0; y < image.bitmap.height; y++) {
-      var color = Jimp.intToRGBA(image.getPixelColor(x, y));
+      var color = intToRGBA(image.getPixelColor(x, y));
       if (color.r > 127 && color.g > 127 && color.b > 127) {
-        cleanimage.setPixelColor(Jimp.cssColorToHex("#cdcdcd"), x, y);
+        cleanimage.setPixelColor(0xcdcdcdff, x, y);
         // high contrast = white
       } else {
-        cleanimage.setPixelColor(Jimp.cssColorToHex("#000000"), x, y);
+        cleanimage.setPixelColor(0x000000ff, x, y);
       }
     }
   }
 
   debug(`[${basename}] 2) - Create overlay PNG showing offset used`);
   /* GENERATE PNG SHOWING OVERLAY */
-  let overlay = new Jimp(256, 192, Jimp.cssColorToHex("#ff0000"), (err, image) => {
-    if (err) throw err;
-  });
+  let overlay = new Jimp({ width: 256, height: 192, color: 0xff0000ff });
 
   overlay = image.clone().composite(overlay, offsetx, offsety, {
-    mode: Jimp.BLEND_MULTIPLY,
+    mode: BlendMode.multiply,
     opacitySource: 0.5,
     opacityDest: 0.9,
   });
@@ -148,7 +144,7 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
       for (var dy = 0; dy < 8; dy++) {
         var scr_byte = 0;
         for (var dx = 0; dx < 8; dx++) {
-          var color = Jimp.intToRGBA(image.getPixelColor(posX + dx, posY + dy));
+          var color = intToRGBA(image.getPixelColor(posX + dx, posY + dy));
           if (color.r > 127 && color.g > 127 && color.b > 127) {
             // high contrast = white
             scr_byte = (scr_byte << 1) & 254;
@@ -211,9 +207,9 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
     debug(`[${basename}] - ${name}.scr`);
     fs.writeFileSync(outputfolder + name + ".scr", new Buffer.from(dfile));
     debug(`[${basename}] - ${name}.png`);
-    cleanimage.write(outputfolder + name + ".png");
+    await cleanimage.write(outputfolder + name + ".png");
     debug(`[${basename}] - ${name}_ovr.png`);
-    overlay.write(outputfolder + name + "_ovr.png");
+    await overlay.write(outputfolder + name + "_ovr.png");
   } catch (e) {
     console.error(e);
   }
@@ -222,16 +218,13 @@ function convertIMAGE(filename, image, offsetx, offsety, outputfolder, model) {
   // return cleanimage;
 }
 
-function convertSCR(file, offsetx, offsety) {
+async function convertSCR(file, offsetx, offsety) {
   debug(`[convertSCR] - file: ${file}`);
-  //var filename_base = file.originalname.split(".").slice(0, -1).join(".");
 
   const filename_base = path.parse(file.originalname).name;
   var scrData = fs.readFileSync(file.path);
 
-  let image = new Jimp(256, 192, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
-    if (err) throw err;
-  });
+  let image = new Jimp({ width: 256, height: 192, color: 0xcdcdcdff });
 
   for (var y = 0; y < 192; y++) {
     for (var x = 0; x < 32; x++) {
@@ -241,9 +234,9 @@ function convertSCR(file, offsetx, offsety) {
         for (var dx = 0; dx < 8; dx++) {
           var bit = data & 128;
           if (bit > 0) {
-            image.setPixelColor(Jimp.cssColorToHex("#000000"), x * 8 + dx, y);
+            image.setPixelColor(0x000000ff, x * 8 + dx, y);
           } else {
-            image.setPixelColor(Jimp.cssColorToHex("#cdcdcd"), x * 8 + dx, y);
+            image.setPixelColor(0xcdcdcdff, x * 8 + dx, y);
           }
           data = (data << 1) & 255;
         }
@@ -252,10 +245,10 @@ function convertSCR(file, offsetx, offsety) {
       }
     }
   }
-  return convertBMP(file.originalname, image, 0, 0);
+  return convertBMP(file.originalname, image, 0, 0, "ZX81");
 }
 
-function convertS81(file, offsetx, offsety, model) {
+async function convertS81(file, offsetx, offsety, model) {
   debug(`[convertS81] - file: ${file}`);
   const filename_base = path.parse(file.originalname).name;
   var scrData = fs.readFileSync(file.path);
@@ -268,13 +261,11 @@ function convertS81(file, offsetx, offsety, model) {
 
   var charmap = zx81.charmap;
 
-  if(model === "ZX80") {
+  if (model === "ZX80") {
     charmap = zx80.charmap;
   }
 
-  let image = new Jimp(256, 192, Jimp.cssColorToHex("#cdcdcd"), (err, image) => {
-    if (err) throw err;
-  });
+  let image = new Jimp({ width: 256, height: 192, color: 0xcdcdcdff });
 
   for (var y = 0; y < 24; y++) {
     for (var x = 0; x < 32; x++) {
@@ -288,9 +279,9 @@ function convertS81(file, offsetx, offsety, model) {
           var xpos = x * 8 + dx;
           var ypos = y * 8 + dy;
           if (bit === "1") {
-            image.setPixelColor(Jimp.cssColorToHex("#000000"), xpos, ypos);
+            image.setPixelColor(0x000000ff, xpos, ypos);
           } else {
-            image.setPixelColor(Jimp.cssColorToHex("#cdcdcd"), xpos, ypos);
+            image.setPixelColor(0xcdcdcdff, xpos, ypos);
           }
           bit_index++;
         }

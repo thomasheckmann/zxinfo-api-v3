@@ -16,7 +16,7 @@ var router = express.Router();
 
 var debug = require("debug")("zxinfo-services:scr");
 
-const Jimp = require("jimp");
+const { Jimp, JimpMime } = require("jimp");
 const zx81 = require("./zx81scr_utils");
 
 const fileFilter = (req, file, cb) => {
@@ -42,7 +42,7 @@ router.use(function (req, res, next) {
   next(); // make sure we go to the next routes and don't stop here
 });
 
-router.post("/upload", upload.single("file"), (req, res) => {
+router.post("/upload", upload.single("file"), async (req, res, next) => {
   debug("==> /upload - " + JSON.stringify(req.file));
 
   const offsetx = parseInt(req.query.ox);
@@ -62,90 +62,62 @@ router.post("/upload", upload.single("file"), (req, res) => {
     req.file.originalname.toLowerCase().endsWith(".jpg")
   ) {
     // load BMP, PNG or GIF
-    Jimp.read(req.file.path, (err, image) => {
-      if (err) throw err;
-
+    try {
+      const image = await Jimp.read(req.file.path);
       debug(`[BMP] source - size WxH: ${image.bitmap.width}x${image.bitmap.height}`);
-
-      var r = zx81.convertBMP(req.file.originalname, image, offsetx, offsety, model);
-      var imagePNG = r.png;
-      imagePNG.getBase64(Jimp.MIME_PNG, (error, img) => {
-        if (error) throw error;
-        else {
-          res.json({
-            output: {
-              png: {
-                base64: img,
-                height: image.bitmap.height,
-                width: image.bitmap.width,
-                filename: name + ".png",
-              },
-              ovr: { filename: name + "_ovr.png" },
-              s81: { filename: name + (model === "ZX81" ? ".s81": ".s80") },
-              scr: { filename: name + ".scr" },
-              txt: { filename: name + ".txt", data: r.txt },
-              used_offsetx: r.used_offsetx,
-              used_offsety: r.used_offsety,
-            },
-            file: req.file,
-          });
-        }
+      const r = await zx81.convertBMP(req.file.originalname, image, offsetx, offsety, model);
+      const img = await r.png.getBase64(JimpMime.png);
+      res.json({
+        output: {
+          png: { base64: img, height: image.bitmap.height, width: image.bitmap.width, filename: name + ".png" },
+          ovr: { filename: name + "_ovr.png" },
+          s81: { filename: name + (model === "ZX81" ? ".s81" : ".s80") },
+          scr: { filename: name + ".scr" },
+          txt: { filename: name + ".txt", data: r.txt },
+          used_offsetx: r.used_offsetx,
+          used_offsety: r.used_offsety,
+        },
+        file: req.file,
       });
-    });
+    } catch (err) { return next(err); }
   } else if (req.file.originalname.toLowerCase().endsWith(".s81")||req.file.originalname.toLowerCase().endsWith(".s80")) {
     var model = "ZX81";
     if(req.file.originalname.toLowerCase().endsWith(".s80")) {
       model = "ZX80";
     }
-    var r = zx81.convertS81(req.file, offsetx, offsety, model);
-    var imagePNG = r.png;
-    imagePNG.getBase64(Jimp.MIME_PNG, (error, img) => {
-      if (error) throw error;
-      else {
-        res.json({
-          output: {
-            png: {
-              base64: img,
-              height: imagePNG.bitmap.height,
-              width: imagePNG.bitmap.width,
-              filename: name + ".png",
-            },
-            ovr: { filename: name + "_ovr.png" },
-            s81: { filename: name + (model === "ZX81" ? ".s81": ".s80") },
-            scr: { filename: name + ".scr" },
-            txt: { filename: name + ".txt", data: r.txt },
-            used_offsetx: r.used_offsetx,
-            used_offsety: r.used_offsety,
-          },
-          file: req.file,
-        });
-      }
-    });
+    try {
+      const r = await zx81.convertS81(req.file, offsetx, offsety, model);
+      const img = await r.png.getBase64(JimpMime.png);
+      res.json({
+        output: {
+          png: { base64: img, height: r.png.bitmap.height, width: r.png.bitmap.width, filename: name + ".png" },
+          ovr: { filename: name + "_ovr.png" },
+          s81: { filename: name + (model === "ZX81" ? ".s81" : ".s80") },
+          scr: { filename: name + ".scr" },
+          txt: { filename: name + ".txt", data: r.txt },
+          used_offsetx: r.used_offsetx,
+          used_offsety: r.used_offsety,
+        },
+        file: req.file,
+      });
+    } catch (err) { return next(err); }
   } else if (req.file.originalname.toLowerCase().endsWith(".scr")) {
-    var r = zx81.convertSCR(req.file, offsetx, offsety);
-    var imagePNG = r.png;
-    imagePNG.getBase64(Jimp.MIME_PNG, (error, img) => {
-      if (error) throw error;
-      else {
-        res.json({
-          output: {
-            png: {
-              base64: img,
-              height: imagePNG.bitmap.height,
-              width: imagePNG.bitmap.width,
-              filename: name + ".png",
-            },
-            ovr: { filename: name + "_ovr.png" },
-            s81: { filename: name + ".s81" },
-            scr: { filename: name + ".scr" },
-            txt: { filename: name + ".txt", data: r.txt },
-            used_offsetx: r.used_offsetx,
-            used_offsety: r.used_offsety,
-          },
-          file: req.file,
-        });
-      }
-    });
+    try {
+      const r = await zx81.convertSCR(req.file, offsetx, offsety);
+      const img = await r.png.getBase64(JimpMime.png);
+      res.json({
+        output: {
+          png: { base64: img, height: r.png.bitmap.height, width: r.png.bitmap.width, filename: name + ".png" },
+          ovr: { filename: name + "_ovr.png" },
+          s81: { filename: name + ".s81" },
+          scr: { filename: name + ".scr" },
+          txt: { filename: name + ".txt", data: r.txt },
+          used_offsetx: r.used_offsetx,
+          used_offsety: r.used_offsety,
+        },
+        file: req.file,
+      });
+    } catch (err) { return next(err); }
   }
 });
 
