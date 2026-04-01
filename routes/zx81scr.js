@@ -160,7 +160,7 @@ router.use(function (err, req, res, next) {
     res.status(422).json({ error: "Wrong filetype" });
     return;
   }
-  if (err.code === "LIMIT_FILE_SIZE") {
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
     res.status(422).json({ error: "Allowed file size is 1000KB" });
     return;
   }
