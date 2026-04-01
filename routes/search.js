@@ -46,24 +46,30 @@ var elasticClient = new elasticsearch.Client({
 
 var es_index = config.zxinfo_index;
 
-// constans for machinetype
-const ZXSPECTRUM = [
-  "ZX-Spectrum 128 +2",
-  "ZX-Spectrum 128 +2A/+3",
-  "ZX-Spectrum 128 +2B",
-  "ZX-Spectrum 128 +3",
-  "ZX-Spectrum 128K",
-  "ZX-Spectrum 128K (load in USR0 mode)",
-  "ZX-Spectrum 16K",
-  "ZX-Spectrum 16K/48K",
-  "ZX-Spectrum 48K",
-  "ZX-Spectrum 48K/128K",
-];
-const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
-const PENTAGON = ["Scorpion", "Pentagon 128"];
+// Type expansion mappings for query normalization
+const TYPE_EXPANSIONS = {
+  ZXSPECTRUM: [
+    "ZX-Spectrum 128 +2",
+    "ZX-Spectrum 128 +2A/+3",
+    "ZX-Spectrum 128 +2B",
+    "ZX-Spectrum 128 +3",
+    "ZX-Spectrum 128K",
+    "ZX-Spectrum 128K (load in USR0 mode)",
+    "ZX-Spectrum 16K",
+    "ZX-Spectrum 16K/48K",
+    "ZX-Spectrum 48K",
+    "ZX-Spectrum 48K/128K",
+  ],
+  ZX81: ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"],
+  PENTAGON: ["Scorpion", "Pentagon 128"],
+  GAMES: ["Adventure Game", "Arcade Game", "Casual Game", "Game", "Sport Game", "Strategy Game"],
+};
 
-// constans for genretype
-const GAMES = ["Adventure Game", "Arcade Game", "Casual Game", "Game", "Sport Game", "Strategy Game"];
+// Maintain backward compatibility with existing constants
+const ZXSPECTRUM = TYPE_EXPANSIONS.ZXSPECTRUM;
+const ZX81 = TYPE_EXPANSIONS.ZX81;
+const PENTAGON = TYPE_EXPANSIONS.PENTAGON;
+const GAMES = TYPE_EXPANSIONS.GAMES;
 
 var queryTerm1 = {
   match_all: {},
@@ -418,6 +424,52 @@ function removeFilter(filters, f) {
   const index = filters.indexOf(f);
   filters.splice(index, 1);
   return filters.filter((value) => Object.keys(value).length !== 0);
+}
+
+/**
+ * Build elasticsearch search request with common parameters
+ * @param {Object} queryObject - The query to execute
+ * @param {number} page_size - Results per page
+ * @param {number} fromOffset - Pagination offset
+ * @param {string} outputmode - Output format
+ * @param {boolean} includeAgg - Include aggregations
+ * @param {Object} sortObject - Sort specification
+ * @returns {Object} Elasticsearch search request
+ */
+function buildSearchRequest(queryObject, page_size, fromOffset, outputmode, includeAgg, sortObject) {
+  const baseRequest = {
+    timeout: "10s",
+    _source: tools.es_source_list(outputmode),
+    _source_excludes: "titlesuggest, metadata_author,authorsuggest",
+    index: es_index,
+    body: {
+      track_scores: true,
+      size: page_size,
+      from: fromOffset,
+      query: {
+        boosting: {
+          positive: queryObject,
+          negative: {
+            bool: {
+              should: [
+                { exists: { field: "modificationOf.title" } },
+                { exists: { field: "inspiredBy.title" } }
+              ]
+            }
+          },
+          negative_boost: 0.5,
+        },
+      },
+      sort: sortObject,
+    },
+  };
+
+  if (includeAgg) {
+    // Note: aggregations are added by powerSearch based on filters
+    baseRequest.includeAgg = true;
+  }
+
+  return baseRequest;
 }
 
 var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg, explainId) {
@@ -905,85 +957,70 @@ router.use(function (req, res, next) {
  *
  ************************************************/
 
-router.get("/", function (req, res, next) {
-  debug("==> /search");
+/**
+ * Expand query type aliases (e.g., ZXSPECTRUM -> individual spectrum versions)
+ * @param {string} type - Type name to expand
+ * @param {string} typeKey - Key to look up in query (e.g., 'machinetype' or 'genretype')
+ * @returns {Array} Expanded list of types or original type if not found
+ */
+function expandType(type, typeKey) {
+  const expansionKey = typeKey === 'machinetype' 
+    ? (type === 'ZXSPECTRUM' ? 'ZXSPECTRUM' : type === 'ZX81' ? 'ZX81' : type === 'PENTAGON' ? 'PENTAGON' : null)
+    : typeKey === 'genretype'
+    ? (type === 'GAMES' ? 'GAMES' : null)
+    : null;
+  
+  return expansionKey && TYPE_EXPANSIONS[expansionKey] ? TYPE_EXPANSIONS[expansionKey] : [type];
+}
 
-  // set default values for mode, size & offset
-  req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
-
-  // validate pagination parameters to prevent DoS
+router.get("/", async function (req, res, next) {
   try {
+    debug("==> /search");
+
+    // set default values for mode, size & offset
+    req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
+
+    // validate pagination parameters to prevent DoS
     const size = Math.min(Math.max(parseInt(req.query.size) || 50, 1), 1000);
     const offset = Math.max(parseInt(req.query.offset) || 0, 0);
     req.query.size = size;
     req.query.offset = offset;
     debug(`Validated pagination: size=${size}, offset=${offset}`);
-  } catch (err) {
-    debug(`Invalid pagination parameters: ${err.message}`);
-    return res.status(400).json({ error: "Invalid pagination parameters" });
-  }
 
-  if (req.query.machinetype) {
-    var mTypes = [];
-    if (!Array.isArray(req.query.machinetype)) {
-      req.query.machinetype = [req.query.machinetype];
-    }
-
-    for (var i = 0; i < req.query.machinetype.length; i++) {
-      debug(`${i} - ${req.query.machinetype[i]}`);
-      switch (req.query.machinetype[i]) {
-        case "ZXSPECTRUM":
-          debug("- ZXSPECTRUM -");
-          mTypes = mTypes.concat(ZXSPECTRUM);
-          break;
-        case "ZX81":
-          debug("- ZX81 -");
-          mTypes = mTypes.concat(ZX81);
-          break;
-        case "PENTAGON":
-          debug("- PENTAGON -");
-          mTypes = mTypes.concat(PENTAGON);
-          break;
-        default:
-          mTypes.push(req.query.machinetype[i]);
-          break;
+    // Expand type aliases in query parameters
+    if (req.query.machinetype) {
+      if (!Array.isArray(req.query.machinetype)) {
+        req.query.machinetype = [req.query.machinetype];
       }
-    }
-    req.query.machinetype = mTypes;
-    debug(`mType: ${mTypes}`);
-  }
-  if (req.query.genretype) {
-    var gTypes = [];
-    if (!Array.isArray(req.query.genretype)) {
-      req.query.genretype = [req.query.genretype];
+      req.query.machinetype = req.query.machinetype.flatMap(t => {
+        const expanded = expandType(t, 'machinetype');
+        debug(`Expanded machinetype: ${t} -> ${JSON.stringify(expanded)}`);
+        return expanded;
+      });
     }
 
-    for (var i = 0; i < req.query.genretype.length; i++) {
-      debug(`${i} - ${req.query.genretype[i]}`);
-      switch (req.query.genretype[i]) {
-        case "GAMES":
-          debug("- GAMES -");
-          gTypes = gTypes.concat(GAMES);
-          break;
-        default:
-          gTypes.push(req.query.genretype[i]);
-          break;
+    if (req.query.genretype) {
+      if (!Array.isArray(req.query.genretype)) {
+        req.query.genretype = [req.query.genretype];
       }
+      req.query.genretype = req.query.genretype.flatMap(t => {
+        const expanded = expandType(t, 'genretype');
+        debug(`Expanded genretype: ${t} -> ${JSON.stringify(expanded)}`);
+        return expanded;
+      });
     }
-    req.query.genretype = gTypes;
-    debug(`mType: ${gTypes}`);
-  }
 
-  powerSearch(
-    req.query,
-    req.query.size,
-    req.query.offset,
-    req.query.mode,
-    req.query.titlesonly,
-    req.query.includeagg,
-    req.query.explain
-  ).then(function (result) {
-    debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
+    const result = await powerSearch(
+      req.query,
+      req.query.size,
+      req.query.offset,
+      req.query.mode,
+      req.query.titlesonly,
+      req.query.includeagg,
+      req.query.explain
+    );
+
+    debug(`########### RESPONSE from search(${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
     debug(result);
     debug(`#############################################################`);
 
@@ -1000,11 +1037,11 @@ router.get("/", function (req, res, next) {
         res.send(result);
       }
     }
-  }).catch(function (err) {
+  } catch (err) {
     debug(`Search error: ${err.message}`);
     debug(err.stack);
     res.status(503).json({ error: "Search service unavailable", message: err.message });
-  });
+  }
 });
 
 module.exports = router;
