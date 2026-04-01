@@ -28,23 +28,23 @@
 
 const moduleId = "search";
 
-var config = require("../config.json")[process.env.NODE_ENV || "development"];
-var express = require("express");
-var router = express.Router();
+const config = require("../config.json")[process.env.NODE_ENV || "development"];
+const express = require("express");
+const router = express.Router();
 
-var debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug identifier
+const debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug identifier
 
-var tools = require("./utils");
+const tools = require("./utils");
 
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
+const elasticsearch = require("elasticsearch");
+const elasticClient = new elasticsearch.Client({
   host: config.es_host,
   apiVersion: config.es_apiVersion,
   log: "debug" /*config.es_log,*/,
   requestTimeout: 10000, // 10 second timeout for all requests
 });
 
-var es_index = config.zxinfo_index;
+const es_index = config.zxinfo_index;
 
 // Type expansion mappings for query normalization
 const TYPE_EXPANSIONS = {
@@ -71,7 +71,7 @@ const ZX81 = TYPE_EXPANSIONS.ZX81;
 const PENTAGON = TYPE_EXPANSIONS.PENTAGON;
 const GAMES = TYPE_EXPANSIONS.GAMES;
 
-var queryTerm1 = {
+const queryTerm1 = {
   match_all: {},
 };
 
@@ -246,10 +246,10 @@ function queryTerm2(query) {
   };
 }
 
-var createQueryTermWithFilters = function (query, filters, titlesonly, playabletype) {
+const createQueryTermWithFilters = function (query, filters, titlesonly, playabletype) {
   if (query == undefined || query.length == 0) {
     debug(`createQueryTermWithFilters() - empty query}`);
-    var playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
+    const playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
     if (playabletype) {
       debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
       return {
@@ -277,7 +277,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, playablet
     }
   } else if (titlesonly !== undefined && titlesonly === "true") {
     debug(`createQueryTermWithFilters() - titlesonly`);
-    var playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
+    const playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
     if (playabletype) {
       debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
       return {
@@ -306,7 +306,7 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, playablet
   } else {
     debug(`createQueryTermWithFilters() - normal search`);
     debug(`queryTerm2: \n${JSON.stringify(queryTerm2(query), null, 4)}`);
-    var playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
+    const playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
     if (playabletype) {
       debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
       return {
@@ -335,18 +335,18 @@ var createQueryTermWithFilters = function (query, filters, titlesonly, playablet
   }
 };
 
-var createFilterItem = function (filterName, filterValues) {
+const createFilterItem = function (filterName, filterValues) {
   debug(`createFilterItem(${filterName}, ${filterValues})`);
-  var item_should = {};
+  let item_should = {};
 
   if (filterValues !== undefined && filterValues.length > 0) {
     if (!Array.isArray(filterValues)) {
       filterValues = [filterValues];
     }
-    var i = 0;
-    var should = [];
+    let i = 0;
+    const should = [];
     for (; i < filterValues.length; i++) {
-      var item = {
+      const item = {
         match: {
           [filterName]: filterValues[i],
         },
@@ -365,18 +365,18 @@ var createFilterItem = function (filterName, filterValues) {
  * TOSEC - TZX & TAP
  * SC - tzx.zip & tzp.zip
  */
-var createFilterItemPlayableType = function (filterName, filterValues) {
+const createFilterItemPlayableType = function (filterName, filterValues) {
   debug(`createFilterItemPlayableType(${filterName}, ${filterValues})`);
-  var item_should = {};
+  let item_should = {};
 
   if (filterValues !== undefined && filterValues.length > 0) {
     if (!Array.isArray(filterValues)) {
       filterValues = [filterValues];
     }
-    var i = 0;
-    var should = [];
+    let i = 0;
+    const should = [];
     for (; i < filterValues.length; i++) {
-      var item = {
+      const item = {
         regexp: {
           "tosec.path": {
             value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})`,
@@ -389,7 +389,7 @@ var createFilterItemPlayableType = function (filterName, filterValues) {
 
     i = 0;
     for (; i < filterValues.length; i++) {
-      var item = {
+      const item = {
         nested: {
           path: "releases.files",
           query: {
@@ -472,7 +472,7 @@ function buildSearchRequest(queryObject, page_size, fromOffset, outputmode, incl
   return baseRequest;
 }
 
-var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg, explainId) {
+const powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg, explainId) {
   debug("powerSearch(): " + JSON.stringify(searchObject));
 
   if (Number.isInteger(parseInt(explainId)) && explainId.length < 8) {
@@ -480,50 +480,50 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   }
   debug(`powerSearch(): explainId = ${explainId}`);
 
-  var sort_object = tools.getSortObject(searchObject.sort);
+  const sort_object = tools.getSortObject(searchObject.sort);
 
-  var filterObjects = {};
+  const filterObjects = {};
 
-  var contenttype_should = createFilterItem("contentType", searchObject.contenttype);
+  const contenttype_should = createFilterItem("contentType", searchObject.contenttype);
   filterObjects["contenttype"] = contenttype_should;
 
-  var xrated_should = createFilterItem("xrated", searchObject.xrated);
+  const xrated_should = createFilterItem("xrated", searchObject.xrated);
   filterObjects["xrated"] = xrated_should;
 
-  //  var type_should = createFilterItem("type", searchObject.type);
+  //  const type_should = createFilterItem("type", searchObject.type);
   //  filterObjects["type"] = type_should;
 
-  var genretype_should = createFilterItem("genreType", searchObject.genretype);
+  const genretype_should = createFilterItem("genreType", searchObject.genretype);
   filterObjects["genretype"] = genretype_should;
 
-  var genresubtype_should = createFilterItem("genreSubType", searchObject.genresubtype);
+  const genresubtype_should = createFilterItem("genreSubType", searchObject.genresubtype);
   filterObjects["genresubtype"] = genresubtype_should;
 
-  var machinetype_should = createFilterItem("machineType", searchObject.machinetype);
+  const machinetype_should = createFilterItem("machineType", searchObject.machinetype);
   filterObjects["machinetype"] = machinetype_should;
 
-  var controls_should = createFilterItem("controls.control", searchObject.control);
+  const controls_should = createFilterItem("controls.control", searchObject.control);
   filterObjects["controls"] = controls_should;
 
-  var multiplayermode_should = createFilterItem("multiplayerMode", searchObject.multiplayermode);
+  const multiplayermode_should = createFilterItem("multiplayerMode", searchObject.multiplayermode);
   filterObjects["multiplayermode"] = multiplayermode_should;
 
-  var multiplayertype_should = createFilterItem("multiplayerType", searchObject.multiplayertype);
+  const multiplayertype_should = createFilterItem("multiplayerType", searchObject.multiplayertype);
   filterObjects["multiplayertype"] = multiplayertype_should;
 
-  var originalpublication_should = createFilterItem("originalPublication", searchObject.originalpublication);
+  const originalpublication_should = createFilterItem("originalPublication", searchObject.originalpublication);
   filterObjects["originalPublication"] = originalpublication_should;
 
-  var availability_should = createFilterItem("availability", searchObject.availability);
+  const availability_should = createFilterItem("availability", searchObject.availability);
   filterObjects["availability"] = availability_should;
 
-  var language_should = createFilterItem("language", searchObject.language);
+  const language_should = createFilterItem("language", searchObject.language);
   filterObjects["language"] = language_should;
 
-  var year_should = createFilterItem("originalYearOfRelease", searchObject.year);
+  const year_should = createFilterItem("originalYearOfRelease", searchObject.year);
   filterObjects["yearofrelease"] = year_should;
 
-  var playabletype_should = createFilterItemPlayableType("playabletype", searchObject.tosectype);
+  const playabletype_should = createFilterItemPlayableType("playabletype", searchObject.tosectype);
   filterObjects["playabletype"] = playabletype_should;
 
   /**
@@ -536,7 +536,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
 
     */
 
-  var grouptype_id = "";
+  let grouptype_id = "";
 
   if (searchObject.group === "C") {
     grouptype_id = "competition";
@@ -567,9 +567,9 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
   }
 
 
-  var groupandname_must = {};
+  let groupandname_must = {};
   if (searchObject.group !== undefined && searchObject.groupname !== undefined) {
-    var groupBools = [];
+    const groupBools = [];
     groupBools.push({
       bool: {
         must: {
@@ -583,20 +583,20 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     filterObjects["groupandname"] = groupandname_must;
   }
   // generate array with filter objects
-  var filters = [];
-  var filterNames = Object.keys(filterObjects);
-  for (var i = 0; i < filterNames.length; i++) {
-    var item = filterObjects[filterNames[i]];
-    var itemsize = Object.keys(item).length;
+  const filters = [];
+  const filterNames = Object.keys(filterObjects);
+  for (let i = 0; i < filterNames.length; i++) {
+    const item = filterObjects[filterNames[i]];
+    const itemsize = Object.keys(item).length;
     if (itemsize > 0) {
       filters.push(item);
     }
   }
 
   debug(`powerSearch(): filters=${JSON.stringify(filters)}`);
-  var query = createQueryTermWithFilters(searchObject.query, filters, titlesonly, searchObject.tosectype);
+  const query = createQueryTermWithFilters(searchObject.query, filters, titlesonly, searchObject.tosectype);
   // console.log('query: ' + JSON.stringify(query, null, 4));
-  var aggfilter = [
+  const aggfilter = [
     query,
     contenttype_should,
     xrated_should,
@@ -614,7 +614,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
 
   // random X, if offset=random, size max 10
 
-  var fromOffset, queryObject;
+  let fromOffset, queryObject;
 
   if (offset === "random") {
     if (page_size > 10) {
@@ -942,7 +942,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
  * common to use for all requests
  *
  ************************************************/
-router.use(function (req, res, next) {
+router.use((req, res, next) => {
   debug(`got request - start processing, path: ${req.path}`);
   debug(`user-agent: ${req.headers["user-agent"]}`);
   res.header("Access-Control-Allow-Origin", "*");
