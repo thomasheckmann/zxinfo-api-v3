@@ -41,6 +41,7 @@ var elasticClient = new elasticsearch.Client({
   host: config.es_host,
   apiVersion: config.es_apiVersion,
   log: "debug" /*config.es_log,*/,
+  requestTimeout: 10000, // 10 second timeout for all requests
 });
 
 var es_index = config.zxinfo_index;
@@ -624,6 +625,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     });
   } else if (includeagg === undefined || includeagg === "false")
     return elasticClient.search({
+      timeout: "10s",
       _source: tools.es_source_list(outputmode),
       _source_excludes: "titlesuggest, metadata_author,authorsuggest",
       index: es_index,
@@ -658,6 +660,7 @@ var powerSearch = function (searchObject, page_size, offset, outputmode, titleso
     });
   else
     return elasticClient.search({
+      timeout: "10s",
       _source: tools.es_source_list(outputmode),
       _source_excludes: "titlesuggest, metadata_author,authorsuggest",
       index: es_index,
@@ -908,6 +911,18 @@ router.get("/", function (req, res, next) {
   // set default values for mode, size & offset
   req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
 
+  // validate pagination parameters to prevent DoS
+  try {
+    const size = Math.min(Math.max(parseInt(req.query.size) || 50, 1), 1000);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
+    req.query.size = size;
+    req.query.offset = offset;
+    debug(`Validated pagination: size=${size}, offset=${offset}`);
+  } catch (err) {
+    debug(`Invalid pagination parameters: ${err.message}`);
+    return res.status(400).json({ error: "Invalid pagination parameters" });
+  }
+
   if (req.query.machinetype) {
     var mTypes = [];
     if (!Array.isArray(req.query.machinetype)) {
@@ -985,6 +1000,10 @@ router.get("/", function (req, res, next) {
         res.send(result);
       }
     }
+  }).catch(function (err) {
+    debug(`Search error: ${err.message}`);
+    debug(err.stack);
+    res.status(503).json({ error: "Search service unavailable", message: err.message });
   });
 });
 
