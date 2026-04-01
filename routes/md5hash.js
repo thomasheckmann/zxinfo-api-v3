@@ -97,8 +97,8 @@ router.get("/:hash", async (req, res) => {
     }
 
     // Destructure source data to reduce repetitive access
-    const source = result.hits.hits[0]._source;
-    const { md5hash, _id } = result.hits.hits[0];
+    const { _id, _source: source } = result.hits.hits[0];
+    const { md5hash } = source;
 
     debug(`Found entry with ${source.md5hash?.length || 0} hash entries`);
 
