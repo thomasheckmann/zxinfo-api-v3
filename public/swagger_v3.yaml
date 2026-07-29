@@ -28,9 +28,10 @@ info:
     If you want to check out how the ZXInfo API is being used, please checkout the following:
 
     * Web site https://zxinfo.dk - a modern full featured web site build using Vue.js and Vuetify.
+    * [SpectrumComputing](https://spectrumcomputing.co.uk) - the largest archive of software (games, electronic press, system programs, pc tools) for the ZX Spectrum.
     * [Virtual TR-DOS](https://vtrd.in/) - the largest archive of software (games, electronic press, system programs, pc tools) for the ZX Spectrum with TR-DOS.
+    * [ZX-Next-Unite](https://github.com/jclauzel/ZX-Next-Unite) - A cross-platform (Windows, Linux, macOS) graphical front-end that unites two great ZX Spectrum Next tools in a single utility — Hdfm-Gooey and NextSync.
     * WoSC https://worldofspectrum.net - WoSC (WOS Classic) is the spiritual successor to the legendary World Of Spectrum site.
-    * ZX Spectrum Gamer [Google Play](https://play.google.com/store/apps/details?id=com.cooolapps.spectrumgamer) - an app that makes it easier to access Sinclair ZX Spectrum games information.
     * Android ZX App[Google Play](https://play.google.com/store/apps/details?id=com.bricboys.zxapp) - ZX Spectrum stuff search engine
     * ZXInfo file browser [GitHub](https://github.com/thomasheckmann/zxinfo-file-browser) - kind of a "Picasa for ZX Spectrum emulator files".
     * [Tape Loader](https://ejssoft.pt/start.php?funcao=48#tapeloader) - play TAP or TZX back to your computer.
@@ -41,7 +42,7 @@ info:
     * Virtual Filesystem [ZXDBFS](https://www.hermitretro.com/zxdbfs.html) - a filesystem-like environment enabling you to search and load games seamlessly over the Internet through a standard file interface.
     * Emulator [ZEsarUX](https://github.com/chernandezba/zesarux) - ZX Second-Emulator And Released for UniX.
     * SpeccyBot https://github.com/druellan/speccybot - an interactive chat bot for Telegram that allows searching online for Spectrum related information.
-    * ZXInfoTV [AppleTV](https://github.com/thomasheckmann/zxinfo-tv) - PoC for a video focused experiece for your AppleTV
+    * ZXInfoTV [AppleTV](https://github.com/thomasheckmann/zxinfo-tv) - PoC for a video focused experiece for your AppleTV. (No longer )
 
     [**ZXDB update July 2026**](https://zxinfo.dk/whatsnew)
 
