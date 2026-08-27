@@ -35,7 +35,7 @@ info:
     * Android ZX App[Google Play](https://play.google.com/store/apps/details?id=com.bricboys.zxapp) - ZX Spectrum stuff search engine
     * ZXInfo file browser [GitHub](https://github.com/thomasheckmann/zxinfo-file-browser) - kind of a "Picasa for ZX Spectrum emulator files".
     * [Tape Loader](https://ejssoft.pt/start.php?funcao=48#tapeloader) - play TAP or TZX back to your computer.
-    * ZX Tape Player App [GitHub](https://github.com/semack/zx_tape_player) - Cross platform TZX/TAP player for iOS and Android.
+    * ZX Tape Player App [GitHub](https://github.com/d00rsfan/zx_tape_player) - Cross platform TZX/TAP player for iOS and Android.
     * Microdrive Emulator [OqtaDrive](https://oqtadrive.org/01.overview/features/) - emulates a bank of 8 Microdrives for use with a Sinclair ZX Spectrum with Interface 1, or with a Sinclair QL.
     * [Skyscraper](https://gemba.github.io/skyscraper/SCRAPINGMODULES/#zxinfo-formerly-world-of-spectrum) - maintain metadata for your files.
     * ZX Spectrum Frontend Meta Generator [GitHub](https://github.com/leemm/zxspectrum-meta-generator) - Create your metadata for various emulator frontends.
