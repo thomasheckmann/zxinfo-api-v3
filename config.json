@@ -8,14 +8,14 @@
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "production": {
-    "es_host": "http://zxinfo-es:9200",
+    "es_host": "http://elastic:mju76YHNES@elasticsearch:9200",
     "es_apiVersion": "7.0",
     "es_log": "error",
     "zxinfo_index": "zxinfo_games",
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "container": {
-    "es_host": "http://zxinfo-es:9200",
+    "es_host": "http://elastic:mju76YHNES@elasticsearch:9200",
     "es_apiVersion": "7.x",
     "es_log": "error",
     "zxinfo_index": "zxinfo_games",
