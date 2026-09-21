@@ -28,50 +28,36 @@
 
 const moduleId = "search";
 
-const config = require("../config.json")[process.env.NODE_ENV || "development"];
-const express = require("express");
-const router = express.Router();
+var config = require("../config.json")[process.env.NODE_ENV || "development"];
+var express = require("express");
+var router = express.Router();
 
-const debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug identifier
+var debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug identifier
 
-const tools = require("./utils");
+var tools = require("./utils");
 
-const elasticsearch = require("elasticsearch");
-const elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: "debug" /*config.es_log,*/,
-  requestTimeout: 10000, // 10 second timeout for all requests
-});
+const { elasticClient, es_index } = require("./elasticClient");
 
-const es_index = config.zxinfo_index;
+// constans for machinetype
+const ZXSPECTRUM = [
+  "ZX-Spectrum 128 +2",
+  "ZX-Spectrum 128 +2A/+3",
+  "ZX-Spectrum 128 +2B",
+  "ZX-Spectrum 128 +3",
+  "ZX-Spectrum 128K",
+  "ZX-Spectrum 128K (load in USR0 mode)",
+  "ZX-Spectrum 16K",
+  "ZX-Spectrum 16K/48K",
+  "ZX-Spectrum 48K",
+  "ZX-Spectrum 48K/128K",
+];
+const ZX81 = ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"];
+const PENTAGON = ["Scorpion", "Pentagon 128"];
 
-// Type expansion mappings for query normalization
-const TYPE_EXPANSIONS = {
-  ZXSPECTRUM: [
-    "ZX-Spectrum 128 +2",
-    "ZX-Spectrum 128 +2A/+3",
-    "ZX-Spectrum 128 +2B",
-    "ZX-Spectrum 128 +3",
-    "ZX-Spectrum 128K",
-    "ZX-Spectrum 128K (load in USR0 mode)",
-    "ZX-Spectrum 16K",
-    "ZX-Spectrum 16K/48K",
-    "ZX-Spectrum 48K",
-    "ZX-Spectrum 48K/128K",
-  ],
-  ZX81: ["ZX81 64K", "ZX81 32K", "ZX81 2K", "ZX81 1K", "ZX81 16K"],
-  PENTAGON: ["Scorpion", "Pentagon 128"],
-  GAMES: ["Adventure Game", "Arcade Game", "Casual Game", "Game", "Sport Game", "Strategy Game"],
-};
+// constans for genretype
+const GAMES = ["Adventure Game", "Arcade Game", "Casual Game", "Game", "Sport Game", "Strategy Game"];
 
-// Maintain backward compatibility with existing constants
-const ZXSPECTRUM = TYPE_EXPANSIONS.ZXSPECTRUM;
-const ZX81 = TYPE_EXPANSIONS.ZX81;
-const PENTAGON = TYPE_EXPANSIONS.PENTAGON;
-const GAMES = TYPE_EXPANSIONS.GAMES;
-
-const queryTerm1 = {
+var queryTerm1 = {
   match_all: {},
 };
 
@@ -246,15 +232,15 @@ function queryTerm2(query) {
   };
 }
 
-const createQueryTermWithFilters = function (query, filters, titlesonly, playabletype) {
+var createQueryTermWithFilters = function (query, filters, titlesonly, tosectype) {
   if (query == undefined || query.length == 0) {
     debug(`createQueryTermWithFilters() - empty query}`);
-    const playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
-    if (playabletype) {
-      debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
+    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+    if (tosectype) {
+      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
       return {
         bool: {
-          must: [queryTerm1, playabletype_should],
+          must: [queryTerm1, tosectype_should],
           filter: {
             bool: {
               must: filters,
@@ -263,7 +249,7 @@ const createQueryTermWithFilters = function (query, filters, titlesonly, playabl
         },
       };
     } else {
-      debug(`no playabletype`);
+      debug(`no tosectype`);
       return {
         bool: {
           must: [queryTerm1],
@@ -277,12 +263,12 @@ const createQueryTermWithFilters = function (query, filters, titlesonly, playabl
     }
   } else if (titlesonly !== undefined && titlesonly === "true") {
     debug(`createQueryTermWithFilters() - titlesonly`);
-    const playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
-    if (playabletype) {
-      debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
+    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+    if (tosectype) {
+      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
       return {
         bool: {
-          must: [queryTermTitlesOnly(query), playabletype_should],
+          must: [queryTermTitlesOnly(query), tosectype_should],
           filter: {
             bool: {
               must: filters,
@@ -291,7 +277,7 @@ const createQueryTermWithFilters = function (query, filters, titlesonly, playabl
         },
       };
     } else {
-      debug(`no playabletype`);
+      debug(`no tosectype`);
       return {
         bool: {
           must: [queryTermTitlesOnly(query)],
@@ -306,12 +292,12 @@ const createQueryTermWithFilters = function (query, filters, titlesonly, playabl
   } else {
     debug(`createQueryTermWithFilters() - normal search`);
     debug(`queryTerm2: \n${JSON.stringify(queryTerm2(query), null, 4)}`);
-    const playabletype_should = createFilterItemPlayableType("playabletype", playabletype);
-    if (playabletype) {
-      debug(`filter: \n${JSON.stringify(playabletype_should, null, 4)}`);
+    var tosectype_should = createFilterItemTosecType("tosectype", tosectype);
+    if (tosectype) {
+      debug(`filter: \n${JSON.stringify(tosectype_should, null, 4)}`);
       return {
         bool: {
-          must: [queryTerm2(query), playabletype_should],
+          must: [queryTerm2(query), tosectype_should],
           filter: {
             bool: {
               must: filters,
@@ -320,7 +306,7 @@ const createQueryTermWithFilters = function (query, filters, titlesonly, playabl
         },
       };
     } else {
-      debug(`no playabletype`);
+      debug(`no tosectype`);
       return {
         bool: {
           must: [queryTerm2(query)],
@@ -335,18 +321,18 @@ const createQueryTermWithFilters = function (query, filters, titlesonly, playabl
   }
 };
 
-const createFilterItem = function (filterName, filterValues) {
+var createFilterItem = function (filterName, filterValues) {
   debug(`createFilterItem(${filterName}, ${filterValues})`);
-  let item_should = {};
+  var item_should = {};
 
   if (filterValues !== undefined && filterValues.length > 0) {
     if (!Array.isArray(filterValues)) {
       filterValues = [filterValues];
     }
-    let i = 0;
-    const should = [];
+    var i = 0;
+    var should = [];
     for (; i < filterValues.length; i++) {
-      const item = {
+      var item = {
         match: {
           [filterName]: filterValues[i],
         },
@@ -360,23 +346,18 @@ const createFilterItem = function (filterName, filterValues) {
   return item_should;
 };
 
-/**
- * Filter by playable type:
- * TOSEC - TZX & TAP
- * SC - tzx.zip & tzp.zip
- */
-const createFilterItemPlayableType = function (filterName, filterValues) {
-  debug(`createFilterItemPlayableType(${filterName}, ${filterValues})`);
-  let item_should = {};
+var createFilterItemTosecType = function (filterName, filterValues) {
+  debug(`createFilterItem(${filterName}, ${filterValues})`);
+  var item_should = {};
 
   if (filterValues !== undefined && filterValues.length > 0) {
     if (!Array.isArray(filterValues)) {
       filterValues = [filterValues];
     }
-    let i = 0;
-    const should = [];
+    var i = 0;
+    var should = [];
     for (; i < filterValues.length; i++) {
-      const item = {
+      var item = {
         regexp: {
           "tosec.path": {
             value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})`,
@@ -387,36 +368,11 @@ const createFilterItemPlayableType = function (filterName, filterValues) {
       should.push(item);
     }
 
-    i = 0;
-    for (; i < filterValues.length; i++) {
-      const item = {
-        nested: {
-          path: "releases.files",
-          query: {
-            bool: {
-              must: [
-                {
-                  regexp: {
-                    "releases.files.path": {
-                      value: `.*(${filterValues[i].toLowerCase()}|${filterValues[i].toUpperCase()})\.(zip|ZIP)`,
-                      flags: "ALL"
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      };
-      should.push(item);
-    }
-
     item_should = { bool: { should: should, minimum_should_match: 1 } };
   }
   debug(JSON.stringify(item_should));
   return item_should;
 };
-
 /**
  * Helper for aggregation - each aggregation should include all filters, except its own
  */
@@ -426,53 +382,7 @@ function removeFilter(filters, f) {
   return filters.filter((value) => Object.keys(value).length !== 0);
 }
 
-/**
- * Build elasticsearch search request with common parameters
- * @param {Object} queryObject - The query to execute
- * @param {number} page_size - Results per page
- * @param {number} fromOffset - Pagination offset
- * @param {string} outputmode - Output format
- * @param {boolean} includeAgg - Include aggregations
- * @param {Object} sortObject - Sort specification
- * @returns {Object} Elasticsearch search request
- */
-function buildSearchRequest(queryObject, page_size, fromOffset, outputmode, includeAgg, sortObject) {
-  const baseRequest = {
-    timeout: "10s",
-    _source: tools.es_source_list(outputmode),
-    _source_excludes: "titlesuggest, metadata_author,authorsuggest",
-    index: es_index,
-    body: {
-      track_scores: true,
-      size: page_size,
-      from: fromOffset,
-      query: {
-        boosting: {
-          positive: queryObject,
-          negative: {
-            bool: {
-              should: [
-                { exists: { field: "modificationOf.title" } },
-                { exists: { field: "inspiredBy.title" } }
-              ]
-            }
-          },
-          negative_boost: 0.5,
-        },
-      },
-      sort: sortObject,
-    },
-  };
-
-  if (includeAgg) {
-    // Note: aggregations are added by powerSearch based on filters
-    baseRequest.includeAgg = true;
-  }
-
-  return baseRequest;
-}
-
-const powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg, explainId) {
+var powerSearch = function (searchObject, page_size, offset, outputmode, titlesonly, includeagg, explainId) {
   debug("powerSearch(): " + JSON.stringify(searchObject));
 
   if (Number.isInteger(parseInt(explainId)) && explainId.length < 8) {
@@ -480,52 +390,51 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
   }
   debug(`powerSearch(): explainId = ${explainId}`);
 
-  const sort_object = tools.getSortObject(searchObject.sort);
+  var sort_object = tools.getSortObject(searchObject.sort);
 
-  const filterObjects = {};
+  var filterObjects = {};
 
-  const contenttype_should = createFilterItem("contentType", searchObject.contenttype);
+  var contenttype_should = createFilterItem("contentType", searchObject.contenttype);
   filterObjects["contenttype"] = contenttype_should;
 
-  const xrated_should = createFilterItem("xrated", searchObject.xrated);
+  var xrated_should = createFilterItem("xrated", searchObject.xrated);
   filterObjects["xrated"] = xrated_should;
 
-  //  const type_should = createFilterItem("type", searchObject.type);
+  //  var type_should = createFilterItem("type", searchObject.type);
   //  filterObjects["type"] = type_should;
 
-  const genretype_should = createFilterItem("genreType", searchObject.genretype);
+  var genretype_should = createFilterItem("genreType", searchObject.genretype);
   filterObjects["genretype"] = genretype_should;
 
-  const genresubtype_should = createFilterItem("genreSubType", searchObject.genresubtype);
+  var genresubtype_should = createFilterItem("genreSubType", searchObject.genresubtype);
   filterObjects["genresubtype"] = genresubtype_should;
 
-  const machinetype_should = createFilterItem("machineType", searchObject.machinetype);
+  var machinetype_should = createFilterItem("machineType", searchObject.machinetype);
   filterObjects["machinetype"] = machinetype_should;
 
-  const controls_should = createFilterItem("controls.control", searchObject.control);
+  var controls_should = createFilterItem("controls.control", searchObject.control);
   filterObjects["controls"] = controls_should;
 
-  const multiplayermode_should = createFilterItem("multiplayerMode", searchObject.multiplayermode);
+  var multiplayermode_should = createFilterItem("multiplayerMode", searchObject.multiplayermode);
   filterObjects["multiplayermode"] = multiplayermode_should;
 
-  const multiplayertype_should = createFilterItem("multiplayerType", searchObject.multiplayertype);
+  var multiplayertype_should = createFilterItem("multiplayerType", searchObject.multiplayertype);
   filterObjects["multiplayertype"] = multiplayertype_should;
 
-  const originalpublication_should = createFilterItem("originalPublication", searchObject.originalpublication);
+  var originalpublication_should = createFilterItem("originalPublication", searchObject.originalpublication);
   filterObjects["originalPublication"] = originalpublication_should;
 
-  const availability_should = createFilterItem("availability", searchObject.availability);
+  var availability_should = createFilterItem("availability", searchObject.availability);
   filterObjects["availability"] = availability_should;
 
-  const language_should = createFilterItem("language", searchObject.language);
+  var language_should = createFilterItem("language", searchObject.language);
   filterObjects["language"] = language_should;
 
-  const year_should = createFilterItem("originalYearOfRelease", searchObject.year);
+  var year_should = createFilterItem("originalYearOfRelease", searchObject.year);
   filterObjects["yearofrelease"] = year_should;
 
-  const playabletype_should = createFilterItemPlayableType("playabletype", searchObject.tosectype);
-  filterObjects["playabletype"] = playabletype_should;
-
+  var tosectype_should = createFilterItemTosecType("tosectype", searchObject.tosectype);
+  filterObjects["tosectype"] = tosectype_should;
   /**
 
     -- (C)ompetition - Tron256(17819) - competition
@@ -536,7 +445,7 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
 
     */
 
-  let grouptype_id = "";
+  var grouptype_id = "";
 
   if (searchObject.group === "C") {
     grouptype_id = "competition";
@@ -554,8 +463,8 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
     grouptype_id = "sport";
   } else if (searchObject.group === "R") {
     grouptype_id = "copyright";
-    //  } else if (searchObject.group === "N") {
-    //    grouptype_id = "series";
+//  } else if (searchObject.group === "N") {
+//    grouptype_id = "series";
   } else if (searchObject.group === "T") {
     grouptype_id = "themedGroup";
   } else if (searchObject.group === "U") {
@@ -565,11 +474,11 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
   } else if (searchObject.group === "Z") {
     grouptype_id = "featuresZX81";
   }
+  
 
-
-  let groupandname_must = {};
+  var groupandname_must = {};
   if (searchObject.group !== undefined && searchObject.groupname !== undefined) {
-    const groupBools = [];
+    var groupBools = [];
     groupBools.push({
       bool: {
         must: {
@@ -583,20 +492,20 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
     filterObjects["groupandname"] = groupandname_must;
   }
   // generate array with filter objects
-  const filters = [];
-  const filterNames = Object.keys(filterObjects);
-  for (let i = 0; i < filterNames.length; i++) {
-    const item = filterObjects[filterNames[i]];
-    const itemsize = Object.keys(item).length;
+  var filters = [];
+  var filterNames = Object.keys(filterObjects);
+  for (var i = 0; i < filterNames.length; i++) {
+    var item = filterObjects[filterNames[i]];
+    var itemsize = Object.keys(item).length;
     if (itemsize > 0) {
       filters.push(item);
     }
   }
 
   debug(`powerSearch(): filters=${JSON.stringify(filters)}`);
-  const query = createQueryTermWithFilters(searchObject.query, filters, titlesonly, searchObject.tosectype);
-  // console.log('query: ' + JSON.stringify(query, null, 4));
-  const aggfilter = [
+  var query = createQueryTermWithFilters(searchObject.query, filters, titlesonly, searchObject.tosectype);
+
+  var aggfilter = [
     query,
     contenttype_should,
     xrated_should,
@@ -614,7 +523,7 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
 
   // random X, if offset=random, size max 10
 
-  let fromOffset, queryObject;
+  var fromOffset, queryObject;
 
   if (offset === "random") {
     if (page_size > 10) {
@@ -677,7 +586,6 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
     });
   } else if (includeagg === undefined || includeagg === "false")
     return elasticClient.search({
-      timeout: "10s",
       _source: tools.es_source_list(outputmode),
       _source_excludes: "titlesuggest, metadata_author,authorsuggest",
       index: es_index,
@@ -712,7 +620,6 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
     });
   else
     return elasticClient.search({
-      timeout: "10s",
       _source: tools.es_source_list(outputmode),
       _source_excludes: "titlesuggest, metadata_author,authorsuggest",
       index: es_index,
@@ -942,7 +849,7 @@ const powerSearch = function (searchObject, page_size, offset, outputmode, title
  * common to use for all requests
  *
  ************************************************/
-router.use((req, res, next) => {
+router.use(function (req, res, next) {
   debug(`got request - start processing, path: ${req.path}`);
   debug(`user-agent: ${req.headers["user-agent"]}`);
   res.header("Access-Control-Allow-Origin", "*");
@@ -957,70 +864,73 @@ router.use((req, res, next) => {
  *
  ************************************************/
 
-/**
- * Expand query type aliases (e.g., ZXSPECTRUM -> individual spectrum versions)
- * @param {string} type - Type name to expand
- * @param {string} typeKey - Key to look up in query (e.g., 'machinetype' or 'genretype')
- * @returns {Array} Expanded list of types or original type if not found
- */
-function expandType(type, typeKey) {
-  const expansionKey = typeKey === 'machinetype' 
-    ? (type === 'ZXSPECTRUM' ? 'ZXSPECTRUM' : type === 'ZX81' ? 'ZX81' : type === 'PENTAGON' ? 'PENTAGON' : null)
-    : typeKey === 'genretype'
-    ? (type === 'GAMES' ? 'GAMES' : null)
-    : null;
-  
-  return expansionKey && TYPE_EXPANSIONS[expansionKey] ? TYPE_EXPANSIONS[expansionKey] : [type];
-}
+router.get("/", function (req, res, next) {
+  debug("==> /search");
 
-router.get("/", async function (req, res, next) {
-  try {
-    debug("==> /search");
+  // set default values for mode, size & offset
+  req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
 
-    // set default values for mode, size & offset
-    req.query = tools.setDefaultValuesModeSizeOffsetSort(req.query);
-
-    // validate pagination parameters to prevent DoS
-    const size = Math.min(Math.max(parseInt(req.query.size) || 50, 1), 1000);
-    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
-    req.query.size = size;
-    req.query.offset = offset;
-    debug(`Validated pagination: size=${size}, offset=${offset}`);
-
-    // Expand type aliases in query parameters
-    if (req.query.machinetype) {
-      if (!Array.isArray(req.query.machinetype)) {
-        req.query.machinetype = [req.query.machinetype];
-      }
-      req.query.machinetype = req.query.machinetype.flatMap(t => {
-        const expanded = expandType(t, 'machinetype');
-        debug(`Expanded machinetype: ${t} -> ${JSON.stringify(expanded)}`);
-        return expanded;
-      });
+  if (req.query.machinetype) {
+    var mTypes = [];
+    if (!Array.isArray(req.query.machinetype)) {
+      req.query.machinetype = [req.query.machinetype];
     }
 
-    if (req.query.genretype) {
-      if (!Array.isArray(req.query.genretype)) {
-        req.query.genretype = [req.query.genretype];
+    for (var i = 0; i < req.query.machinetype.length; i++) {
+      debug(`${i} - ${req.query.machinetype[i]}`);
+      switch (req.query.machinetype[i]) {
+        case "ZXSPECTRUM":
+          debug("- ZXSPECTRUM -");
+          mTypes = mTypes.concat(ZXSPECTRUM);
+          break;
+        case "ZX81":
+          debug("- ZX81 -");
+          mTypes = mTypes.concat(ZX81);
+          break;
+        case "PENTAGON":
+          debug("- PENTAGON -");
+          mTypes = mTypes.concat(PENTAGON);
+          break;
+        default:
+          mTypes.push(req.query.machinetype[i]);
+          break;
       }
-      req.query.genretype = req.query.genretype.flatMap(t => {
-        const expanded = expandType(t, 'genretype');
-        debug(`Expanded genretype: ${t} -> ${JSON.stringify(expanded)}`);
-        return expanded;
-      });
+    }
+    req.query.machinetype = mTypes;
+    debug(`mType: ${mTypes}`);
+  }
+  if (req.query.genretype) {
+    var gTypes = [];
+    if (!Array.isArray(req.query.genretype)) {
+      req.query.genretype = [req.query.genretype];
     }
 
-    const result = await powerSearch(
-      req.query,
-      req.query.size,
-      req.query.offset,
-      req.query.mode,
-      req.query.titlesonly,
-      req.query.includeagg,
-      req.query.explain
-    );
+    for (var i = 0; i < req.query.genretype.length; i++) {
+      debug(`${i} - ${req.query.genretype[i]}`);
+      switch (req.query.genretype[i]) {
+        case "GAMES":
+          debug("- GAMES -");
+          gTypes = gTypes.concat(GAMES);
+          break;
+        default:
+          gTypes.push(req.query.genretype[i]);
+          break;
+      }
+    }
+    req.query.genretype = gTypes;
+    debug(`mType: ${gTypes}`);
+  }
 
-    debug(`########### RESPONSE from search(${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
+  powerSearch(
+    req.query,
+    req.query.size,
+    req.query.offset,
+    req.query.mode,
+    req.query.titlesonly,
+    req.query.includeagg,
+    req.query.explain
+  ).then(function (result) {
+    debug(`########### RESPONSE from powerSearch(${req.params.query},${req.query.size}, ${req.query.offset}, ${req.query.mode})`);
     debug(result);
     debug(`#############################################################`);
 
@@ -1037,11 +947,7 @@ router.get("/", async function (req, res, next) {
         res.send(result);
       }
     }
-  } catch (err) {
-    debug(`Search error: ${err.message}`);
-    debug(err.stack);
-    res.status(503).json({ error: "Search service unavailable", message: err.message });
-  }
+  });
 });
 
 module.exports = router;

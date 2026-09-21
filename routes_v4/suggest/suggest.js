@@ -11,15 +11,7 @@ const helpers = require("../helpersRequest");
 var express = require("express");
 var router = express.Router();
 
-const config = require("../../config.json")[process.env.NODE_ENV || "development"];
-const es_index = config.zxinfo_index;
-
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: config.es_log,
-});
+const { elasticClient, es_index, config } = require("../elasticClient");
 
 /* GET title suggestions for completion (all) */
 var getSuggestions = function (query) {

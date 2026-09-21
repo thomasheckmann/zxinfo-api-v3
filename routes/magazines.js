@@ -14,12 +14,7 @@ var debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug
 
 var tools = require("./utils");
 
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: config.es_log,
-});
+const { elasticClient} = require("./elasticClient");
 
 var es_index = config.zxinfo_magazines_index;
 

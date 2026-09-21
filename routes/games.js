@@ -8,14 +8,7 @@ var debug = require("debug")("zxinfo-api-v3:games");
 
 var tools = require("./utils");
 
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: config.es_log,
-});
-
-var es_index = config.zxinfo_index;
+const { elasticClient, es_index } = require("./elasticClient");
 
 /**
  * Test case:

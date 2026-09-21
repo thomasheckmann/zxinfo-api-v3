@@ -4,14 +4,7 @@ const moduleId = "helperSearch";
 const debug = require("debug")(`zxinfo-api-v4:${moduleId}`);
 const tools = require("../routes/utils");
 
-const config = require("../config.json")[process.env.NODE_ENV || "development"];
-const es_index = config.zxinfo_index;
-const elasticsearch = require("elasticsearch");
-const elasticClient = new elasticsearch.Client({
-    host: config.es_host,
-    apiVersion: config.es_apiVersion,
-    log: config.es_log,
-});
+const { elasticClient, es_index, config } = require("./elasticClient");
 
 function searchEntries(q, agg, page_size, offset, sortObject, outputmode, explain, output, res) {
     debug(`searchEntries()`);

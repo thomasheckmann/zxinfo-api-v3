@@ -14,14 +14,7 @@ var debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug
 
 var tools = require("./utils");
 
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: config.es_log,
-});
-
-var es_index = config.zxinfo_index;
+const { elasticClient, es_index } = require("./elasticClient");
 
 // constans for machinetype
 const ZXSPECTRUM = [
@@ -96,35 +89,8 @@ var getGamesByLetter = function (letter, contenttype, machinetype, page_size, of
           },
         },
       };
-      
       should.push(item);
     }
-
-    i = 0;
-    for (; i < tosectype.length; i++) {
-      var item = {
-        nested: {
-          path: "releases.files",
-          query: {
-            bool: {
-              must: [
-                {
-                  regexp: {
-                    "releases.files.path": {
-                      value: `.*(${tosectype[i].toLowerCase()}|${tosectype[i].toUpperCase()})\.(zip|ZIP)`,
-                      flags: "ALL"
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      };
-      should.push(item);
-
-    }
-    
     mustArray.push({ bool: { should: should, minimum_should_match: 1 } });
   }
 

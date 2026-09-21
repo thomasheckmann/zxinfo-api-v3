@@ -12,16 +12,8 @@ const tools = require("../../routes/utils");
 var express = require("express");
 var router = express.Router();
 
-const config = require("../../config.json")[process.env.NODE_ENV || "development"];
-const es_index = config.zxinfo_magazines_index;
-
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: config.es_log,
-});
-
+const { elasticClient, es_magazines_index, config } = require("../elasticClient");
+const es_index = es_magazines_index;
 
 var getSortObject = function (sort_mode) {
   var sort_object;

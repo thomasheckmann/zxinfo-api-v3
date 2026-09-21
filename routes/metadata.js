@@ -6,7 +6,6 @@
 
 const moduleId = "metadata";
 
-var config = require("../config.json")[process.env.NODE_ENV || "development"];
 var express = require("express");
 var router = express.Router();
 
@@ -14,14 +13,7 @@ var debug = require("debug")(`zxinfo-api-v3:${moduleId}`); // TODO: Change debug
 
 var tools = require("./utils");
 
-var elasticsearch = require("elasticsearch");
-var elasticClient = new elasticsearch.Client({
-  host: config.es_host,
-  apiVersion: config.es_apiVersion,
-  log: config.es_log,
-});
-
-var es_index = config.zxinfo_index;
+const { elasticClient, es_index, config } = require("./elasticClient");
 
 var getMetaData = function (name) {
   debug("getMetadata()");

@@ -25,5 +25,5 @@ COPY . /usr/src/app
 # Default express port
 EXPOSE 3000
 
-#CMD ["tail", "-f", "/dev/null"]
+ENV NPM_CONFIG_CACHE=/tmp/.npm
 CMD [ "npm", "start" ]
