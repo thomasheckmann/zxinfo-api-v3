@@ -3,6 +3,8 @@ info:
   version: "3.0.0"
   title: ZXInfo API
   description: |
+    **INFO INFO INFO - ZXInfo API v3 will be decomissioned by end of year 2026**
+    
     Welcome to the world's (probaly) greatest Sinclair API!.
 
     This ZXDB based API is a tool to help developers everywhere create amazing and incredible web sites and apps using data from the 40-plus years area of Sinclair home computers (and clones).
