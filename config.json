@@ -7,10 +7,10 @@
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "production": {
-    "es_host": "http://localhost:9200",
+    "es_host": "http://elasticsearch:9200",
     "es_apiVersion": "7.0",
     "es_log": "error",
-    "zxinfo_index": "zxinfo_games",
+    "zxinfo_index": "zxinfo",
     "zxinfo_magazines_index": "zxinfo_magazines"
   },
   "container": {
